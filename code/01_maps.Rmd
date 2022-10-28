@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Load packages ----
 
+library(magrittr) # To use the pipe %<>%
 library(tidyverse) # Core tidyverse packages
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
@@ -68,20 +69,24 @@ data_map <- read_sf("../data/01_natural-earth-data/ne_10m_land/ne_10m_land.shp")
 
 # 3.1 List of EEZ to plot --
 
-list_eez <- c("Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
-              "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group",
-              "Marshall Islands", "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
-              "Palau", "Palmyra Atoll", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
+list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
+              "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
+              "Matthew and Hunter Islands", "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
+              "Palau", "Palmyra Atoll", "Papua New Guinea", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
               "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island", "Wallis and Futuna")
 
 # 3.2 Filter and change CRS --
 
-data_eez <- read_sf("../data/02_eez/World_EEZ_v11_20191118/eez_boundaries_v11.shp") %>% 
-  filter(TERRITORY1 %in% list_eez | TERRITORY2 %in% list_eez) %>% 
-  filter(LINE_TYPE != "Straight Baseline") %>% 
+data_eez <- read_sf("../data/02_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
+  filter(TERRITORY1 %in% list_eez) %>% 
   st_transform(crs = 4326) %>% 
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
+
+# 3.3 Remove vertical 180° line --
+
+data_eez %<>% # Special pipe from magrittr
+  st_buffer(10) # To join polygon (remove vertical line)
 
 # 4. Bathymetry ----
 
@@ -127,7 +132,7 @@ ggplot() +
   # Bathymetry
   geom_sf(data = data_bathy, aes(fill = color), color = NA) +
   # EEZ
-  geom_sf(data = data_eez, color = "white") +
+  geom_sf(data = data_eez, color = "white", fill = "white", alpha = 0.2) +
   # Tropics
   geom_sf(data = data_tropics, linetype = "dashed", color = "black") +
   # Background map
@@ -139,60 +144,6 @@ ggplot() +
 # 7. Save the map ----
 
 ggsave(filename = "../figs/01_global-map-pacific.png", width = 10, height = 6, dpi = 600)
-
-```
-
-
-# Test to convert to polygon
-
-```{r}
-
-
-clean_eez <- function(data, name){
-  
-  data_eez_a <- data %>% 
-    filter(TERRITORY1 == name) %>% 
-    select(-TERRITORY2)
-
-  data_eez_b <- data %>% 
-    filter(TERRITORY2 == name) %>% 
-    select(-TERRITORY1) %>% 
-    rename(TERRITORY1 = TERRITORY2)
-  
-  data_eez_i <- bind_rows(data_eez_a, data_eez_b) %>% 
-    filter(LINE_TYPE != "Straight Baseline") %>%
-    select(TERRITORY1) %>% 
-    st_as_sf() %>% 
-    st_transform(crs = 4326) %>% 
-    st_difference(correction_polygon) %>% 
-    st_transform(crs_selected)
-  
-  return(data_eez_i)
-
-}
-
-
-data_eez <- read_sf("../data/02_eez/World_EEZ_v11_20191118/eez_boundaries_v11.shp")
-
-
-
-
-
-
-
-
-
-
-test <- clean_eez(data = data_eez, name = "Pitcairn") %>% 
-  st_collection_extract(., 'POLYGON')
-
-
-
-
-
-ggplot() +
-  geom_sf(data = test, color = "red", fill = "red")
-
 
 ```
 
