@@ -1,0 +1,317 @@
+\documentclass[a4paper,12pt]{book}
+
+%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{anyfontsize}
+\usepackage[latin9]{inputenc}
+\usepackage[french]{babel}
+\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm,bindingoffset=0cm,heightrounded]{geometry}
+\usepackage{afterpage}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=color1,urlcolor=color1,citecolor=color1,anchorcolor=color1]{hyperref}
+\usepackage{caption}
+\usepackage{tocbibind} % To include toc, lof, lot and bibliography in toc
+\usepackage{titlesec}
+\usepackage{array} % for extended column definitions    
+\usepackage{booktabs} % To make better tables
+\usepackage{multirow}
+\usepackage{tikz} % To draws
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{lipsum}
+\usepackage{changepage} % To change margins of one paragraph
+\usepackage[round]{natbib}
+\usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{float}
+\usepackage{multicol}
+\setlength{\columnsep}{1cm} % width between columns
+
+%%%%% COULEURS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{color1}{HTML}{446cb3} % Main color of the document (title, hyperlinks...) - Dark blue
+\definecolor{color2}{HTML}{eeeeee} % Tikz figures - Light grey
+\definecolor{color3}{HTML}{2e3131} % Header/footer - Dark grey
+\definecolor{color4}{HTML}{16a085} % For figure thesis structure - Blue
+\definecolor{color5}{HTML}{e26a6a} % For figure thesis structure - Blue
+\definecolor{color6}{HTML}{16a085} % For supp. figure of chapter 5
+\definecolor{color7}{HTML}{dadfe1} % Mid-grey for NA value in table
+\definecolor{pslblue}{RGB}{36, 56, 141} % PSL blue for cover page
+
+%%%%% HEADER & FOOTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancypagestyle{plain}{%
+	\fancyhf{}
+	\fancyfoot[R]{}
+	\fancyfoot[C]{}
+	\fancyfoot[L]{}
+} % Re-define plain style to avoid having page number on first chapter page
+
+\renewcommand\sectionmark[1]{\markboth{#1}{}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Chapitre \nouppercase{\thechapter}}}
+\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
+
+\fancypagestyle{defaultchapter}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Chapitre \nouppercase{\thechapter}}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
+}
+
+\fancypagestyle{toc}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Table des matières}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Table des matières}}
+}
+
+\fancypagestyle{lof}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Liste des figures}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Liste des figures}}
+}
+
+\fancypagestyle{lot}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Liste des tableaux}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Liste des tableaux}}
+}
+
+\fancypagestyle{conclusion}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Conclusions}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Conclusions}}
+}
+
+
+\fancypagestyle{biblio}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Bibliographie}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Bibliographie}}
+}
+
+\fancypagestyle{abbreviate}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Abréviations}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Abréviations}}
+}
+
+\fancypagestyle{acknowledgements}{%
+	\fancyhf{}%
+	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Remerciements}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Remerciements}}
+}
+
+%%%%% CHAPTER STYLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://borntocode.fr/latex-personnaliser-les-titres-chapter/
+
+% For chapter with numbering
+\titleformat{name=\chapter}[display] 
+{\fontsize{30pt}{12pt}\selectfont}
+{\textcolor{color1}	{\chaptertitlename\ \thechapter}}
+{18pt}
+{\Huge}
+
+% For chapter without numbering (ex : TOC)
+\titleformat{name=\chapter,numberless}[display] 
+{\fontsize{17pt}{12pt}\selectfont}
+{\textcolor{color1}}
+{18pt}
+{\Huge}
+
+%%%%% MISCELLANEOUS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set path of figures
+\graphicspath{ {./../../figs/} }
+
+% Set the font of the document
+\renewcommand\familydefault{\sfdefault}
+
+% Set the font for title thesis
+\newcommand*{\fontitle}{\fontfamily{qag}\selectfont}
+
+% Set Figure names
+\captionsetup[figure]{labelfont={color=color1}, name={\textsf{Figure}}, labelsep=period, justification=justified}
+
+% Set Subfigure names
+\captionsetup[subfigure]{labelfont=bf,textfont=normalfont,singlelinecheck=off,justification=raggedright}
+
+% Set Table names
+\captionsetup[table]{labelfont={color=color1}, name={\textsf{Table}}, labelsep=period, justification=justified}
+
+% e.g.
+\newcommand\eg{\textit{e.g.} }
+
+% i.e.
+\newcommand\ie{\textit{i.e.} }
+
+% NA for table
+\newcommand\NA{{\color{color7} NA}}
+
+% Change subcaption from (a) to (A)
+\renewcommand{\thesubfigure}{\Alph{subfigure}}
+
+% Affiliations
+\newcommand\affiliation[1]{\textsuperscript{\textbf{#1}}}
+
+% Column a specified width and centered text
+\newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
+\newcolumntype{C}[1]{>{\PreserveBackslash\centering}p{#1}}
+
+% Larger cdot 
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.5}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+	
+%%%%% COVER PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\includegraphics[width=3cm]{01_logo/gcrmn/gcrmn_logo.png}
+
+TITRE
+
+
+\thispagestyle{empty}
+\clearpage
+
+%%%%% SECOND PAGE (BLANK PAGE) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+
+\thispagestyle{empty}
+
+\ % The empty page
+
+\newpage
+
+%%%%% SECOND PAGE (BLANK PAGE) %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+
+\thispagestyle{empty}
+
+\ % The empty page
+
+\newpage
+
+%%%%% TOC, LOF, and LOT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt} % To remove chapter head (space at the beginning of the page)
+
+\renewcommand{\contentsname}{Table des matières} % Rename TOC
+\tableofcontents
+\pagestyle{toc}
+
+\renewcommand{\listfigurename}{Liste des figures} % Rename LOF
+\listoffigures
+\pagestyle{lof}
+
+\renewcommand{\listtablename}{Liste des tableaux} % Rename LOT
+\listoftables
+\pagestyle{lot}
+
+\titlespacing*{\chapter}{0pt}{50pt}{40pt} % To add chapter head (space at the beginning of the page)
+
+\newpage
+
+\setlength{\parskip}{12pt} % Set the space between paragraphs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% CHAPTER 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{defaultchapter}
+
+\chapter{Introduction}
+
+\begin{multicols}{2}
+	
+\section{Coral reefs}
+
+\lipsum
+
+\section{Threats}
+
+\subsection{Bleaching}
+
+\lipsum
+
+\subsection{Cyclones}
+
+\lipsum
+
+\end{multicols}
+
+\newpage
+
+%%%%% REFERENCES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt} % To remove chapter head (space at the beginning of the page)
+
+\pagestyle{biblio}
+\bibliographystyle{apa}
+\bibliography{bibliography}
+
+\newpage
+
+%%%%% ABBREVIATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{Abréviations} 
+\addcontentsline{toc}{chapter}{Abréviations}
+\markboth{Abréviations}{Abréviations} % section with * so necessary to define it manually
+\pagestyle{abbreviate}
+
+\pagestyle{empty}
+
+\begin{tabular}{>{\bfseries}>{\color{color1}}r>{\itshape}l}
+	AIMS  & Australian Institute of Marine Science          \\
+	GCRMN & Global Coral Reef Monitoring Network            
+\end{tabular}
+
+\newpage
+
+\thispagestyle{empty}
+
+\vspace*{20cm}
+
+\begin{flushleft}
+	{\footnotesize
+		
+	Document created with \LaTeX
+	
+	\vspace{-0.25cm}
+		
+	Compiled with MiKTeX-pdfTeX version 2.9.7338 
+	
+	\vspace{-0.25cm}
+		
+	Le \today}
+\end{flushleft}
+
+\end{document}

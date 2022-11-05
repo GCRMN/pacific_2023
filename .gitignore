@@ -7,11 +7,21 @@
 .RData
 .Ruserdata
 *.html
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.lof
+*.log
+*.lot
+*.out
+*.gz
+*.toc
 
 # folder #
 ##########
 
 data/
-doc/
+doc/01_drafts/
 misc/
 figs/
