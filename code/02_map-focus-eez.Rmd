@@ -1,0 +1,191 @@
+---
+title: "Tests CRS with sf"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: "cosmo"
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load packages and data
+
+```{r}
+
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(sf)
+sf_use_s2(FALSE) # Switch from S2 to GEOS
+
+# 2. Source functions ----
+
+source("function/theme_map.R")
+source("function/graphical_par.R")
+
+```
+
+# Equal Earth centered on 0°
+
+```{r}
+
+# 1. Select the CRS ----
+
+crs_selected <- "+proj=eqearth"
+
+# 2. Load background maps ----
+
+data_map <- read_sf("../data/00_natural-earth-data/ne_10m_land/ne_10m_land.shp") %>% 
+  st_transform(crs = 4326) %>% 
+  st_transform(crs = crs_selected)
+
+# 3. Create the border of background map ----
+
+lats <- c(90:-90, -90:90, 90)
+longs <- c(rep(c(180, -180), each = 181), 180)
+
+background_map_border <- list(cbind(longs, lats)) %>%
+  st_polygon() %>%
+  st_sfc(crs = 4326) %>% 
+  st_sf() %>%
+  st_transform(crs = crs_selected)
+
+# 4. Create the tropics ----
+
+data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180), 
+                       lat = c(0, 0, 23.43656, 23.43656, -23.43656, -23.43656), 
+                       tropic = c("equator", "equator", "cancer", "cancer", "capricorne", "capricorne")) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs = crs_selected) %>%
+  group_by(tropic) %>% 
+  summarise() %>% 
+  st_cast("LINESTRING")
+
+# 5. Bathymetry ----
+
+# 5.1 List path of shapefiles --
+
+list_shp <- list.files(path = "../data/00_natural-earth-data/ne_10m_bathymetry_all/", pattern = ".shp", full.names = TRUE)
+
+# 5.2 Combine shapefiles --
+
+data_bathy <- map_dfr(list_shp, ~st_read(., quiet = TRUE)) %>% 
+  mutate(color = case_when(depth == 0 ~ "#e1f5fe",
+                           depth == 200 ~ "#b3e5fc",
+                           depth == 1000 ~ "#81d4fa",
+                           depth == 2000 ~ "#4fc3f7",
+                           depth == 3000 ~ "#29b6f6",
+                           depth == 4000 ~ "#03a9f4",
+                           depth == 5000 ~ "#039be5",
+                           depth == 6000 ~ "#0288d1",
+                           depth == 7000 ~ "#0288d1",
+                           depth == 8000 ~ "#0277bd",
+                           depth == 9000 ~ "#01579b",
+                           depth == 10000 ~ "black")) %>% 
+  mutate(color = fct_reorder(color, depth)) %>% 
+  st_transform(crs = crs_selected)
+
+# 6. Make the map ----
+
+ggplot() +
+  # Background map border
+  geom_sf(data = background_map_border, fill = "#56B4E950", color = "grey30", linewidth = 0.25) +
+  # Bathymetry
+  geom_sf(data = data_bathy, aes(fill = color), color = NA) +
+  # Tropics
+  geom_sf(data = data_tropics, linetype = "dashed", color = "white") +
+  # Background map
+  geom_sf(data = data_map, fill = col_fill_map, col = col_color_map) +
+  scale_fill_identity() +
+  theme_map()
+
+# 6. Save the map ----
+
+ggsave(filename = "../figs/map_bathy.png", width = 8, height = 5, dpi = 600)
+
+```
+
+# Equal Earth centered on 160°
+
+Solution find on https://stackoverflow.com/questions/68278789/how-to-rotate-world-map-using-mollweide-projection-with-sf-rnaturalearth-ggplot
+
+```{r}
+
+# 1. Select the CRS ----
+
+crs_selected <- st_crs("+proj=eqearth +x_0=0 +y_0=0 +lat_0=0 +lon_0=160")
+
+# 2. Load background maps and change its CRS ----
+
+# 2.1 Load shapefile --
+
+data_map <- read_sf("../data/01_natural-earth-data/ne_10m_land/ne_10m_land.shp") %>% 
+  st_transform(crs = 4326)
+
+# 2.2 Define the offset --
+
+correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
+
+# 2.3 Define a long and slim polygon that overlaps the meridian line --
+
+correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
+                                                c(0 - correction_offset, 90),
+                                                c(0 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+# 2.4 Modify data_map to remove overlapping portions using correction_polygon --
+
+data_map <- data_map %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+# 3. Create the border of background map ----
+
+lats <- c(90:-90, -90:90, 90)
+longs <- c(rep(c(180, -180), each = 181), 180)
+
+background_map_border <- list(cbind(longs, lats)) %>%
+  st_polygon() %>%
+  st_sfc(crs = 4326) %>% 
+  st_sf() %>%
+  st_transform(crs = crs_selected)
+
+# 4. Load EEZ ----
+
+load("../data/02_eez/data_eez.RData")
+
+
+
+# 3. Make the map ----
+
+ggplot() +
+  geom_sf(data = data_eez) +
+  # Background map border
+  geom_sf(data = background_map_border, fill = "#56B4E950", color = "grey30", linewidth = 0.25) +
+  geom_sf(data = data_map, fill = "#e4e9ed", col = col_color_map)
+
+```
+
+# Reproducibility
+
+```{r reprod}
+
+# 1. Reproducibility ----
+
+sessionInfo()
+
+```
+
+---
+Jeremy WICQUART | jeremywicquart@gmail.com | `r format(Sys.time())`

@@ -1,0 +1,96 @@
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(sf)
+sf_use_s2(FALSE) # Switch from S2 to GEOS
+library(magrittr) # To use the pipe %<>%
+
+# 2. Define changed CRS ----
+
+# 2.1 Define the CRS --
+
+crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+# 2.2 Define the offset --
+
+correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
+
+# 2.3 Define a long and slim polygon that overlaps the meridian line --
+
+correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
+                                                c(0 - correction_offset, 90),
+                                                c(0 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+# 3. List of EEZ to plot ----
+
+list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
+              "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
+              "Matthew and Hunter Islands", "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
+              "Palau", "Palmyra Atoll", "Papua New Guinea", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
+              "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island", "Wallis and Futuna")
+
+# 4. Filter and change CRS ----
+
+data_eez <- read_sf("data/02_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
+  filter(TERRITORY1 %in% list_eez) %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+# 5. Remove vertical 180° line ----
+
+data_eez %<>% # Special pipe from magrittr
+  st_buffer(10) # To join polygon (remove vertical line)
+
+# 6. Attribute EEZ number ----
+
+data_eez <- data_eez %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, "Micronesia", "Federated States of Micronesia")) %>% 
+  mutate(number = case_when(TERRITORY1 == "Palau" ~ 1,
+                            TERRITORY1 == "Federated States of Micronesia" ~ 2,
+                            TERRITORY1 == "Guam" ~ 3,
+                            TERRITORY1 == "Northern Mariana Islands" ~ 4,
+                            TERRITORY1 == "Marshall Islands" ~ 5,
+                            TERRITORY1 == "Wake Island" ~ 6,
+                            TERRITORY1 == "Hawaii" ~ 7,
+                            TERRITORY1 == "Johnston Atoll" ~ 8,
+                            TERRITORY1 == "Papua New Guinea" ~ 9,
+                            TERRITORY1 == "Nauru" ~ 10,
+                            TERRITORY1 == "Solomon Islands" ~ 11,
+                            TERRITORY1 == "Vanuatu" ~ 12,
+                            TERRITORY1 == "New Caledonia" ~ 13,
+                            TERRITORY1 == "Matthew and Hunter Islands" ~ 14,
+                            TERRITORY1 == "Fiji" ~ 15,
+                            TERRITORY1 == "Wallis and Futuna" ~ 16,
+                            TERRITORY1 == "Tuvalu" ~ 17,
+                            TERRITORY1 == "Gilbert Islands" ~ 18,
+                            TERRITORY1 == "Howland and Baker islands" ~ 19,
+                            TERRITORY1 == "Phoenix Group" ~ 20,
+                            TERRITORY1 == "Tokelau" ~ 21,
+                            TERRITORY1 == "American Samoa" ~ 22,
+                            TERRITORY1 == "Samoa" ~ 23,
+                            TERRITORY1 == "Tonga" ~ 24,
+                            TERRITORY1 == "Niue" ~ 25,
+                            TERRITORY1 == "Cook Islands" ~ 26,
+                            TERRITORY1 == "French Polynesia" ~ 27,
+                            TERRITORY1 == "Palmyra Atoll" ~ 28,
+                            TERRITORY1 == "Jarvis Island" ~ 29,
+                            TERRITORY1 == "Line Group" ~ 30,
+                            TERRITORY1 == "Pitcairn" ~ 31))
+
+# 7. Create coordinates for label placement ----
+
+data_eez <- tibble(number = 1:19,
+                   lat = c(4, 6, 13, 23.43, 15, 20, 27, 18, -2, -1, -8, -18, -21, -24,
+                           -22, -14, -6, -1, 1),
+                   long = c(134, 143, 143, 143.5, 172, 167.5, -175, -167, 146, 168, 165, 170, 160, 171, 
+                            177, -178, 178, 171, 177)) %>% 
+  left_join(data_eez, .)
+
+# 8. Save data ----
+
+save(data_eez, file = "data/02_eez/data_eez.RData")

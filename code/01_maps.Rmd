@@ -22,15 +22,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Load packages ----
 
-library(magrittr) # To use the pipe %<>%
 library(tidyverse) # Core tidyverse packages
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
+library(patchwork)
 
 # 2. Source functions ----
 
-source("../code/function/theme_map.R")
 source("../code/function/graphical_par.R")
+source("../code/function/theme_map.R")
 
 ```
 
@@ -67,58 +67,22 @@ data_map <- read_sf("../data/01_natural-earth-data/ne_10m_land/ne_10m_land.shp")
 
 # 3. Economic Exclusive Zones ----
 
-# 3.1 List of EEZ to plot --
+load("../data/02_eez/data_eez.RData")
 
-list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
-              "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
-              "Matthew and Hunter Islands", "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
-              "Palau", "Palmyra Atoll", "Papua New Guinea", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
-              "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island", "Wallis and Futuna")
+data_eez <- data_eez %>% 
+  st_transform(crs = crs_selected)
 
-# 3.2 Filter and change CRS --
+# 4. Country boundaries ----
 
-data_eez <- read_sf("../data/02_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
-  filter(TERRITORY1 %in% list_eez) %>% 
-  st_transform(crs = 4326) %>% 
-  st_difference(correction_polygon) %>% 
-  st_transform(crs_selected)
-
-# 3.3 Remove vertical 180° line --
-
-data_eez %<>% # Special pipe from magrittr
-  st_buffer(10) # To join polygon (remove vertical line)
-
-# 4. Bathymetry ----
-
-# 4.1 List path of shapefiles --
-
-list_shp <- list.files(path = "../data/01_natural-earth-data/ne_10m_bathymetry_all/", pattern = ".shp", full.names = TRUE)
-
-# 4.2 Combine shapefiles --
-
-data_bathy <- map_dfr(list_shp, ~st_read(., quiet = TRUE)) %>% 
-  mutate(color = case_when(depth == 0 ~ "#e1f5fe",
-                           depth == 200 ~ "#b3e5fc",
-                           depth == 1000 ~ "#81d4fa",
-                           depth == 2000 ~ "#4fc3f7",
-                           depth == 3000 ~ "#29b6f6",
-                           depth == 4000 ~ "#03a9f4",
-                           depth == 5000 ~ "#039be5",
-                           depth == 6000 ~ "#0288d1",
-                           depth == 7000 ~ "#0288d1",
-                           depth == 8000 ~ "#0277bd",
-                           depth == 9000 ~ "#01579b",
-                           depth == 10000 ~ "black")) %>% 
-  mutate(color = fct_reorder(color, depth)) %>% 
-  st_transform(crs = 4326) %>% 
-  st_difference(correction_polygon) %>% 
+data_countries <- read_sf("../data/01_natural-earth-data/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
   st_transform(crs_selected)
 
 # 5. Create the tropics ----
 
 data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180), 
                        lat = c(0, 0, 23.43656, 23.43656, -23.43656, -23.43656), 
-                       tropic = c("equator", "equator", "cancer", "cancer", "capricorne", "capricorne")) %>% 
+                       tropic = c("Equator", "Equator", "Tropic of Cancer", "Tropic of Cancer",
+                                  "Tropic of Capricorne", "Tropic of Capricorne")) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   group_by(tropic) %>% 
   summarise() %>% 
@@ -126,24 +90,121 @@ data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180),
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
-# 6. Make the map ----
+# 6. Create text annotation ----
 
-ggplot() +
-  # Bathymetry
-  geom_sf(data = data_bathy, aes(fill = color), color = NA) +
-  # EEZ
-  geom_sf(data = data_eez, color = "white", fill = "white", alpha = 0.2) +
+# 6.1 Tropics --
+
+data_text_tropics <- tibble(long = c(-104, -104, -119, -128),
+                    lat = c(-21.43, -25.43, 2, 25.43),
+                    text = c("Tropic of", "Capricorne", "Equator", "Tropic of Cancer")) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs_selected)
+
+# 6.2 Pacific Ocean --
+
+data_text_pacific <- tibble(long = c(-130),
+                            lat = c(13),
+                            text = c("Pacific Ocean")) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs_selected)
+
+# 6.3 Australia --
+
+data_text_australia <- tibble(long = c(140),
+                    lat = c(-25),
+                    text = c("AUSTRALIA")) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs_selected)
+
+# 6.4 Labels --
+
+data_text_labels <- data_eez %>%
+  st_drop_geometry() %>% 
+  select(number, lat, long) %>% 
+  drop_na(lat) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs_selected)
+
+# 7. Make the map ----
+
+plot_map <- ggplot() +
   # Tropics
-  geom_sf(data = data_tropics, linetype = "dashed", color = "black") +
+  geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  # EEZ
+  geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
   # Background map
-  geom_sf(data = data_map, fill = col_fill_map, col = col_color_map) +
+  geom_sf(data = data_map, fill = "#363737", col = "grey") +
+  # Country boundaries
+  geom_sf(data = data_countries, fill = "#363737", col = "grey") +
+  # Annotation (legend)
+  geom_sf_text(data = data_text_australia, aes(label = text), 
+               color = "darkgrey", size = 2.5, family = font_choose_map) +
+  geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
+               color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
+  geom_sf_text(data = data_text_pacific, aes(label = text), 
+               color = "#5c97bf", fontface = "italic", size = 3, family = font_choose_map) +
+  # Annotation (labels EEZ)
+  geom_sf(data = data_text_labels, size = 4, color = "#5c97bf") +
+  geom_sf_text(data = data_text_labels, aes(label = number), color = "white", size = 2) +
+  # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
-  scale_fill_identity() +
-  theme(panel.border = element_rect(size = 1, fill = NA, colour = "black"))
+  scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
+  theme(text = element_text(family = font_choose_map),
+        panel.background = element_rect(fill = "#ebf5fd"),
+        panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
+        axis.title = element_blank(),
+        axis.text.x.top = element_text())
 
-# 7. Save the map ----
+# 8. Create legend of EEZ names ----
 
-ggsave(filename = "../figs/01_global-map-pacific.png", width = 10, height = 6, dpi = 600)
+# 8.1 Transform data --
+
+data_eez_text <- data_eez %>% 
+  st_drop_geometry() %>% 
+  select(TERRITORY1, number) %>% 
+  mutate(y_pos = -number,
+         x_pos = case_when(number %in% 1:11 ~ 1,
+                           number %in% 12:21 ~ 3,
+                           number %in% 22:31 ~ 5),
+         y_pos = case_when(number %in% 1:11 ~ y_pos,
+                           number %in% 12:21 ~ y_pos+11,
+                           number %in% 22:31 ~ y_pos+21))
+
+# 8.2 Make the plot --
+
+plot_eez <- ggplot() +
+  # Points
+  geom_point(data = tibble(x = 1, y = -1:-11), aes(x = x, y = y), size = 6, color = "#5c97bf") +
+  geom_point(data = tibble(x = 3, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
+  geom_point(data = tibble(x = 5, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
+  # Text inside points
+  geom_text(aes(x = 1, y = -1:-11, label = as.character(1:11)), 
+            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
+  geom_text(aes(x = 3, y = -1:-10, label = as.character(12:21)), 
+            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
+  geom_text(aes(x = 5, y = -1:-10, label = as.character(22:31)), 
+            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
+  # Names of territories
+  geom_text(data = data_eez_text, aes(x = x_pos, y = y_pos, label = TERRITORY1),
+            hjust = 0, size = 3, nudge_x = 0.25, family = font_choose_map) +
+  # Graphical aspects
+  lims(x = c(0.75, 6.25), y = c(-12, 0)) +
+  coord_cartesian(expand = FALSE) +
+  theme(text = element_text(family = font_choose_map), 
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        panel.grid = element_blank())
+  
+# 9. Combine the plots ----
+
+plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
+
+# 10. Save the plot ----
+
+ggsave(filename = "../figs/01_global-map-pacific.png", width = 8, height = 7.75, dpi = 600)
 
 ```
 
