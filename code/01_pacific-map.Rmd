@@ -1,5 +1,5 @@
 ---
-title: "Tests CRS with sf"
+title: "Pacific maps"
 date: "`r Sys.Date()`"
 output: 
   html_document:
@@ -23,6 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
+library(stringr)
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 library(patchwork)
@@ -31,6 +32,7 @@ library(patchwork)
 
 source("../code/function/graphical_par.R")
 source("../code/function/theme_map.R")
+source("../code/function/map_territory.R")
 
 ```
 
@@ -94,9 +96,9 @@ data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180),
 
 # 6.1 Tropics --
 
-data_text_tropics <- tibble(long = c(-104, -104, -119, -128),
+data_text_tropics <- tibble(long = c(-105, -104, -119, -128),
                     lat = c(-21.43, -25.43, 2, 25.43),
-                    text = c("Tropic of", "Capricorne", "Equator", "Tropic of Cancer")) %>% 
+                    text = c("Tropic of", "Capricorn", "Equator", "Tropic of Cancer")) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
@@ -204,7 +206,15 @@ plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 
 # 10. Save the plot ----
 
-ggsave(filename = "../figs/01_global-map-pacific.png", width = 8, height = 7.75, dpi = 600)
+ggsave(filename = "../figs/01_map-pacific_global.png", width = 8, height = 7.75, dpi = 600)
+
+```
+
+# Global Pacific map with territories highlighted
+
+```{r}
+
+map(unique(data_eez_text$TERRITORY1), ~map_territory(territory_i = .))
 
 ```
 
