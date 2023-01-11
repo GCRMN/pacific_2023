@@ -46,6 +46,10 @@ data_eez <- read_sf("data/02_eez/World_EEZ_v11_20191118/eez_v11.shp") %>%
 data_eez %<>% # Special pipe from magrittr
   st_buffer(10) # To join polygon (remove vertical line)
 
+# 6. Remove holes within polygons ----
+
+data_eez <- nngeo::st_remove_holes(data_eez)
+
 # 6. Attribute EEZ number ----
 
 data_eez <- data_eez %>% 
@@ -84,11 +88,15 @@ data_eez <- data_eez %>%
 
 # 7. Create coordinates for label placement ----
 
-data_eez <- tibble(number = 1:19,
-                   lat = c(4, 6, 13, 23.43, 15, 20, 27, 18, -2, -1, -8, -18, -21, -24,
-                           -22, -14, -6, -1, 1),
-                   long = c(134, 143, 143, 143.5, 172, 167.5, -175, -167, 146, 168, 165, 170, 160, 171, 
-                            177, -178, 178, 171, 177)) %>% 
+data_eez <- tibble(number = 1:31,
+                   lat = c(4, 6, 13, 20, 15, 19.5, 27, 16, -2, -1,
+                           -10, -18, -21, -24, -21, -13.5, -8, -1, 1, -5,
+                           -9, -15, -13, -23, -19, -20, -22, 7, -1, -9.5,
+                           -25),
+                   long = c(132, 143, 144, 144.5, 170, 167, -175, -169, 146, 167,
+                            165, 170, 160, 172.5, 177, -178, 178, 171, -176, -175,
+                            -172, -168, -172, -176, -169, -160, -150, -163, -160.5, -150,
+                            -130)) %>% 
   left_join(data_eez, .)
 
 # 8. Save data ----
