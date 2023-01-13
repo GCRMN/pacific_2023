@@ -32,7 +32,6 @@ library(patchwork)
 
 source("../code/function/graphical_par.R")
 source("../code/function/theme_map.R")
-source("../code/function/map_territory.R")
 
 ```
 
@@ -207,14 +206,6 @@ plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 # 10. Save the plot ----
 
 ggsave(filename = "../figs/01_map-pacific_global.png", width = 8, height = 7.75, dpi = 600)
-
-```
-
-# Global Pacific map with territories highlighted
-
-```{r}
-
-map(unique(data_eez_text$TERRITORY1), ~map_territory(territory_i = .))
 
 ```
 
