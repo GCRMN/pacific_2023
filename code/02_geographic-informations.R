@@ -6,11 +6,11 @@ sf_use_s2(FALSE)
 
 # 2. Source functions ----
 
-source("code/function/export_tabular.R")
+source("code/function/export_geoinf.R")
 
 # 3. Maritime area ----
 
-load("data/02_eez/data_eez.RData")
+load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_maritime_area <- data_eez %>% 
   st_drop_geometry() %>% 
@@ -26,7 +26,7 @@ data_reefs <- st_read("data/03_reefs-area_wri/reef_500_poly.shp") %>%
   st_transform(crs = 4326) %>% 
   st_wrap_dateline(options = c("WRAPDATELINE=YES"))
 
-load("data/02_eez/data_eez.RData")
+load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_eez <- data_eez %>% 
   st_transform(crs = 4326) %>% 
@@ -47,7 +47,7 @@ data_reef_area <- st_intersection(data_eez, data_reefs) %>%
 
 # 5. Human population ----
 
-data_population <- read.csv("data/06_geo-inf/01_human-pop.csv") %>% 
+data_population <- read.csv("data/02_geo-inf/01_human-pop.csv") %>% 
   rename(population = sum) %>% 
   group_by(TERRITORY1) %>% 
   summarise(population = sum(population)) %>% 
@@ -55,6 +55,6 @@ data_population <- read.csv("data/06_geo-inf/01_human-pop.csv") %>%
   mutate(population = round(population, 0),
          population = format(population, big.mark = ",", scientific = FALSE))
 
-# 6. Export 
+# 6. Export ---- 
 
-map(unique(data_eez$TERRITORY1), ~export_tabular(territory_i = .))
+map(unique(data_eez$TERRITORY1), ~export_geoinf(territory_i = .))

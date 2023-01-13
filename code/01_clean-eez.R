@@ -35,7 +35,7 @@ list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gil
 
 # 4. Filter and change CRS ----
 
-data_eez <- read_sf("data/02_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
+data_eez <- read_sf("data/01_background-shp/03_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
   filter(TERRITORY1 %in% list_eez) %>% 
   st_transform(crs = 4326) %>% 
   st_difference(correction_polygon) %>% 
@@ -101,4 +101,6 @@ data_eez <- tibble(number = 1:31,
 
 # 8. Save data ----
 
-save(data_eez, file = "data/02_eez/data_eez.RData")
+save(data_eez, file = "data/01_background-shp/03_eez/data_eez.RData") # RData
+
+st_write(data_eez, "data/01_background-shp/03_eez/data_eez.shp", append = FALSE) # Shapefile

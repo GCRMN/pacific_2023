@@ -14,25 +14,25 @@ source("code/function/map_ortho.R")
 
 # 3. Load data ----
 
-load("data/02_eez/data_eez.RData")
+load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_parameters <- read.csv2("data/path_individual_maps.csv")
 
 # 4. Create the EEZ individual maps ----
 
-map(unique(data_parameters$TERRITORY1), ~map_eez(territory_i = .))
+map(unique(data_parameters$TERRITORY1), ~map_eez(territory_i = ., data_parameters = data_parameters))
 
 # 5. Create the hemisphere individual maps ----
 
 # 5.1 Load and transform data --
 
 g <- as_s2_geography(TRUE)
-co <- read_sf("data/01_natural-earth-data/ne_10m_land/ne_10m_land.shp")
+co <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp")
 oc <- s2_difference(g, s2_union_agg(co)) # oceans
 b <- s2_buffer_cells(as_s2_geography("POINT(-175 0)"), 9800000) # visible half
 i <- s2_intersection(b, oc) # visible ocean
 
-load("data/02_eez/data_eez.RData")
+load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 5.2 Transform CRS --
 

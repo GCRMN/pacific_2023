@@ -1,25 +1,3 @@
----
-title: "Pacific maps"
-date: "`r Sys.Date()`"
-output: 
-  html_document:
-    theme: "cosmo"
-    highlight: tango
-    toc: true
-    toc_float:
-      collapsed: false
-      smooth_scroll: false
-    toc_depth: 4
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-# Load packages and data
-
-```{r}
-
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
@@ -30,26 +8,20 @@ library(patchwork)
 
 # 2. Source functions ----
 
-source("../code/function/graphical_par.R")
-source("../code/function/theme_map.R")
+source("code/function/graphical_par.R")
+source("code/function/theme_map.R")
 
-```
+# 3. Define changed CRS ----
 
-# Global Pacific map
-
-```{r}
-
-# 1. Define changed CRS ----
-
-# 1.1 Define the CRS --
+# 3.1 Define the CRS --
 
 crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 
-# 1.2 Define the offset --
+# 3.2 Define the offset --
 
 correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
 
-# 1.3 Define a long and slim polygon that overlaps the meridian line --
+# 3.3 Define a long and slim polygon that overlaps the meridian line --
 
 correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
                                                 c(0 - correction_offset, 90),
@@ -59,26 +31,26 @@ correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 9
   st_sfc() %>%
   st_set_crs(4326)
 
-# 2. Load background maps ----
+# 4. Load background maps ----
 
-data_map <- read_sf("../data/01_natural-earth-data/ne_10m_land/ne_10m_land.shp") %>% 
+data_map <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp") %>% 
   st_transform(crs = 4326) %>% 
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
-# 3. Economic Exclusive Zones ----
+# 5. Economic Exclusive Zones ----
 
-load("../data/02_eez/data_eez.RData")
+load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_eez <- data_eez %>% 
   st_transform(crs = crs_selected)
 
-# 4. Country boundaries ----
+# 6. Country boundaries ----
 
-data_countries <- read_sf("../data/01_natural-earth-data/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
+data_countries <- read_sf("data/01_background-shp/01_ne/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
   st_transform(crs_selected)
 
-# 5. Create the tropics ----
+# 7. Create the tropics ----
 
 data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180), 
                        lat = c(0, 0, 23.43656, 23.43656, -23.43656, -23.43656), 
@@ -91,17 +63,17 @@ data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180),
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
-# 6. Create text annotation ----
+# 8. Create text annotation ----
 
-# 6.1 Tropics --
+# 8.1 Tropics --
 
 data_text_tropics <- tibble(long = c(-105, -104, -119, -128),
-                    lat = c(-21.43, -25.43, 2, 25.43),
-                    text = c("Tropic of", "Capricorn", "Equator", "Tropic of Cancer")) %>% 
+                            lat = c(-21.43, -25.43, 2, 25.43),
+                            text = c("Tropic of", "Capricorn", "Equator", "Tropic of Cancer")) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 6.2 Pacific Ocean --
+# 8.2 Pacific Ocean --
 
 data_text_pacific <- tibble(long = c(-130),
                             lat = c(13),
@@ -109,15 +81,15 @@ data_text_pacific <- tibble(long = c(-130),
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 6.3 Australia --
+# 8.3 Australia --
 
 data_text_australia <- tibble(long = c(140),
-                    lat = c(-25),
-                    text = c("AUSTRALIA")) %>% 
+                              lat = c(-25),
+                              text = c("AUSTRALIA")) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 6.4 Labels --
+# 8.4 Labels --
 
 data_text_labels <- data_eez %>%
   st_drop_geometry() %>% 
@@ -126,7 +98,7 @@ data_text_labels <- data_eez %>%
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 7. Make the map ----
+# 9. Make the map ----
 
 plot_map <- ggplot() +
   # Tropics
@@ -157,9 +129,9 @@ plot_map <- ggplot() +
         axis.title = element_blank(),
         axis.text.x.top = element_text())
 
-# 8. Create legend of EEZ names ----
+# 10. Create legend of EEZ names ----
 
-# 8.1 Transform data --
+# 10.1 Transform data --
 
 data_eez_text <- data_eez %>% 
   st_drop_geometry() %>% 
@@ -172,7 +144,7 @@ data_eez_text <- data_eez %>%
                            number %in% 12:21 ~ y_pos+11,
                            number %in% 22:31 ~ y_pos+21))
 
-# 8.2 Make the plot --
+# 10.2 Make the plot --
 
 plot_eez <- ggplot() +
   # Points
@@ -198,26 +170,11 @@ plot_eez <- ggplot() +
         axis.ticks = element_blank(),
         panel.background = element_blank(),
         panel.grid = element_blank())
-  
-# 9. Combine the plots ----
+
+# 11. Combine the plots ----
 
 plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 
-# 10. Save the plot ----
+# 12. Save the plot ----
 
-ggsave(filename = "../figs/01_map-pacific_global.png", width = 8, height = 7.75, dpi = 600)
-
-```
-
-# Reproducibility
-
-```{r reprod}
-
-# 1. Reproducibility ----
-
-sessionInfo()
-
-```
-
----
-Jeremy WICQUART | jeremywicquart@gmail.com | `r format(Sys.time())`
+ggsave(filename = "figs/01_pacific-map.png", width = 8, height = 7.75, dpi = 600)

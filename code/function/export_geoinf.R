@@ -1,4 +1,4 @@
-export_tabular <- function(territory_i){
+export_geoinf <- function(territory_i){
   
   data_maritime_area_i <- data_maritime_area %>% 
     filter(TERRITORY1 == territory_i) %>% 
@@ -21,6 +21,6 @@ export_tabular <- function(territory_i){
                paste0("Reef area & ", data_reef_area_i, " km\\textsuperscript{2} \\\\"),
                paste0("Population (2020) & ", data_population_i, " \\\\"),
                "\\end{tabular}"),
-             paste0("figs/02_geographic-inf_", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+             paste0("figs/03_geo-inf/geo-inf_", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
   
 }
