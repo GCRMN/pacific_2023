@@ -1,6 +1,7 @@
 # 1. Load packages ----
 
 library(tidyverse)
+library(magrittr) # For special pipe %<>%
 library(sf)
 library(ggspatial) # For annotation_scale function
 library(s2)
