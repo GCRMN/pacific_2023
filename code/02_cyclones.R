@@ -12,6 +12,9 @@ plan(multisession, workers = 6) # Set parallelization with 6 cores
 
 source("code/function/extract_ts_eez.R")
 source("code/function/extract_ts_event.R")
+source("code/function/map_cyclone.R")
+source("code/function/graphical_par.R")
+source("code/function/theme_graph.R")
 
 # Set the CRS
 
@@ -60,37 +63,16 @@ data_ts_event <- future_map_dfr(unique(data_eez$TERRITORY1),
                                 ~extract_ts_eez(territory_i = .), 
                                 .options = furrr_options(seed = TRUE))
 
+# 6. Modify data ----
 
+data_ts_event <- data_ts_event %>% 
+  st_drop_geometry() %>% 
+  select(TERRITORY1, ts_id, name, time, storm_speed, wind_speed, max_windspeed, saffir, ts_dist) %>% 
+  mutate(time = as_date(time),
+         ts_dist = ts_dist/1000,
+         ts_dist = paste0(round(ts_dist, 0), " km")) %>% 
+  filter(wind_speed >= 100)
 
+# 7. Create the EEZ individual maps ----
 
-
-
-
-
-
-
-
-data_ts_event_test <- data_ts_event %>% 
-  mutate(time = as_date(time))# %>% 
-  #filter(TERRITORY1 == "French Polynesia")
-
-
-ggplot(data = data_ts_event_test, aes(x = time, y = wind_speed)) +
-  geom_segment(aes(x = time, y = 0, xend = time, yend = wind_speed), linewidth = 0.75, col = "#2e3131") +
-  geom_point(shape = 21, col = "white", size = 4) +
-  #scale_fill_identity() +
-  #geom_text(aes(y = wind_speed + 22, label = label_name), size = 3, family = font_choose_graph, col = "red") +
-  #geom_text(aes(y = wind_speed + 12, label = label_dist), size = 2, family = font_choose_graph, col = "#2e3131") +
-  lims(x = c(as.Date("1980-01-01"), as.Date("2023-12-31"))) +
-  labs(y = bquote("Wind speed (km."~h^-1*")"), x = NULL) +
-  facet_wrap(~TERRITORY1)
-
-
-
-
-
-
-
-
-
-
+map(unique(data_ts_event$TERRITORY1), ~map_cyclone(territory_i = .))
