@@ -178,3 +178,48 @@ plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 # 12. Save the plot ----
 
 ggsave(filename = "figs/01_pacific-map.png", width = 8, height = 7.75, dpi = 600)
+
+# 13. Map with benthic sites ----
+
+# 13.1 Load benthic coordinates --
+
+data_benthic <- load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/09_gcrmndb_benthos.RData")
+
+data_benthic <- synthetic_data %>% 
+  filter(higherGeography == "Pacific") %>% 
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
+  st_transform(crs_selected)
+
+# 13.2 Make the plot --
+
+plot_map <- ggplot() +
+  # Tropics
+  geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  # EEZ
+  geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
+  # Background map
+  geom_sf(data = data_map, fill = "#363737", col = "grey") +
+  # Country boundaries
+  geom_sf(data = data_countries, fill = "#363737", col = "grey") +
+  # Annotation (legend)
+  geom_sf_text(data = data_text_australia, aes(label = text), 
+               color = "darkgrey", size = 2.5, family = font_choose_map) +
+  geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
+               color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
+  geom_sf_text(data = data_text_pacific, aes(label = text), 
+               color = "#5c97bf", fontface = "italic", size = 3, family = font_choose_map) +
+  # Benthic sites
+  geom_sf(data = data_benthic, col = "#d64541") +
+  # Graphical aspects
+  coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
+  scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
+  theme(text = element_text(family = font_choose_map),
+        panel.background = element_rect(fill = "#ebf5fd"),
+        panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
+        axis.title = element_blank(),
+        axis.text.x.top = element_text())
+
+# 13.3 Save the plot ----
+
+ggsave(filename = "figs/01_pacific-map-sites.png", plot = plot_map, width = 8, height = 5, dpi = 600)
