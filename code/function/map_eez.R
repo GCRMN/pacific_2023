@@ -2,7 +2,6 @@ map_eez <- function(territory_i, data_parameters){
   
   if(territory_i %in% c("Fiji", "Wallis and Futuna")){
     
-    
     # 1. Filter EEZ data ----
     
     data_eez_i <- data_eez %>% 
@@ -11,7 +10,13 @@ map_eez <- function(territory_i, data_parameters){
       st_transform(., crs = 3460) %>% 
       st_union(.)
     
-    # 2. Load boundary data ----
+    # 2. Filter benthic data ----
+    
+    data_benthic_i <- data_benthic %>% 
+      filter(territory == territory_i) %>% 
+      st_transform(., crs = 3460)
+    
+    # 3. Load boundary data ----
     
     data_land <- st_read(list.files(path = paste0("data/01_background-shp/02_princeton/", 
                                                   str_replace_all(str_to_lower(territory_i), 
@@ -22,7 +27,7 @@ map_eez <- function(territory_i, data_parameters){
     data_eez_i %<>% # Special pipe from magrittr
       st_buffer(10) # To join polygon (remove vertical line)
     
-    # 3. Misc parameters ----
+    # 4. Misc parameters ----
     
     scale_bar_pos <- data_parameters %>% 
       filter(TERRITORY1 == territory_i) %>% 
@@ -39,11 +44,12 @@ map_eez <- function(territory_i, data_parameters){
       select(height) %>% 
       pull()
     
-    # 4. Make the plot ----
+    # 5. Make the plot ----
     
     ggplot() +
       geom_sf(data = data_eez_i, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
       geom_sf(data = data_land, fill = "#363737", col = "grey") +
+      geom_sf(data = data_benthic_i, col = "#d64541") +
       annotation_scale(location = scale_bar_pos, width_hint = 0.3, text_family = font_choose_graph, 
                        text_cex = 0.75, style = "bar", line_width = 0.5,  height = unit(0.05, "cm"),
                        pad_x = unit(0.75, "cm"), pad_y = unit(0.75, "cm"), bar_cols = c("black", "black")) +
@@ -60,7 +66,12 @@ map_eez <- function(territory_i, data_parameters){
       filter(TERRITORY1 == territory_i) %>% 
       st_transform(crs = 4326)
     
-    # 2. Load boundary data ----
+    # 2. Filter benthic data ----
+    
+    data_benthic_i <- data_benthic %>% 
+      filter(territory == territory_i)
+    
+    # 3. Load boundary data ----
     
     data_land <- st_read(list.files(path = paste0("data/01_background-shp/02_princeton/", 
                                                   str_replace_all(str_to_lower(territory_i), 
@@ -68,7 +79,7 @@ map_eez <- function(territory_i, data_parameters){
                                     pattern = ".shp$", 
                                     full.names = TRUE))
     
-    # 3. Misc parameters ----
+    # 4. Misc parameters ----
     
     scale_bar_pos <- data_parameters %>% 
       filter(TERRITORY1 == territory_i) %>% 
@@ -85,11 +96,12 @@ map_eez <- function(territory_i, data_parameters){
       select(height) %>% 
       pull()
     
-    # 4. Make the plot ----
+    # 5. Make the plot ----
     
     ggplot() +
       geom_sf(data = data_eez_i, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
       geom_sf(data = data_land, fill = "#363737", col = "grey") +
+      geom_sf(data = data_benthic_i, col = "#d64541") +
       annotation_scale(location = scale_bar_pos, width_hint = 0.3, text_family = font_choose_graph, 
                        text_cex = 0.75, style = "bar", line_width = 0.5,  height = unit(0.05, "cm"),
                        pad_x = unit(0.75, "cm"), pad_y = unit(0.75, "cm"), bar_cols = c("black", "black")) +
