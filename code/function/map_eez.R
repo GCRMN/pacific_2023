@@ -114,7 +114,7 @@ map_eez <- function(territory_i, data_parameters){
   
   # 5. Export the plot ----
   
-  ggsave(filename = paste0("figs/02_ind-map/ind-map_", str_replace_all(str_to_lower(territory_i), " ", "-"), "_02.png"),
+  ggsave(filename = paste0("figs/02_eez-bathy/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = plot_width, height = plot_height, dpi = 600)
   
 }

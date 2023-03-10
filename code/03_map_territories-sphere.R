@@ -10,29 +10,15 @@ sf_use_s2()
 # 2. Load functions ----
 
 source("code/function/graphical_par.R")
-source("code/function/map_eez.R")
-source("code/function/map_ortho.R")
+source("code/function/map_sphere.R")
 
 # 3. Load data ----
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
-data_parameters <- read.csv2("data/path_individual_maps.csv")
+# 4. Create the hemisphere individual maps ----
 
-load("data/04_data-benthic.RData")
-
-data_benthic <- data_benthic %>% 
-  select(decimalLatitude, decimalLongitude, territory) %>% 
-  distinct() %>% 
-  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
-
-# 4. Create the EEZ individual maps ----
-
-map(unique(data_parameters$TERRITORY1), ~map_eez(territory_i = ., data_parameters = data_parameters))
-
-# 5. Create the hemisphere individual maps ----
-
-# 5.1 Load and transform data --
+# 4.1 Load and transform data --
 
 g <- as_s2_geography(TRUE)
 co <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp")
@@ -42,7 +28,7 @@ i <- s2_intersection(b, oc) # visible ocean
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
-# 5.2 Transform CRS --
+# 4.2 Transform CRS --
 
 i <- i %>% 
   st_as_sfc() %>% 
@@ -52,7 +38,7 @@ b <- b %>%
   st_as_sfc() %>% 
   st_transform(., "+proj=ortho +lat_0=0 +lon_0=-175")
 
-# 5.3 Change EEZ levels for Kiribati and Pacific Remote Island Area -- 
+# 4.3 Change EEZ levels for Kiribati and Pacific Remote Island Area -- 
 
 data_eez <- data_eez %>% 
   # Kiribati
@@ -66,6 +52,6 @@ data_eez <- data_eez %>%
                                                      "Johnston Atoll" = "Pacific Remote Island",
                                                      "Palmyra Atoll" = "Pacific Remote Island")))
 
-# 5.4 Produce all the maps --
+# 4.4 Produce all the maps --
 
-map(unique(data_eez$TERRITORY1), ~map_ortho(territory_i = .))
+map(unique(data_eez$TERRITORY1), ~map_sphere(territory_i = .))

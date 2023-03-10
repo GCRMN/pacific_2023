@@ -183,10 +183,11 @@ ggsave(filename = "figs/01_pacific-map.png", width = 8, height = 7.75, dpi = 600
 
 # 13.1 Load benthic coordinates --
 
-data_benthic <- load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/09_gcrmndb_benthos.RData")
+load("data/04_data-benthic.RData")
 
-data_benthic <- synthetic_data %>% 
-  filter(higherGeography == "Pacific") %>% 
+data_benthic <- data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, territory) %>% 
+  distinct() %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
   st_transform(crs_selected)
 

@@ -1,4 +1,4 @@
-map_ortho <- function(territory_i){
+map_sphere <- function(territory_i){
   
   data_eez_i <- data_eez %>% 
     filter(TERRITORY1 == territory_i) %>% 
@@ -17,7 +17,7 @@ map_ortho <- function(territory_i){
     geom_sf(data = data_eez_i, color = "#d64541", fill = "#e08283", alpha = 0.75) +
     theme_minimal()
   
-  ggsave(filename = paste0("figs/02_ind-map/ind-map_", str_replace_all(str_to_lower(territory_i), " ", "-"), "_01.png"),
+  ggsave(filename = paste0("figs/02_sphere-territories/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 4, height = 4, dpi = 600)
 
 }

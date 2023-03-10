@@ -4,8 +4,7 @@
 
 \usepackage{anyfontsize}
 \usepackage[latin9]{inputenc}
-\usepackage[french]{babel}
-\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm,bindingoffset=0cm,heightrounded]{geometry}
+\usepackage[a4paper,top=2.5cm,bottom=3cm,left=2.5cm,right=2.5cm,bindingoffset=0cm,heightrounded]{geometry}
 \usepackage{afterpage}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
@@ -13,13 +12,14 @@
 \usepackage[colorlinks=true,linkcolor=color1,urlcolor=color1,citecolor=color1,anchorcolor=color1]{hyperref}
 \usepackage{caption}
 \usepackage{tocbibind} % To include toc, lof, lot and bibliography in toc
-\usepackage{titlesec}
+\usepackage[explicit]{titlesec}
 \usepackage{array} % for extended column definitions    
 \usepackage{booktabs} % To make better tables
 \usepackage{multirow}
 \usepackage{tikz} % To draws
 \usepackage{enumitem}
 \usepackage{tcolorbox}
+\usepackage{pifont}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -31,6 +31,7 @@
 \usepackage{tabularx}
 \usepackage{makecell}
 \usepackage{float}
+\usepackage{import}
 \usepackage{multicol}
 \setlength{\columnsep}{1cm} % width between columns
 
@@ -39,11 +40,6 @@
 \definecolor{color1}{HTML}{446cb3} % Main color of the document (title, hyperlinks...) - Dark blue
 \definecolor{color2}{HTML}{eeeeee} % Tikz figures - Light grey
 \definecolor{color3}{HTML}{2e3131} % Header/footer - Dark grey
-\definecolor{color4}{HTML}{16a085} % For figure thesis structure - Blue
-\definecolor{color5}{HTML}{e26a6a} % For figure thesis structure - Blue
-\definecolor{color6}{HTML}{16a085} % For supp. figure of chapter 5
-\definecolor{color7}{HTML}{dadfe1} % Mid-grey for NA value in table
-\definecolor{pslblue}{RGB}{36, 56, 141} % PSL blue for cover page
 
 %%%%% HEADER & FOOTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -61,36 +57,36 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Chapitre \nouppercase{\thechapter}}}
-\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
+\fancyfoot[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+\fancyfoot[RO]{\sffamily\footnotesize \textcolor{color3}{Chapter \nouppercase{\thechapter}}}
+\fancyfoot[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
 
 \fancypagestyle{defaultchapter}{%
 	\fancyhf{}%
-	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Chapitre \nouppercase{\thechapter}}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
+	\fancyfoot[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyfoot[RO]{\sffamily\footnotesize \textcolor{color3}{Chapter \nouppercase{\thechapter}}}
+	\fancyfoot[LE]{\sffamily\footnotesize \textcolor{color3}{\nouppercase{\leftmark}}}
 }
 
 \fancypagestyle{toc}{%
 	\fancyhf{}%
-	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Table des matières}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Table des matières}}
+	\fancyfoot[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyfoot[RO]{\sffamily\footnotesize \textcolor{color3}{Table of contents}}
+	\fancyfoot[LE]{\sffamily\footnotesize \textcolor{color3}{Table of contents}}
 }
 
 \fancypagestyle{lof}{%
 	\fancyhf{}%
-	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Liste des figures}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Liste des figures}}
+	\fancyfoot[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
+	\fancyfoot[RO]{\sffamily\footnotesize \textcolor{color3}{List of figures}}
+	\fancyfoot[LE]{\sffamily\footnotesize \textcolor{color3}{List of figures}}
 }
 
 \fancypagestyle{lot}{%
 	\fancyhf{}%
 	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Liste des tableaux}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Liste des tableaux}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{List of table}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{List of table}}
 }
 
 \fancypagestyle{conclusion}{%
@@ -104,22 +100,22 @@
 \fancypagestyle{biblio}{%
 	\fancyhf{}%
 	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Bibliographie}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Bibliographie}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Bibliography}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Bibliography}}
 }
 
 \fancypagestyle{abbreviate}{%
 	\fancyhf{}%
 	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Abréviations}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Abréviations}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Abbreviations}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Abbreviations}}
 }
 
 \fancypagestyle{acknowledgements}{%
 	\fancyhf{}%
 	\fancyhead[RE,LO]{\sffamily\footnotesize \textcolor{color3}{\thepage}}
-	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Remerciements}}
-	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Remerciements}}
+	\fancyhead[RO]{\sffamily\footnotesize \textcolor{color3}{Acknowledgments}}
+	\fancyhead[LE]{\sffamily\footnotesize \textcolor{color3}{Acknowledgments}}
 }
 
 %%%%% CHAPTER STYLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,13 +147,13 @@
 \newcommand*{\fontitle}{\fontfamily{qag}\selectfont}
 
 % Set Figure names
-\captionsetup[figure]{labelfont={color=color1}, name={\textsf{Figure}}, labelsep=period, justification=justified}
+\captionsetup[figure]{labelfont={color=color1}, name={\textsf{\ding{115} Figure}}, labelsep=period, justification=justified}
 
 % Set Subfigure names
 \captionsetup[subfigure]{labelfont=bf,textfont=normalfont,singlelinecheck=off,justification=raggedright}
 
 % Set Table names
-\captionsetup[table]{labelfont={color=color1}, name={\textsf{Table}}, labelsep=period, justification=justified}
+\captionsetup[table]{labelfont={color=color1}, name={\textsf{\ding{116} Table}}, labelsep=period, justification=justified}
 
 % e.g.
 \newcommand\eg{\textit{e.g.} }
@@ -184,6 +180,28 @@
 \newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
 \makeatother
 
+% TikZ styles
+\tikzstyle{nodechap}=[draw,rectangle,rounded corners=0pt,fill=color1,color=color1,text=white,scale=1,minimum height=1.75cm,minimum width=\linewidth]
+
+%\renewcommand\chapter[1]{
+%	\noindent
+%	\begin{tikzpicture}
+%		\node[draw,rectangle,rounded corners=0pt,fill=color1,color=color1,text=white,scale=1,minimum height=1.75cm,minimum width=\linewidth] at (0,0) {\LARGE #1};
+%	\end{tikzpicture}
+%}
+
+%%% COMMAND TO INSERT INDIVIDUAL GLOBE MAP %%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\mapeez[1]{
+\begin{tikzpicture}[overlay, remember picture]
+	\node[anchor=north west, %anchor is upper left corner of the graphic
+	xshift=12.5cm, %shifting around
+	yshift=-7.5cm] 
+	at (current page.north west) %left upper corner of the page
+	{\includegraphics[width=4cm]{#1}}; 
+\end{tikzpicture}
+}
+
 %%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
@@ -193,9 +211,6 @@
 \thispagestyle{empty}
 
 \includegraphics[width=3cm]{01_logo/gcrmn/gcrmn_logo.png}
-
-TITRE
-
 
 \thispagestyle{empty}
 \clearpage
@@ -246,6 +261,8 @@ TITRE
 %%%%% CHAPTER 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\part{Overall synthesis for the Pacific region}
+
 \pagestyle{defaultchapter}
 
 \chapter{Introduction}
@@ -268,7 +285,7 @@ TITRE
 
 \end{multicols}
 
-\begin{tcolorbox}[title=CORAL BLEACHING, arc=0mm, colframe=color1, colback=white]
+\begin{tcolorbox}[title=BOX 1. Coral bleaching, arc=0mm, colframe=color1, colback=white]
 	When SST rise, hard corals.
 \end{tcolorbox}
 
@@ -276,13 +293,322 @@ TITRE
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\linewidth]{01_global-map-pacific.png}
+	\includegraphics[width=\linewidth]{01_pacific-map.png}
 	\caption[Map of Economic Exclusive Zone of territories in the Pacific]{Map of Economic Exclusive Zone (EEZ) of territories in the Pacific.}
 	\label{chapter1:fig1}
 \end{figure}
 
+\newpage
 
+\part{Syntheses for the Pacific territories}
 
+%%% CHANGE CHAPTER TITLE %%%%%%%%%%%%%%%%
+
+\titleformat{\chapter}
+{\gdef\chapterlabel{}
+	\selectfont\sffamily\LARGE}
+{\gdef\chapterlabel{\thechapter)\ }}{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[yshift=-4cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				\draw[fill=color1, color=color1] (0,0) rectangle
+				(\paperwidth,4cm);
+				\node[xshift=0cm, yshift=-2cm] at (current page.north)
+				{\color{white}\uppercase{#1}};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\chapter}{0pt}{50pt}{-20pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{American Samoa}
+
+\mapeez{02_ind-map/ind-map_american-samoa_01.png}
+
+\vspace{8cm}
+
+\begin{multicols}{2}
+	
+	\section*{General informations}
+	
+	\lipsum[1]
+	
+	\section*{Thermal regime}
+	
+	\lipsum[1]
+	
+	\section*{Benthic cover trends}
+	
+	\lipsum
+	
+\end{multicols}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Cook Islands}
+
+\mapeez{02_ind-map/ind-map_cook-islands_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Federated States of Micronesia}
+
+\mapeez{02_ind-map/ind-map_federated-states-of-micronesia_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{French Polynesia}
+
+\mapeez{02_ind-map/ind-map_french-polynesia_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Guam}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE GUAM};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_guam_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Hawaiian Islands}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE HAWAIIAN ISLANDS};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_hawaii_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Kingdom of Tonga}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE KINGDOM OF TONGA};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_tonga_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{New Caledonia}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE NEW CALEDONIA};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_new-caledonia_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Northern Mariana Islands}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE NORTHERN MARIANA ISLANDS};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_northern-mariana-islands_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Pacific Remote Island Area}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE PACIFIC REMOTE ISLAND AREA};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_pacific-remote-island_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Papua New Guinea}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE PAPUA NEW GUINEA};
+\end{tikzpicture}
+
+\begin{tikzpicture}[overlay, remember picture]
+	\node[anchor=north west, %anchor is upper left corner of the graphic
+	xshift=12.5cm, %shifting around
+	yshift=-7.5cm] 
+	at (current page.north west) %left upper corner of the page
+	{\includegraphics[width=4cm]{02_ind-map/ind-map_papua-new-guinea_01.png}}; 
+\end{tikzpicture}
+
+\newpage
+
+\begin{multicols}{2}
+	
+	\lipsum
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=7cm]{05_sst/sst_papua-new-guinea.png}
+		\caption[Sea surface temperature and sea surface temperature anomaly on coral reefs of the Papua New Guinea]{Sea surface temperature (A) and sea surface temperature anomaly (B) on coral reefs of the Papua New Guinea.}
+		\label{ftesta}
+	\end{figure}
+
+	\lipsum
+	
+\end{multicols}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Pitcairn Islands}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE PITCAIRN ISLANDS};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_pitcairn_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Republic of Fiji}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF FIJI};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_fiji_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Republic of Kiribati}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF KIRIBATI};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_kiribati_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Republic of the Marshall Islands}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF THE MARSHALL ISLANDS};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_marshall-islands_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Republic of Palau}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF PALAU};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_palau_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Republic of Vanuatu}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF VANUATU};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_vanuatu_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Solomon Islands}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE SOLOMON ISLANDS};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_solomon-islands_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{Wallis and Futuna}
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE WALLIS AND FUTUNA};
+\end{tikzpicture}
+
+\mapeez{02_ind-map/ind-map_wallis-and-futuna_01.png}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\
+
+\chapter{Materials and Methods}
+
+\begin{multicols}{2}
+	
+\subsubsection{Data integration}
+
+gcrmndb\_benthos
+
+\includegraphics[width=2cm]{00_gcrmndb-benthos_hex-logo.png}
+
+gcrmndb\_fish
+
+\includegraphics[width=2cm]{00_gcrmndb-fish_hex-logo.png}
+	
+\subsubsection{Geographic information's}
+
+For the individual territory assessments, we provided different values related to the geography, the population or the economy of the territories. These values were obtained using the following data sources and methodologies.
+
+\begin{enumerate}
+	\item Maritime area.
+	\item Land area.
+	\item Reef area.
+	\item Human population (in 2020). The values of human population living on each of the territories were estimated using the Gridded Population of the World v4.0 dataset (REF). This dataset consists of a grid of x ° pixel. The values of pixel within an economic exclusive zone were summed up using Google Earth Engine (REF).
+	\item Mean elevation
+\end{enumerate}
+
+\end{multicols}
 
 \newpage
 
@@ -298,17 +624,78 @@ TITRE
 
 %%%%% ABBREVIATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter*{Abréviations} 
-\addcontentsline{toc}{chapter}{Abréviations}
-\markboth{Abréviations}{Abréviations} % section with * so necessary to define it manually
+\chapter*{Abbreviations} 
+\addcontentsline{toc}{chapter}{Abbreviations}
+\markboth{Abréviations}{Abbreviations} % section with * so necessary to define it manually
 \pagestyle{abbreviate}
 
 \pagestyle{empty}
 
 \begin{tabular}{>{\bfseries}>{\color{color1}}r>{\itshape}l}
 	AIMS  & Australian Institute of Marine Science          \\
-	GCRMN & Global Coral Reef Monitoring Network            
+	GCRMN & Global Coral Reef Monitoring Network            \\
+	ENSO & El Niño Southern Oscillation
 \end{tabular}
+
+\newpage
+
+\begin{tikzpicture}
+	\node[nodechap] at (0,0) {\LARGE FRENCH POLYNESIA};
+\end{tikzpicture}
+
+\textbf{Geographic informations}
+
+\input{./../../figs/03_geo-inf/geo-inf_french-polynesia.tex}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=13cm]{02_ind-map/ind-map_french-polynesia_00.png}
+	\caption[Map of French Polynesia]{Map of French Polynesia.}
+	\label{french-polynesia}
+\end{figure}
+
+\vspace{2cm}
+
+\begin{multicols}{2}
+	
+	\section*{General informations}
+	
+	\lipsum
+	
+	\section{Thermal regime}
+	
+	\lipsum
+	
+\end{multicols}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{02_sst-time-series-1.png}
+	\caption[Mean Sea Surface Temperature (°C) on coral reefs of the French Polynesia exclusive economic zone.]{Mean Sea Surface Temperature (°C) on coral reefs of the French Polynesia exclusive economic zone. Horizontal dashed line represent the long-term average mean.}
+	\label{sst}
+\end{figure}
+
+\begin{multicols}{2}
+	
+	\lipsum
+	
+\end{multicols}
+
+\begin{tcolorbox}[title=CASE STUDY 1.\\ Long-term monitoring site of Tiahura, arc=0mm, colframe=color3, colback=white]
+	When SST rise, hard corals.
+\end{tcolorbox}
+
+\newpage
+
+\begin{table}[H]
+	\label{chapter1:tab1}
+	\caption{Main scientific references on coral reefs temporal trends for French Polynesia.}
+	\begin{tabular}{lll}
+		\toprule
+		\textbf{References} & \textbf{Location} & \textbf{Main findings} \\ \midrule
+		\cite{lamy2016three} & Moorea & test \\ \bottomrule
+	\end{tabular}
+\end{table}
 
 \newpage
 
@@ -327,7 +714,7 @@ TITRE
 	
 	\vspace{-0.25cm}
 		
-	Le \today}
+	\today}
 \end{flushleft}
 
 \end{document}

@@ -58,3 +58,26 @@ data_population <- read.csv("data/02_geo-inf/01_human-pop.csv") %>%
 # 6. Export ---- 
 
 map(unique(data_eez$TERRITORY1), ~export_geoinf(territory_i = .))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(tidyverse)
+A <- read_csv("data/reefsurface_by_site.csv") %>% 
+  select(GEONAME, sum)
+
+
+
+
+
+
