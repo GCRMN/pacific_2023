@@ -1,6 +1,6 @@
-map_eez <- function(territory_i, data_parameters){
+map_eez_bathy <- function(territory_i, data_parameters){
   
-  if(territory_i %in% c("Fiji", "Wallis and Futuna")){
+  if(territory_i %in% c("Fiji", "Wallis and Futuna", "Hawaii")){
     
     # 1. Filter EEZ data ----
     
@@ -9,12 +9,10 @@ map_eez <- function(territory_i, data_parameters){
       st_transform(crs = 4326) %>% 
       st_transform(., crs = 3460) %>% 
       st_union(.)
+
+    # 2. Select bathy data ----
     
-    # 2. Filter benthic data ----
-    
-    data_benthic_i <- data_benthic %>% 
-      filter(territory == territory_i) %>% 
-      st_transform(., crs = 3460)
+    data_bathy_i <- st_intersects(data_bathy %>% st_transform(crs = 4326) %>% st_transform(crs = 3460), data_eez_i)
     
     # 3. Load boundary data ----
     
@@ -47,9 +45,11 @@ map_eez <- function(territory_i, data_parameters){
     # 5. Make the plot ----
     
     ggplot() +
-      geom_sf(data = data_eez_i, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
+      # Bathymetry
+      geom_sf(data = data_bathy_i, aes(fill = color), color = NA) +
+      scale_fill_identity() +
+      geom_sf(data = data_eez_i, color = "black", fill = NA, alpha = 0.75) +
       geom_sf(data = data_land, fill = "#363737", col = "grey") +
-      geom_sf(data = data_benthic_i, col = "#d64541") +
       annotation_scale(location = scale_bar_pos, width_hint = 0.3, text_family = font_choose_graph, 
                        text_cex = 0.75, style = "bar", line_width = 0.5,  height = unit(0.05, "cm"),
                        pad_x = unit(0.75, "cm"), pad_y = unit(0.75, "cm"), bar_cols = c("black", "black")) +
@@ -66,10 +66,9 @@ map_eez <- function(territory_i, data_parameters){
       filter(TERRITORY1 == territory_i) %>% 
       st_transform(crs = 4326)
     
-    # 2. Filter benthic data ----
+    # 2. Select bathy data ----
     
-    data_benthic_i <- data_benthic %>% 
-      filter(territory == territory_i)
+    data_bathy_i <- st_intersects(data_bathy, data_eez_i)
     
     # 3. Load boundary data ----
     
@@ -99,9 +98,11 @@ map_eez <- function(territory_i, data_parameters){
     # 5. Make the plot ----
     
     ggplot() +
-      geom_sf(data = data_eez_i, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
+      # Bathymetry
+      geom_sf(data = data_bathy_i, aes(fill = color), color = NA) +
+      scale_fill_identity() +
+      geom_sf(data = data_eez_i, color = "black", fill = NA, alpha = 0.75) +
       geom_sf(data = data_land, fill = "#363737", col = "grey") +
-      geom_sf(data = data_benthic_i, col = "#d64541") +
       annotation_scale(location = scale_bar_pos, width_hint = 0.3, text_family = font_choose_graph, 
                        text_cex = 0.75, style = "bar", line_width = 0.5,  height = unit(0.05, "cm"),
                        pad_x = unit(0.75, "cm"), pad_y = unit(0.75, "cm"), bar_cols = c("black", "black")) +
@@ -114,7 +115,7 @@ map_eez <- function(territory_i, data_parameters){
   
   # 5. Export the plot ----
   
-  ggsave(filename = paste0("figs/02_eez-bathy/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/04_eez-bathy/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = plot_width, height = plot_height, dpi = 600)
   
 }

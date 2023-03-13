@@ -24,8 +24,13 @@
 * `03_map_territories-sphere.R` Produce hemisphere map for each territory.
 * `03_map_territories-bathy.R` Produce EEZ map for each territory.
 * `03_geographic-informations.R` Combine and export geographic information's.
+* `03_map_spatio-temporal.R` Produce map and plot of spatio-temporal distribution of data for each territory.
+* `03_sst_time-series.R` Produce plot of SST and SST anomaly for each territory.
 
+### D. Functions
 
+* `theme_graph.R`
+* `theme_map.R`
 
 
 ## 3. Reproducibility parameters

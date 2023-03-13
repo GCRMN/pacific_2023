@@ -183,13 +183,6 @@
 % TikZ styles
 \tikzstyle{nodechap}=[draw,rectangle,rounded corners=0pt,fill=color1,color=color1,text=white,scale=1,minimum height=1.75cm,minimum width=\linewidth]
 
-%\renewcommand\chapter[1]{
-%	\noindent
-%	\begin{tikzpicture}
-%		\node[draw,rectangle,rounded corners=0pt,fill=color1,color=color1,text=white,scale=1,minimum height=1.75cm,minimum width=\linewidth] at (0,0) {\LARGE #1};
-%	\end{tikzpicture}
-%}
-
 %%% COMMAND TO INSERT INDIVIDUAL GLOBE MAP %%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand\mapeez[1]{
@@ -257,6 +250,23 @@
 
 \setlength{\parskip}{12pt} % Set the space between paragraphs
 
+%%%%% ABBREVIATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{Abbreviations} 
+\addcontentsline{toc}{chapter}{Abbreviations}
+\markboth{Abréviations}{Abbreviations} % section with * so necessary to define it manually
+\pagestyle{abbreviate}
+
+\pagestyle{empty}
+
+\begin{tabular}{>{\bfseries}>{\color{color1}}r>{\itshape}l}
+	AIMS  & Australian Institute of Marine Science          \\
+	GCRMN & Global Coral Reef Monitoring Network            \\
+	ENSO & El Niño Southern Oscillation
+\end{tabular}
+
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% CHAPTER 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -304,9 +314,11 @@
 
 %%% CHANGE CHAPTER TITLE %%%%%%%%%%%%%%%%
 
+\part{Overall synthesis for the Pacific region}
+
 \titleformat{\chapter}
 {\gdef\chapterlabel{}
-	\selectfont\sffamily\LARGE}
+	\selectfont\sffamily\Huge}
 {\gdef\chapterlabel{\thechapter)\ }}{0pt}
 {\begin{tikzpicture}[remember picture,overlay]
 		\node[yshift=-4cm] at (current page.north west)
@@ -329,7 +341,7 @@
 
 \chapter{American Samoa}
 
-\mapeez{02_ind-map/ind-map_american-samoa_01.png}
+\mapeez{02_sphere-territories/american-samoa.png}
 
 \vspace{8cm}
 
@@ -355,7 +367,7 @@
 
 \chapter{Cook Islands}
 
-\mapeez{02_ind-map/ind-map_cook-islands_01.png}
+\mapeez{02_sphere-territories/cook-islands.png}
 
 \newpage
 
@@ -363,7 +375,7 @@
 
 \chapter{Federated States of Micronesia}
 
-\mapeez{02_ind-map/ind-map_federated-states-of-micronesia_01.png}
+\mapeez{02_sphere-territories/federated-states-of-micronesia.png}
 
 \newpage
 
@@ -371,210 +383,127 @@
 
 \chapter{French Polynesia}
 
-\mapeez{02_ind-map/ind-map_french-polynesia_01.png}
+\mapeez{02_sphere-territories/french-polynesia.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Guam}
+\chapter{Guam}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE GUAM};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_guam_01.png}
+\mapeez{02_sphere-territories/guam.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Hawaiian Islands}
+\chapter{Hawaiian Islands}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE HAWAIIAN ISLANDS};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_hawaii_01.png}
+\mapeez{02_sphere-territories/hawaii.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Kingdom of Tonga}
+\chapter{Kingdom of Tonga}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE KINGDOM OF TONGA};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_tonga_01.png}
+\mapeez{02_sphere-territories/tonga.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{New Caledonia}
+\chapter{New Caledonia}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE NEW CALEDONIA};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_new-caledonia_01.png}
+\mapeez{02_sphere-territories/new-caledonia.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Northern Mariana Islands}
+\chapter{Northern Mariana Islands}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE NORTHERN MARIANA ISLANDS};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_northern-mariana-islands_01.png}
+\mapeez{02_sphere-territories/northern-mariana-islands.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Pacific Remote Island Area}
+\chapter{Pacific Remote Island Area}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE PACIFIC REMOTE ISLAND AREA};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_pacific-remote-island_01.png}
+\mapeez{02_sphere-territories/pacific-remote-island.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Papua New Guinea}
+\chapter{Papua New Guinea}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE PAPUA NEW GUINEA};
-\end{tikzpicture}
-
-\begin{tikzpicture}[overlay, remember picture]
-	\node[anchor=north west, %anchor is upper left corner of the graphic
-	xshift=12.5cm, %shifting around
-	yshift=-7.5cm] 
-	at (current page.north west) %left upper corner of the page
-	{\includegraphics[width=4cm]{02_ind-map/ind-map_papua-new-guinea_01.png}}; 
-\end{tikzpicture}
-
-\newpage
-
-\begin{multicols}{2}
-	
-	\lipsum
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=7cm]{05_sst/sst_papua-new-guinea.png}
-		\caption[Sea surface temperature and sea surface temperature anomaly on coral reefs of the Papua New Guinea]{Sea surface temperature (A) and sea surface temperature anomaly (B) on coral reefs of the Papua New Guinea.}
-		\label{ftesta}
-	\end{figure}
-
-	\lipsum
-	
-\end{multicols}
+\mapeez{02_sphere-territories/papua-new-guinea.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Pitcairn Islands}
+\chapter{Pitcairn Islands}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE PITCAIRN ISLANDS};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_pitcairn_01.png}
+\mapeez{02_sphere-territories/pitcairn.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Republic of Fiji}
+\chapter{Republic of Fiji}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF FIJI};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_fiji_01.png}
+\mapeez{02_sphere-territories/fiji.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Republic of Kiribati}
+\chapter{Republic of Kiribati}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF KIRIBATI};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_kiribati_01.png}
+\mapeez{02_sphere-territories/kiribati.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Republic of the Marshall Islands}
+\chapter{Republic of the Marshall Islands}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF THE MARSHALL ISLANDS};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_marshall-islands_01.png}
+\mapeez{02_sphere-territories/marshall-islands.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Republic of Palau}
+\chapter{Republic of Palau}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF PALAU};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_palau_01.png}
+\mapeez{02_sphere-territories/palau.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Republic of Vanuatu}
+\chapter{Republic of Vanuatu}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE REPUBLIC OF VANUATU};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_vanuatu_01.png}
+\mapeez{02_sphere-territories/vanuatu.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Solomon Islands}
+\chapter{Solomon Islands}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE SOLOMON ISLANDS};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_solomon-islands_01.png}
+\mapeez{02_sphere-territories/solomon-islands.png}
 
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\addcontentsline{toc}{section}{Wallis and Futuna}
+\chapter{Wallis and Futuna}
 
-\begin{tikzpicture}
-	\node[nodechap] at (0,0) {\LARGE WALLIS AND FUTUNA};
-\end{tikzpicture}
-
-\mapeez{02_ind-map/ind-map_wallis-and-futuna_01.png}
+\mapeez{02_sphere-territories/wallis-and-futuna.png}
 
 \newpage
 
@@ -622,22 +551,6 @@ For the individual territory assessments, we provided different values related t
 
 \newpage
 
-%%%%% ABBREVIATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter*{Abbreviations} 
-\addcontentsline{toc}{chapter}{Abbreviations}
-\markboth{Abréviations}{Abbreviations} % section with * so necessary to define it manually
-\pagestyle{abbreviate}
-
-\pagestyle{empty}
-
-\begin{tabular}{>{\bfseries}>{\color{color1}}r>{\itshape}l}
-	AIMS  & Australian Institute of Marine Science          \\
-	GCRMN & Global Coral Reef Monitoring Network            \\
-	ENSO & El Niño Southern Oscillation
-\end{tabular}
-
-\newpage
 
 \begin{tikzpicture}
 	\node[nodechap] at (0,0) {\LARGE FRENCH POLYNESIA};
@@ -647,12 +560,6 @@ For the individual territory assessments, we provided different values related t
 
 \input{./../../figs/03_geo-inf/geo-inf_french-polynesia.tex}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=13cm]{02_ind-map/ind-map_french-polynesia_00.png}
-	\caption[Map of French Polynesia]{Map of French Polynesia.}
-	\label{french-polynesia}
-\end{figure}
 
 \vspace{2cm}
 
