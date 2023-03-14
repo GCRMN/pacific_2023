@@ -20,12 +20,12 @@
 
 ### C. Figures and tables (`03_`)
 
-* `03_map_pacific-region.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
-* `03_map_territories-sphere.R` Produce hemisphere map for each territory.
-* `03_map_territories-bathy.R` Produce EEZ map for each territory.
 * `03_geographic-informations.R` Combine and export geographic information's.
-* `03_map_spatio-temporal.R` Produce map and plot of spatio-temporal distribution of data for each territory.
-* `03_sst_time-series.R` Produce plot of SST and SST anomaly for each territory.
+* `03_pacific_maps.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
+* `03_territories_map-sphere.R` Produce hemisphere map for each territory.
+* `03_territories_map-bathy.R` Produce EEZ map for each territory.
+* `03_territories_spatio-temporal.R` Produce map and plot of spatio-temporal distribution of data for each territory.
+* `03_territories_sst.R` Produce plot of SST and SST anomaly for each territory.
 
 ### D. Functions
 
