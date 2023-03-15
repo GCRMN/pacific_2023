@@ -1,7 +1,6 @@
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(purrr)
 library(sf)
 sf_use_s2(FALSE)
 
