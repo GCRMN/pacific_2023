@@ -6,17 +6,19 @@ library(RcppRoll)
 library(sf)
 library(patchwork)
 
+# 2. Source functions ----
+
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-source("code/function/map_sst.R")
 
 theme_set(theme_graph())
 
-# 2. Load data ----
+# 3. Load data ----
 
 load("data/07_data_sst.RData")
-
 load("data/01_background-shp/03_eez/data_eez.RData")
+
+# 4. Transform data ----
 
 data_sst <- data_eez %>% 
   st_drop_geometry() %>% 
@@ -28,168 +30,43 @@ data_sst <- data_eez %>%
          sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
   ungroup()
 
-# 3. 
+# 5. Create the function ----
+
+map_sst <- function(territory_i){
+  
+  # 1. Filter SST data ----
+  
+  data_sst_i <- data_sst %>% 
+    filter(TERRITORY1 == territory_i) 
+  
+  # 2. Make the plot ----
+  
+  # 2.1 SST --
+  
+  plot_a <- ggplot(data = data_sst_i, aes(x = date, y = sst)) +
+    geom_line(color = "black", linewidth = 0.25) +
+    geom_smooth(method = "lm", se = FALSE, color = "#446CB3") +
+    geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 1) +
+    labs(x = NULL, y = "SST (°C)", title = "A")
+  
+  # 2.2 SST anomaly --
+  
+  plot_b <- ggplot(data = data_sst_i, aes(x = date, y = sst_anom_mean)) +
+    geom_line(color = "black", linewidth = 0.25) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+    labs(x = "Year", y = "SST anomaly (°C)", title = "B")
+  
+  # 2.3 Combine the plot --
+  
+  plot_a + plot_b + plot_layout(ncol = 1)
+  
+  # 3. Export the plot ----
+  
+  ggsave(filename = paste0("figs/territories_fig-2/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 4.5, height = 6.5, dpi = 600)
+  
+}
+
+# 6. Map over the function ----
 
 map(unique(data_eez$TERRITORY1), ~map_sst(territory_i = .))
-
-
-
-
-
-data_sst2 <- data_sst %>% 
-  filter(TERRITORY1 == "French Polynesia") 
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-data_sst2 <- data_sst %>% 
-  filter(TERRITORY1 == "French Polynesia") 
-
-  
-ggplot(data = data_sst2, aes(x = date, y = sst)) +
-  geom_line(color = "black", linewidth = 0.25) +
-  geom_hline(yintercept = unique(data_sst2$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 1) +
-  labs(x = "Year", y = "SST (°C)", title = "A")
-
-ggplot(data = data_sst2, aes(x = date, y = sst_anom_mean)) +
-  geom_line(color = "black", linewidth = 0.25) +
-  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
-  labs(x = "Year", y = "SST anomaly (°C)", title = "B")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 3. Compare SST regime per territory ----
-
-ggplot(data = data_sst, aes(x = sst, y = fct_reorder(GEONAME, mean_sst))) +
-  geom_violin(draw_quantiles = c(0.5), fill = "#52b3d9") +
-  labs(x = "Sea Surface Temperature (°C)", y = NULL)
-
-ggsave(filename = "figs/02_sst-regime-comparison.png", height = 10, width = 8)
-
-# 4. Plot time-series per territory ----
-
-data_sst <- data_sst %>% 
-  filter(GEONAME == "Tokelau Exclusive Economic Zone") %>% 
-  group_by(GEONAME) %>% 
-  mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
-  ungroup()
-
-ggplot(data = data_sst, aes(x = date, y = sst)) +
-  geom_line(color = "black", linewidth = 0.25) +
-  geom_hline(yintercept = unique(data_sst$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 1) +
-  labs(x = "Year", y = "SST (°C)")
-
-# SST anomaly
-
-ggplot(data = data_sst, aes(x = date, y = sst_anom_mean)) +
-  geom_line(color = "black", linewidth = 0.25) +
-  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
-  labs(x = "Year", y = "SST anomaly (°C)")
-
-
-ggsave(filename = "figs/02_sst-time-series-1.png", height = 3, width = 8)
-
-
-
-
-
-
-
-
-
-
-
-
-###### TEST ######
-
-
-results <- data_sst %>% 
-  filter(TERRITORY1 %in% c("American Samoa", "Cook Islands")) %>% 
-  nest(data = -TERRITORY1) %>% 
-  mutate(model = map(data, ~lm(sst ~ date, data = .)),
-         model = map(model, broom::tidy)) %>% 
-  unnest(model)
-
-
-
-test <- data_sst %>% 
-  filter(TERRITORY1 %in% c("Cook Islands"))
-
-ggplot(data = test, aes(x = date, y = sst)) +
-  geom_line(color = "black", linewidth = 0.25) +
-  geom_abline(intercept = 2.698746e+01, slope = 4.990322e-10) +
-  labs(x = "Year", y = "SST anomaly (°C)")
-
-
-
-
-
-
-
-
-
-
-data_sst_values <- data_sst %>% 
-  group_by(GEONAME) %>% 
-  summarise(mean = mean(sst, na.rm = TRUE),
-            sd = sd(sst, na.rm = TRUE),
-            min = min(sst, na.rm = TRUE),
-            max = max(sst, na.rm = TRUE))
-
-
-data_sst_values <- data_sst %>% 
-  nest(GEONAME) %>% 
-  mutate(model = map(data, ~lm(sst ~ date, data = .)),
-         model = map(model, broom::tidy)) %>% 
-  unnest(model)
-
-
-U <- data_sst %>% 
-  group_by(GEONAME) %>% 
-  nest() %>% 
-  mutate(model = map(data, ~lm(sst ~ date, data = .)))
-
-
-
-
-# 3. Make the plot ----
-
-ggplot(data = data_sst, aes(x = date, y = sst)) +
-  geom_line() +
-  facet_wrap(~GEONAME)
