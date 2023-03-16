@@ -15,6 +15,7 @@
 
 ### B. Extraction and models (`02_`)
 
+* `02_reef-buffer.js` Create coral reef distribution buffer of 100 km. Used to extract cyclones occurrence.
 * `02_extract_reef-area.js` Estimate coral reef area for each EEZ on Google Earth Engine using Allen Coral Atlas data. Estimated values are used as geographic information's.
 * `02_extract_cyclones.R` Extract cyclones for each EEZ.
 * `02_extract_population.js` Extract human population for each EEZ. Estimated values are used as geographic information's.

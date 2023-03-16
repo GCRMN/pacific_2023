@@ -4,7 +4,6 @@ library(tidyverse) # Core tidyverse packages
 library(lubridate) # To deal with dates
 library(sf) # To plot maps
 sf_use_s2(FALSE) # Switch from S2 to GEOS
-source("code/function/graphical_par.R")
 
 # 2. Load and modify data tropical storms data (TS) ----
 
@@ -42,7 +41,8 @@ data_ts_points <- read.csv(textConnection(all_content), header = TRUE, stringsAs
                             max_windspeed > 210 & max_windspeed <= 251 ~ "4",
                             max_windspeed > 251 ~ "5")) %>% 
   st_as_sf(., coords = c("long", "lat"), crs = "EPSG:4326") %>% 
-  st_make_valid()
+  st_make_valid() %>% 
+  mutate(time = as_date(time))
 
 # 3. Save TS points data ----
 
