@@ -10,10 +10,13 @@
 * `01_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
 * `01_clean_cyclones.R` Clean cyclone dataset from [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive).
 * `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) to use in the analyses.
+* `01_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
+* `01_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
 
 ### B. Extraction and models (`02_`)
 
 * `02_extract_reef-area.js` Estimate coral reef area for each EEZ on Google Earth Engine using Allen Coral Atlas data. Estimated values are used as geographic information's.
+* `02_extract_cyclones.R` Extract cyclones for each EEZ.
 * `02_extract_population.js` Extract human population for each EEZ. Estimated values are used as geographic information's.
 * `02_extract_sst-time-series.R` Extract SST and SST anomaly on coral reefs of each EEZ.
 * `02_model_benthic-data.R` Bayesian hierarchical model to estimate temporal trends of hard coral and algae cover. 
@@ -26,6 +29,7 @@
 * `03_territories_map-bathy.R` Produce EEZ map for each territory.
 * `03_territories_spatio-temporal.R` Produce map and plot of spatio-temporal distribution of data for each territory.
 * `03_territories_sst.R` Produce plot of SST and SST anomaly for each territory.
+* `03_territories_cyclones.R` Produce plot and map of cyclones that occurred on each territory.
 
 ### D. Functions
 
