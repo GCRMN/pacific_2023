@@ -50,7 +50,27 @@ data_eez %<>% # Special pipe from magrittr
 
 data_eez <- nngeo::st_remove_holes(data_eez)
 
-# 6. Attribute EEZ number ----
+# 7. Include land within Papua New Guinea EEZ (to extract population, elevation, etc) ----
+
+data_land <- st_read("data/01_background-shp/02_princeton/papua-new-guinea/PNG_adm0.shp") %>% 
+  st_transform(crs_selected) %>% 
+  select(geometry)
+
+data_eez <- data_eez %>% 
+  # Union the two polygons of PNG
+  filter(TERRITORY1 == "Papua New Guinea") %>% 
+  group_by(TERRITORY1, SOVEREIGN1) %>%
+  summarise(do_union = TRUE) %>% 
+  ungroup() %>% 
+  # Union with PNG land polygon
+  st_union(., data_land) %>% 
+  nngeo::st_remove_holes(.) %>%
+  # Add to main EEZ data
+  bind_rows(data_eez %>% 
+              filter(TERRITORY1 != "Papua New Guinea"),
+            .)
+
+# 8. Attribute EEZ number ----
 
 data_eez <- data_eez %>% 
   mutate(TERRITORY1 = str_replace_all(TERRITORY1, "Micronesia", "Federated States of Micronesia")) %>% 
@@ -86,7 +106,7 @@ data_eez <- data_eez %>%
                             TERRITORY1 == "Line Group" ~ 30,
                             TERRITORY1 == "Pitcairn" ~ 31))
 
-# 7. Create coordinates for label placement ----
+# 9. Create coordinates for label placement ----
 
 data_eez <- tibble(number = 1:31,
                    lat = c(4, 6, 13, 20, 15, 19.5, 27, 16, -2, -1,
@@ -99,7 +119,7 @@ data_eez <- tibble(number = 1:31,
                             -130)) %>% 
   left_join(data_eez, .)
 
-# 8. Save data ----
+# 10. Save data ----
 
 save(data_eez, file = "data/01_background-shp/03_eez/data_eez.RData") # RData
 
