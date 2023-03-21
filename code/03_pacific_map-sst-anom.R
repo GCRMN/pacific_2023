@@ -47,7 +47,13 @@ map_sst_anom <- function(year_i){
     geom_sf(data = data_map, fill = "#363737", col = "grey") +
     scale_fill_gradientn(colors = rev(brewer.pal(n = 11, name = "RdBu")), 
                          breaks = seq(-5, 5, 1), 
-                         limits = c(-5, 5)) +
+                         limits = c(-5, 5),
+                         name = "SST anomaly (°C)",
+                         guide = guide_colourbar(direction = "horizontal", 
+                                                 title.position = "top", 
+                                                 title.hjust = 0.5, 
+                                                 ticks.colour = "black",
+                                                 frame.colour = "black")) +
     coord_sf(crs = crs_selected,
              ylim = c(-4000000, 4000000), 
              xlim = c(-3500000, 11000000), expand = FALSE) +
@@ -59,21 +65,20 @@ map_sst_anom <- function(year_i){
           plot.title = element_text(face = "bold", hjust = 0.5),
           panel.border = element_rect(colour = "black", fill = NA),
           legend.key.width = unit(1.5, "cm"),
-          legend.key.height = unit(0.2, "cm"))
+          legend.key.height = unit(0.2, "cm"),
+          legend.position = "bottom")
   
 }
 
 # 5. Map over the function ----
 
-plots <- map(unique(data_path$year), ~map_sst_anom(year_i = .))
+plots <- map(c(2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022), ~map_sst_anom(year_i = .))
 
 # 6. Combine plots ----
 
 combined_plots <- wrap_plots(plots) + 
   plot_layout(guides = "collect", ncol = 2) & 
-  theme(legend.position = "bottom",
-        legend.direction = "horizontal") & 
-  guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, title = "Sea Surface Temperature anomaly (°C)"))
+  theme(legend.position = "bottom")
 
 # 7. Save the plot ----
 
