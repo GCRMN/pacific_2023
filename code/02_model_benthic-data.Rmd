@@ -1,0 +1,291 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-03-24"
+---
+
+# Load package
+
+```{r}
+
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(gbm)
+library(caret)
+library(xgboost)
+
+# 2. Source functions ----
+
+source("function/graphical_par.R")
+source("function/theme_graph.R")
+
+# 3. Load gcrmndb_benthos data ----
+
+load("../data/04_data-benthic.RData")
+
+# 4. Extract HCC and basic dataviz ----
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral")
+
+hist(data_hcc$measurementValue/100)
+
+```
+
+# Tiahura data
+
+```{r}
+
+# 5. GBM ----
+
+load("../data/04_data-benthic.RData")
+
+# 4. Extract HCC and basic dataviz ----
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  filter(datasetID == "0006") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  select(eventID, verbatimDepth, year, month, day, measurementValue) %>% 
+  mutate(measurementValue = measurementValue)
+
+
+ggplot(data = data_hcc, aes(x = year, y = measurementValue, group = year)) +
+  geom_boxplot()
+
+
+
+gbm_res <- gbm(formula = measurementValue ~ .,
+               data = data_hcc,
+               distribution = "gaussian",
+               n.trees = 10000)
+
+plot(gbm_res, i.var = "year")
+
+```
+
+# Polynesia Mana
+
+```{r}
+
+load("../data/04_data-benthic.RData")
+
+# 4. Extract HCC and basic dataviz ----
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  filter(datasetID == "0005") %>% 
+  # 1. Make the sum of benthic cover per site, sampling unit and genus
+  group_by(locality, habitat, parentEventID, decimalLatitude, decimalLongitude,
+           verbatimDepth, year, month, day, eventDate, eventID, genus) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Calculate mean of HCC cover per genus
+  group_by(year, month, day, eventDate, genus) %>%
+  summarise(measurementValue = mean(measurementValue)) %>% 
+  ungroup()
+
+ggplot(data = data_hcc, aes(x = year, y = measurementValue, fill = genus)) +
+  geom_bar(stat = "identity")
+
+```
+
+# Models
+
+## Basic dataviz with smooth
+
+### HCC
+
+```{r}
+
+# 1. Extract data ----
+
+load("../data/04_data-benthic.RData")
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+
+# 2. Make the plot ----
+
+ggplot(data = data_hcc, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth()
+
+```
+
+### AC
+
+```{r}
+
+# 1. Extract data ----
+
+load("../data/04_data-benthic.RData")
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Algae") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+
+# 2. Make the plot ----
+
+ggplot(data = data_hcc, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth()
+
+```
+
+
+
+## GBM (AdaBoost)
+
+```{r}
+
+# 1. Extract data ----
+
+load("../data/04_data-benthic.RData")
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, country, territory, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  mutate_at(c("datasetID", "country", "territory", "habitat"), ~as.factor(.))
+
+gbm_res <- gbm(formula = measurementValue ~ .,
+               data = data_hcc,
+               distribution = "gaussian",
+               n.trees = 10000)
+
+plot(gbm_res, i.var = "year")
+
+```
+
+## GBM (XGBoost)
+
+```{r}
+
+# 1. Extract data ----
+
+load("../data/04_data-benthic.RData")
+
+data_selected <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+
+# 2. Split into training and testing datasets----
+
+train_index <- createDataPartition(data_selected$measurementValue, p = .8, 
+                                  list = FALSE, 
+                                  times = 1)
+
+data_train <- data_selected[train_index,]
+
+data_test <- data_selected[-train_index,]
+
+# 3. Convert to xgboost format ----
+
+data_train_x <- data_train %>% 
+  select(-measurementValue)
+
+data_train_y <- data_train %>% 
+  select(measurementValue) %>% 
+  pull()
+
+data_test_x <- data_test %>% 
+  select(-measurementValue)
+
+data_test_y <- data_test %>% 
+  select(measurementValue) %>% 
+  pull()
+
+# 4. Hypertuning ----
+
+# 4.1 Define the training parameters --
+
+xgb_trcontrol = trainControl(method = "cv", number = 5, allowParallel = TRUE,
+                             verboseIter = FALSE, returnData = FALSE)
+
+# 4.2 Create the hypergrid --
+
+xgbGrid <- expand.grid(nrounds = 100,  
+                       max_depth = c(3, 5, 10, 15, 20),
+                       colsample_bytree = seq(0.5, 0.9, length.out = 5),
+                       eta = 0.1,
+                       gamma=0,
+                       min_child_weight = 1,
+                       subsample = 1)
+
+# 4.3 Train the model --
+
+xgb_model <- caret::train(x = data_train_x, y = data_train_y, trControl = xgb_trcontrol, tuneGrid = xgbGrid, 
+                  method = "xgbTree")
+
+xgb_model$bestTune # Best set of parameters
+
+# 4.4 Evaluate model performance --
+
+data_predicted <- predict(xgb_model, data_test_x)
+
+residuals <- data_test_y - data_predicted
+
+RMSE = sqrt(mean(residuals^2))
+
+y_test_mean = mean(data_test_y)
+tss = sum((data_test_y - y_test_mean)^2)
+rss = sum(residuals^2)
+rsq = 1 - (rss/tss)
+
+plot(data_predicted, data_test_y)
+
+# Prediction --
+
+data_predicted <- predict(xgb_model, data_test_x)
+
+
+  
+  
+library(pdp)
+
+
+partial(xgb_model, pred.var = "year", ice = FALSE, center = TRUE, plot = TRUE,
+        rug = TRUE, alpha = 0.1, plot.engine = "ggplot2", train = data_train_x, type = "regression")
+
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
