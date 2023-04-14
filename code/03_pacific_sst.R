@@ -22,14 +22,8 @@ data_warming <- read.csv2("figs/sst_indicators.csv") %>%
 
 # 4. Make the plot ----
 
-ggplot(data = data_warming) +
-  geom_segment(aes(x = 0, 
-                   xend = sst_increase, 
-                   y = fct_reorder(TERRITORY1, sst_increase), 
-                   yend = fct_reorder(TERRITORY1, sst_increase),
-                   color = color)) +
-  geom_point(aes(x = sst_increase, y = fct_reorder(TERRITORY1, sst_increase), fill = color), 
-             shape = 21, size = 4, color = "white") +
+ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, sst_increase), fill = color)) +
+  geom_bar(stat = "identity", width = 0.5, color = "black") +
   scale_fill_identity() +
   scale_color_identity() +
   geom_richtext(aes(x = label_x, y = fct_reorder(TERRITORY1, sst_increase), label = warming_rate_label),
