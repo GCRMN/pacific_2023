@@ -42,6 +42,6 @@ data_sst <- future_map_dfr(ncdf_files, ~ncdf_extract(.)) %>%
               mutate(ID = row_number())) %>% 
   select(-ID)
 
-# 7. Make the plot ----
+# 7. Export the data ----
 
 save(data_sst, file = "data/07_data_sst.RData")

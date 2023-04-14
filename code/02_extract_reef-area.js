@@ -22,7 +22,7 @@ var aca_area = data_area.mask(aca_data);
 var reef_area = aca_area.reduceRegions({
   collection: eez,
   reducer: ee.Reducer.sum(), 
-  scale:1000,
+  scale:5,
 });
 
 // 6. Export the data ----
@@ -33,5 +33,5 @@ Export.table.toDrive({
   fileNamePrefix:"02_reef-area",
   fileFormat:"CSV",
   description:"02_reef-area",
-  selectors:["GEONAME", "sum"]
+  selectors:["TERRITORY1", "sum"]
 });
