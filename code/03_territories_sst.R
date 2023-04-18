@@ -5,6 +5,7 @@ library(lubridate)
 library(RcppRoll)
 library(sf)
 library(patchwork)
+library(scales)
 
 # 2. Source functions ----
 
@@ -96,14 +97,16 @@ map_sst <- function(territory_i){
     geom_line(color = "black", linewidth = 0.25) +
     geom_smooth(method = "lm", se = FALSE, color = "#446CB3") +
     geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 1) +
-    labs(x = "Year", y = "SST (°C)", title = "A")
+    labs(x = "Year", y = "SST (°C)", title = "A") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2.2 SST anomaly --
   
   plot_b <- ggplot(data = data_sst_i, aes(x = date, y = sst_anom_mean)) +
     geom_line(color = "black", linewidth = 0.25) +
     geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
-    labs(x = "Year", y = "SST anomaly (°C)", title = "B")
+    labs(x = "Year", y = "SST anomaly (°C)", title = "B") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2.3 SST by year --
   
@@ -122,8 +125,8 @@ map_sst <- function(territory_i){
                      labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
                                 "Sep.", "Oct.", "Nov.", "Dec.")) +
     labs(x = "Month", y = "SST (°C)", title = "C") + 
-    theme_graph() +
-    theme(axis.text.x = element_text(size = 8))
+    theme(axis.text.x = element_text(size = 8)) +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2.4 Combine the plot --
   
