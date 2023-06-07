@@ -17,9 +17,12 @@ theme_set(theme_graph())
 # 3. Load data ----
 
 load("data/07_data_sst.RData")
+load("data/09_data-dhw.RData")
 load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 4. Transform data ----
+
+# 4.1 SST --
 
 data_sst <- data_eez %>% 
   # Join to add TERRITORY1
@@ -33,6 +36,14 @@ data_sst <- data_eez %>%
          sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
   ungroup() %>% 
   drop_na(TERRITORY1)
+
+# 4.2 DHW --
+
+data_dhw <- data_eez %>% 
+  # Join to add TERRITORY1
+  st_drop_geometry() %>% 
+  select(TERRITORY1, GEONAME) %>% 
+  left_join(data_dhw, .)
 
 # 5. Extract indicators (sst increase, warming rate, and mean sst) ----
 
@@ -82,12 +93,15 @@ write.csv2(data_warming, file = "figs/sst_indicators.csv", row.names = FALSE)
 
 map_sst <- function(territory_i){
   
-  # 1. Filter SST data ----
+  # 1. Filter data ----
   
   data_sst_i <- data_sst %>% 
     filter(TERRITORY1 == territory_i) %>% 
     mutate(daymonth = str_sub(date, 6, 10),
            year = year(date))
+  
+  data_dhw_i <- data_dhw %>% 
+    filter(TERRITORY1 == territory_i)
   
   # 2. Make the plot ----
   
@@ -108,7 +122,14 @@ map_sst <- function(territory_i){
     labs(x = "Year", y = "SST anomaly (°C)", title = "B") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
-  # 2.3 SST by year --
+  # 2.3 DHW --
+  
+  plot_c <- ggplot(data = data_dhw_i, aes(x = date, y = dhw)) +
+    geom_line(color = "black", linewidth = 0.25) +
+    labs(x = "Year", y = "DHW (°C-weeks)", title = "C") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+  
+  # 2.4 SST by year --
   
   data_sst_i_mean <- data_sst_i %>% 
     group_by(daymonth) %>% 
@@ -116,7 +137,7 @@ map_sst <- function(territory_i){
     ungroup() %>% 
     mutate(year = "all")
   
-  plot_c <- ggplot() +
+  plot_d <- ggplot() +
     geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year), color = "grey", alpha = 0.75, linewidth = 0.5) +
     geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year), color = "black", linewidth = 1) +
     scale_color_identity() +
@@ -124,18 +145,18 @@ map_sst <- function(territory_i){
                                 "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
                      labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
                                 "Sep.", "Oct.", "Nov.", "Dec.")) +
-    labs(x = "Month", y = "SST (°C)", title = "C") + 
+    labs(x = "Month", y = "SST (°C)", title = "D") + 
     theme(axis.text.x = element_text(size = 8)) +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2.4 Combine the plot --
   
-  plot_a + plot_b + plot_c + plot_layout(ncol = 1)
+  plot_a + plot_b + plot_c + plot_d + plot_layout(ncol = 2)
   
   # 3. Export the plot ----
   
   ggsave(filename = paste0("figs/territories_fig-2/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 5, height = 10, dpi = 600)
+         width = 10, height = 8, dpi = 600)
   
 }
 
