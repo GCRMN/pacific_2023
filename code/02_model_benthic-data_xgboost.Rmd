@@ -1,0 +1,302 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-03-24"
+---
+
+# Load package
+
+```{r}
+
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(caret)
+library(xgboost)
+library(pdp)
+library(furrr)
+library(future)
+library(formattable)
+library(DT)
+
+# 2. Source functions ----
+
+source("function/graphical_par.R")
+source("function/theme_graph.R")
+
+# 3. Load weight data ----
+
+load("../data/12_grid-coral-reef-extent.RData")
+
+# 4. Load gcrmndb_benthos data ----
+
+load("../data/04_gcrmndb_benthos.RData")
+
+# 5. Extract HCC and basic dataviz ----
+
+data_hcc_raw <- synthetic_data %>% 
+  filter(datasetID != "0009") %>% 
+  filter(category == "Hard coral")
+
+data_algae_raw <- synthetic_data %>% 
+  filter(datasetID != "0009") %>% 
+  filter(category == "Algae")
+
+hist(data_hcc_raw$measurementValue/100)
+hist(data_algae_raw$measurementValue/100)
+
+```
+
+# Model
+
+```{r}
+
+# 1. Extract data ----
+
+data_selected <- data_hcc_raw %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Convert character to numeric
+  mutate(territory = as.numeric(as.factor(territory)))
+
+# 2. Split into training and testing datasets----
+
+train_index <- createDataPartition(data_selected$measurementValue, p = 0.80, 
+                                  list = FALSE, 
+                                  times = 1)
+
+data_train <- data_selected[train_index,]
+
+data_test <- data_selected[-train_index,]
+
+# 3. Convert to xgboost format ----
+
+data_train_x <- data_train %>% 
+  select(-measurementValue)
+
+data_train_y <- data_train %>% 
+  select(measurementValue) %>% 
+  pull()
+
+data_test_x <- data_test %>% 
+  select(-measurementValue)
+
+data_test_y <- data_test %>% 
+  select(measurementValue) %>% 
+  pull()
+
+# 4. Hypertuning ----
+
+# 4.1 Define the training parameters --
+
+xgb_trcontrol = trainControl(method = "cv", number = 5, allowParallel = TRUE,
+                             verboseIter = FALSE, returnData = FALSE)
+
+# 4.2 Create the hypergrid --
+
+xgbGrid <- expand.grid(nrounds = 100,  
+                       max_depth = c(3, 5, 10),
+                       colsample_bytree = seq(0.5, 0.9, length.out = 5),
+                       eta = 0.1,
+                       gamma = 0,
+                       min_child_weight = 1,
+                       subsample = 1)
+
+# 4.3 Train the model --
+
+xgb_model <- caret::train(x = data_train_x, y = data_train_y, trControl = xgb_trcontrol, tuneGrid = xgbGrid,
+                          method = "xgbTree")
+
+xgb_model$bestTune # Best set of parameters
+
+# 4.4 Evaluate model performance --
+
+data_predicted <- predict(xgb_model, data_test_x)
+
+residuals <- data_test_y - data_predicted
+
+RMSE = sqrt(mean(residuals^2))
+
+y_test_mean = mean(data_test_y)
+tss = sum((data_test_y - y_test_mean)^2)
+rss = sum(residuals^2)
+rsq = 1 - (rss/tss)
+
+plot(data_predicted, data_test_y)
+
+# 4.5 Dataviz --
+
+# 4.5.1 Using partial --
+
+pdp::partial(xgb_model, pred.var = "year", ice = FALSE, center = TRUE, plot = TRUE, smooth = FALSE,
+             rug = TRUE, alpha = 0.1, plot.engine = "ggplot2", train = data_train_x, type = "regression") +
+  theme_minimal()
+
+
+################## RUN the model for one territory -----
+
+data_selected <- data_hcc_raw %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Convert character to numeric
+  filter(territory == "New Caledonia") %>% ########### SELECT TERRITORY HERE
+  mutate(territory = as.numeric(as.factor(territory)))
+
+train_index <- createDataPartition(data_selected$measurementValue, p = 0.80, 
+                                  list = FALSE, 
+                                  times = 1)
+
+data_train <- data_selected[train_index,]
+
+data_test <- data_selected[-train_index,]
+
+# 3. Convert to xgboost format ----
+
+data_train_x <- data_train %>% 
+  select(-measurementValue)
+
+data_train_y <- data_train %>% 
+  select(measurementValue) %>% 
+  pull()
+
+data_test_x <- data_test %>% 
+  select(-measurementValue)
+
+data_test_y <- data_test %>% 
+  select(measurementValue) %>% 
+  pull()
+
+pdp::partial(xgb_model, pred.var = "year", ice = FALSE, center = TRUE, plot = TRUE, smooth = FALSE,
+             rug = TRUE, alpha = 0.1, plot.engine = "ggplot2", train = data_train_x, type = "regression") +
+  theme_minimal()
+
+
+```
+
+
+
+
+
+
+```{r}
+
+# 1. Extract data ----
+
+data_selected <- data_hcc_raw %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Convert character to numeric
+  mutate(territory = as.numeric(as.factor(territory)))
+
+xgboost_cover <- function(simu){
+
+train_index <- createDataPartition(data_selected$measurementValue, p = 0.80, 
+                                  list = FALSE, 
+                                  times = 1)
+
+data_train <- data_selected[train_index,]
+
+data_test <- data_selected[-train_index,]
+
+# 3. Convert to xgboost format ----
+
+data_train_x <- data_train %>% 
+  select(-measurementValue)
+
+data_train_y <- data_train %>% 
+  select(measurementValue) %>% 
+  pull()
+
+data_test_x <- data_test %>% 
+  select(-measurementValue)
+
+data_test_y <- data_test %>% 
+  select(measurementValue) %>% 
+  pull()
+
+# 4. Hypertuning ----
+
+# 4.1 Define the training parameters --
+
+xgb_trcontrol = trainControl(method = "cv", number = 5, allowParallel = TRUE,
+                             verboseIter = FALSE, returnData = FALSE)
+
+# 4.2 Create the hypergrid --
+
+xgbGrid <- expand.grid(nrounds = 100,  
+                       max_depth = c(3, 5, 10),
+                       colsample_bytree = seq(0.5, 0.9, length.out = 5),
+                       eta = 0.1,
+                       gamma = 0,
+                       min_child_weight = 1,
+                       subsample = 1)
+
+# 4.3 Train the model --
+
+xgb_model <- caret::train(x = data_train_x, y = data_train_y, trControl = xgb_trcontrol, tuneGrid = xgbGrid,
+                          method = "xgbTree")
+
+# 4.4 Export the results --
+
+results <- pdp::partial(xgb_model, pred.var = "year", ice = FALSE, center = TRUE, plot = FALSE,
+                        smooth = FALSE, rug = TRUE, alpha = 0.1, train = data_train_x, type = "regression") %>% 
+  as_tibble(.) %>% 
+  mutate(simu = simu)
+
+return(results)
+
+}
+
+A <- map_dfr(1:10, ~xgboost_cover(simu = .))
+
+```
+
+
+```{r}
+
+B <- A %>% 
+  group_by(year) %>% 
+  summarise(ic_95_upper = quantile(yhat, probs = 0.05),
+            mean = mean(yhat),
+            ic_95_lower = quantile(yhat, probs = 0.95))
+
+ggplot(data = B) +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(aes(x = year, y = mean), color = "#446CB3")
+
+```
+
+
+
+
+
+
+```{r}
+
+data_gcrmn <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Hard Coral Cover")
+
+ggplot() +
+  geom_ribbon(data = data_gcrmn, aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95), fill = "red", alpha = 0.4) +
+  geom_line(data = data_gcrmn, aes(x = Year, y = value), col = "red") +
+  geom_ribbon(data = B, aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(data = B, aes(x = year, y = mean), color = "#446CB3")
+
+```
+
+
+
+
+
+
+
+
