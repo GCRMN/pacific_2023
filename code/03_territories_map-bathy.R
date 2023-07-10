@@ -15,9 +15,17 @@ load("data/01_background-shp/03_eez/data_eez.RData")
 load("data/01_background-shp/02_princeton/data_land.RData")
 load("data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData")
 
+data_place <- st_read("data/01_background-shp/01_ne/ne_10m_populated_places/ne_10m_populated_places.shp") %>% 
+  st_transform(crs = "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") %>% 
+  st_filter(., data_eez) %>%  
+  filter(FEATURECLA %in% c("Admin-0 region capital", "Admin-0 capital", "Admin-1 capital")) %>% 
+  mutate(ADM0NAME = ifelse(ADM0NAME == "United States of America", ADM1NAME, ADM0NAME)) %>% 
+  filter(!(ADM0NAME == "Papua New Guinea" & FEATURECLA == "Admin-1 capital"),
+         !(ADM0NAME == "Palau" & FEATURECLA == "Admin-1 capital"))
+  
 # 4. Create the function ----
 
-map_eez <- function(territory){
+map_eez <- function(territory, admin = FALSE){
   
   if(territory %in% c("Fiji", "Wallis and Futuna", "Hawaii", "Tuvalu", "Gilbert Islands")){
     
@@ -33,7 +41,11 @@ map_eez <- function(territory){
       filter(TERRITORY1 == territory) %>% 
       st_transform(., crs = 3460)
     
-    ggplot() +
+    data_place_i <- data_place %>%
+      filter(ADM0NAME == territory) %>% 
+      st_transform(., crs = 3460)
+      
+    plot_i <- ggplot() +
       geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
       geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
       geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
@@ -53,6 +65,14 @@ map_eez <- function(territory){
       theme(axis.text = element_blank(),
             axis.ticks = element_blank(),
             panel.grid = element_blank())
+    
+    if(admin == TRUE){
+      
+      plot_i <- plot_i +
+        geom_sf(data = data_place_i, fill = "#d64541", color = "white", shape = 23, size = 2.5) +
+        labs(x = NULL, y = NULL)
+      
+    }
     
   }else{
     
@@ -65,7 +85,10 @@ map_eez <- function(territory){
     data_bathy_i <- data_bathy %>% 
       filter(TERRITORY1 == territory)
     
-    ggplot() +
+    data_place_i <- data_place %>%
+      filter(ADM0NAME == territory)
+    
+    plot_i <- ggplot() +
       geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
       geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
       geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
@@ -86,12 +109,22 @@ map_eez <- function(territory){
             axis.ticks = element_blank(),
             panel.grid = element_blank())
     
+      if(admin == TRUE){
+        
+        plot_i <- plot_i +
+          geom_sf(data = data_place_i, fill = "#d64541", color = "white", shape = 23, size = 2.5) +
+          labs(x = NULL, y = NULL)
+        
+      }
+    
   }
   
-  ggsave(filename = paste0("figs/territories_fig-1/", str_replace_all(str_to_lower(territory), " ", "-"), ".png"), dpi = 600)
+  ggsave(filename = paste0("figs/territories_fig-1/", str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
+         plot = plot_i, dpi = 600)
+  
   
 }
 
 # 5. Map over the function ----
 
-map(unique(data_eez$TERRITORY1), ~map_eez(territory = .))
+map(unique(data_eez$TERRITORY1), ~map_eez(territory = ., admin = TRUE))
