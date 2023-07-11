@@ -1,0 +1,77 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-03-24"
+---
+
+# Load package
+
+```{r}
+
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(caret)
+library(xgboost)
+library(furrr)
+library(pdp)
+library(future)
+library(formattable)
+library(DT)
+
+# 2. Source functions ----
+
+source("function/graphical_par.R")
+source("function/theme_graph.R")
+
+# 3. Load model results ----
+
+data_model <- read_csv("../data/11_model_results.csv")
+
+data_model <- data_model %>% 
+  group_by(year, territory) %>% 
+  summarise(ic_95_upper = quantile(yhat, probs = 0.95),
+            mean = mean(yhat),
+            ic_95_lower = quantile(yhat, probs = 0.05)) %>% 
+  ungroup()
+
+```
+
+```{r}
+
+data_pacific <- data_model %>% 
+  filter(territory == "Pacific")
+
+ggplot(data = data_pacific) +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(aes(x = year, y = mean), color = "#446CB3")
+
+data_territory <- data_model %>% 
+  filter(territory != "Pacific")
+
+ggplot(data = data_territory) +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(aes(x = year, y = mean), color = "#446CB3") +
+  facet_wrap(~territory, scales = "free")
+
+```
+
+
+```{r}
+
+data_gcrmn <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Hard Coral Cover")
+
+ggplot() +
+  geom_ribbon(data = data_gcrmn, aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95), fill = "red", alpha = 0.4) +
+  geom_line(data = data_gcrmn, aes(x = Year, y = value), col = "red") +
+  geom_ribbon(data = data_pacific, aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(data = data_pacific, aes(x = year, y = mean), color = "#446CB3")
+
+```
+
+
+
+
+
+
