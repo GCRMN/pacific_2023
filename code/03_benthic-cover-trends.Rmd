@@ -23,12 +23,26 @@ library(DT)
 
 source("function/graphical_par.R")
 source("function/theme_graph.R")
+theme_set(theme_graph())
 
 # 3. Load model results ----
 
-data_model <- read_csv("../data/11_model_results.csv")
+# 3.1 Hard coral cover --
 
-data_model <- data_model %>% 
+data_model_coral <- read_csv("../data/11_model_results_hard-coral.csv")
+
+data_model_coral <- data_model_coral %>% 
+  group_by(year, territory) %>% 
+  summarise(ic_95_upper = quantile(yhat, probs = 0.95),
+            mean = mean(yhat),
+            ic_95_lower = quantile(yhat, probs = 0.05)) %>% 
+  ungroup()
+
+# 3.2 Algae cover --
+
+data_model_algae <- read_csv("../data/11_model_results_algae.csv")
+
+data_model_algae <- data_model_algae %>% 
   group_by(year, territory) %>% 
   summarise(ic_95_upper = quantile(yhat, probs = 0.95),
             mean = mean(yhat),
@@ -37,30 +51,102 @@ data_model <- data_model %>%
 
 ```
 
+# Pacific region's trends
+
+## Hard coral cover
+
 ```{r}
 
-data_pacific <- data_model %>% 
+data_pacific <- data_model_coral %>% 
   filter(territory == "Pacific")
 
 ggplot(data = data_pacific) +
   geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
-  geom_line(aes(x = year, y = mean), color = "#446CB3")
+  geom_line(aes(x = year, y = mean), color = "#446CB3") +
+  labs(x = "Year", y = "Hard coral cover (%)")
 
-data_territory <- data_model %>% 
+```
+
+## Algae cover
+
+```{r}
+
+data_pacific <- data_model_algae %>% 
+  filter(territory == "Pacific")
+
+ggplot(data = data_pacific) +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(aes(x = year, y = mean), color = "#446CB3") +
+  labs(x = "Year", y = "Algae cover (%)")
+
+```
+
+
+
+# Territories' trends
+
+## Hard coral cover
+
+```{r fig.width=10, fig.height=8}
+
+data_territory <- data_model_coral %>% 
   filter(territory != "Pacific")
 
 ggplot(data = data_territory) +
   geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
   geom_line(aes(x = year, y = mean), color = "#446CB3") +
-  facet_wrap(~territory, scales = "free")
+  facet_wrap(~territory, scales = "free") +
+  labs(x = "Year", y = "Hard coral cover (%)")
 
 ```
 
+
+## Algae cover
+
+```{r fig.width=10, fig.height=8}
+
+data_territory <- data_model_algae %>% 
+  filter(territory != "Pacific")
+
+ggplot(data = data_territory) +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(aes(x = year, y = mean), color = "#446CB3") +
+  facet_wrap(~territory, scales = "free") +
+  labs(x = "Year", y = "Algae cover (%)")
+
+```
+
+
+
+# Comparison with 2020 GCRMN report results
+
+## Hard coral cover
 
 ```{r}
 
 data_gcrmn <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
   filter(GCRMN_region == "Pacific" & Var == "Hard Coral Cover")
+
+data_pacific <- data_model_coral %>% 
+  filter(territory == "Pacific")
+
+ggplot() +
+  geom_ribbon(data = data_gcrmn, aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95), fill = "red", alpha = 0.4) +
+  geom_line(data = data_gcrmn, aes(x = Year, y = value), col = "red") +
+  geom_ribbon(data = data_pacific, aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.4) +
+  geom_line(data = data_pacific, aes(x = year, y = mean), color = "#446CB3")
+
+```
+
+## Algae cover
+
+```{r}
+
+data_gcrmn <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Algae")
+
+data_pacific <- data_model_algae %>% 
+  filter(territory == "Pacific")
 
 ggplot() +
   geom_ribbon(data = data_gcrmn, aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95), fill = "red", alpha = 0.4) +
@@ -73,5 +159,38 @@ ggplot() +
 
 
 
+
+# Comparison with observed data
+
+```{r}
+
+# 2. Load data ----
+
+load("../data/04_data-benthic.RData")
+
+# 3. Transform data ----
+
+data_selected <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Convert character to numeric
+  mutate(territory_num = as.numeric(as.factor(territory)))
+
+```
+
+```{r fig.width=10, fig.height=8}
+
+ggplot() +
+  geom_point(data = data_selected, aes(x = year, y = measurementValue), alpha = 0.25, color = "#446CB3") +
+  geom_smooth(data = data_selected, aes(x = year, y = measurementValue)) +
+  geom_ribbon(data = data_territory, aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper), fill = "#446CB3", alpha = 0.5) +
+  geom_line(data = data_territory, aes(x = year, y = mean), color = "#446CB3") +
+  facet_wrap(~territory, scales = "free")
+
+```
 
 
