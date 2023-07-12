@@ -9,6 +9,7 @@ sf_use_s2(FALSE)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
+source("code/function/data_descriptors.R")
 
 # 3. Load data ----
 
@@ -185,31 +186,6 @@ map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
 
 load("data/04_data-benthic.RData")
 
-# 6.1 Number of monitoring sites --
-
-data_sites <- data_benthic %>% 
-  select(territory, decimalLatitude, decimalLongitude) %>% 
-  distinct() %>% 
+monitoring_descriptors <- data_benthic %>% 
   group_by(territory) %>% 
-  count(name = "n_sites")
-
-# 6.2 Number of surveys --
-
-data_surveys <- data_benthic %>% 
-  select(territory, decimalLatitude, decimalLongitude, eventDate, year, month, day) %>% 
-  distinct() %>% 
-  group_by(territory) %>% 
-  count(name = "n_surveys")
-
-# 6.3 Number of datasets --
-
-data_datasets <- data_benthic %>% 
-  select(territory, datasetID) %>% 
-  group_by(territory) %>% 
-  distinct() %>% 
-  count(name = "n_datasets")
-
-# 6.4 Combine datasets --
-
-data_descriptors <- left_join(data_sites, data_surveys) %>% 
-  left_join(., data_datasets)
+  data_descriptors()

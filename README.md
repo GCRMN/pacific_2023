@@ -35,6 +35,7 @@
 
 ### D. Functions
 
+* `data_descriptors.R` Get number of sites, surveys, datasets, first and last year of monitoring.
 * `graphical_par.R` Graphical parameters, including colors and fonts.
 * `theme_graph.R` Main ggplot theme for the maps of the reports.
 * `theme_map.R` Main ggplot theme for the plots of the reports.
