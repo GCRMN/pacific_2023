@@ -12,6 +12,7 @@
 * `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) to use in the analyses.
 * `01_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
 * `01_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
+* `01_select_benthic-data.R` Selection of benthic data from the [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) synthetic dataset.
 
 ### B. Extraction and models (`02_`)
 
@@ -31,11 +32,13 @@
 * `03_territories_spatio-temporal.R` Produce map and plot of spatio-temporal distribution of data for each territory.
 * `03_territories_sst.R` Produce plot of SST and SST anomaly for each territory.
 * `03_territories_cyclones.R` Produce plot and map of cyclones that occurred on each territory.
+* `03_benthic-cover-trends.Rmd` Produce plots of hard coral and algae cover trends.
 
 ### D. Functions
 
-* `theme_graph.R`
-* `theme_map.R`
+* `graphical_par.R` Graphical parameters, including colors and fonts.
+* `theme_graph.R` Main ggplot theme for the maps of the reports.
+* `theme_map.R` Main ggplot theme for the plots of the reports.
 
 
 ## 3. Reproducibility parameters
