@@ -9,10 +9,9 @@
 
 * `01_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
 * `01_clean_cyclones.R` Clean cyclone dataset from [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive).
-* `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) to use in the analyses.
+* `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
 * `01_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
 * `01_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
-* `01_select_benthic-data.R` Selection of benthic data from the [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) synthetic dataset.
 
 ### B. Extraction and models (`02_`)
 
