@@ -188,4 +188,12 @@ load("data/04_data-benthic.RData")
 
 monitoring_descriptors <- data_benthic %>% 
   group_by(territory) %>% 
-  data_descriptors()
+  data_descriptors() %>% 
+  ungroup() %>% 
+  # Add missing territories (those with no data)
+  left_join(st_read("data/01_background-shp/03_eez/data_eez.shp") %>%
+              select(TERRITORY1) %>% 
+              st_drop_geometry() %>% 
+              rename(territory = TERRITORY1),
+            .) %>% 
+  mutate(across(everything(), .fns = ~replace_na(.,0)))
