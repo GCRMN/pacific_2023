@@ -18,6 +18,7 @@ library(pdp)
 library(future)
 library(formattable)
 library(DT)
+library(patchwork)
 
 # 2. Source functions ----
 
@@ -193,4 +194,413 @@ ggplot() +
 
 ```
 
+# Comparison of statistical methods
 
+## Pacific region
+
+```{r}
+
+#### Hard coral cover ####
+
+data_selected <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+  
+data_selected_mean <- data_selected %>% 
+  group_by(year) %>% 
+  summarise(mean = mean(measurementValue),
+            sd = sd(measurementValue)) %>% 
+  ungroup()
+  
+# 1. First plot - Pointrange (mean +/- SD) ----
+
+plot_hcc_pointrange <- ggplot() +
+  geom_point(data = data_selected, aes(x = year, y = measurementValue),
+             alpha = 0.05, col = "#bdc3c7") +
+  geom_pointrange(data = data_selected_mean,
+                  aes(x = year, y = mean, ymin = mean - sd, ymax = mean + sd), col = "#2c82c9") +
+  labs(y = "Hard coral cover (%)", x = "Year", title = "Point range") +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 2. Second plot - Smooth ----
+
+plot_hcc_smooth <- ggplot(data = data_selected, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.05, col = "#bdc3c7") +
+  geom_smooth(col = "#2c82c9") +
+  labs(y = "Hard coral cover (%)", x = "Year", title = "Loess") +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 3. Third plot - XGBoost ----
+  
+cm <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  select(year) %>%
+  distinct() %>% 
+  mutate(data = TRUE) %>% 
+  left_join(data_model_coral %>% filter(territory == "Pacific"), .) %>% 
+  mutate(data = if_else(is.na(data), FALSE, data)) %>% 
+  mutate(rleid = with(rle(data), rep(seq_along(lengths), lengths)),
+         group = as.integer(rleid))
+  
+cm1 <- cm %>% 
+  ungroup %>% 
+  mutate(d = 3) %>%
+  uncount(d, .id = "A") %>%
+  mutate_at(vars(year, mean, ic_95_upper, ic_95_lower),
+            function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                 ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+  group_by_at(group_vars(cm)) %>%
+  filter(row_number()!= 1, row_number() !=n()) %>% 
+  ungroup() %>% 
+  select(-A, -rleid) %>% 
+  mutate(data = as.character(data),
+         data = str_replace_all(data, c("FALSE" = "#bdc3c7",
+                                        "TRUE" = "#2c82c9")))
+  
+plot_hcc_xgboost <- ggplot(data = cm1) +
+  geom_point(data = data_selected, aes(x = year, y = measurementValue),
+             alpha = 0.05, col = "#bdc3c7") +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper, fill = as.factor(data), group = group), 
+              alpha = 0.25, show.legend = FALSE) +
+  geom_line(aes(x = year, y = mean, color = as.factor(data), group = group), 
+            size = 1, show.legend = FALSE) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  labs(y = "Hard coral cover (%)", x = "Year", title = "XGBoost" ) +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 4. Fourth plot - GCRMN 2020 ----
+
+cm <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Hard Coral Cover") %>% 
+  mutate(Data = if_else(is.na(Data), FALSE, Data)) %>% 
+  mutate(rleid = with(rle(Data), rep(seq_along(lengths), lengths)),
+         group = as.integer(rleid))
+  
+cm1 <- cm %>% 
+  ungroup() %>% 
+  mutate(d = 3) %>%
+  uncount(d, .id = "A") %>%
+  mutate_at(vars(Year, value, .lower_0.8, .lower_0.95, .upper_0.8, .upper_0.95),
+            function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                 ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+  group_by_at(group_vars(cm)) %>%
+  filter(row_number()!= 1, row_number() !=n()) %>% 
+  ungroup() %>% 
+  select(-A, -rleid) %>% 
+  mutate(Data = as.character(Data),
+         Data = str_replace_all(Data, c("0" = "#bdc3c7",
+                                        "1" = "#2c82c9")))
+
+plot_hcc_gcrmn2020 <- ggplot(data = cm1) +
+    geom_ribbon(aes(x = Year, ymin = .lower_0.8, ymax = .upper_0.8, fill = as.factor(Data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+  geom_ribbon(aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95, fill = as.factor(Data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+    geom_line(aes(x = Year, y = value, color = as.factor(Data), group = group), 
+              size = 1, show.legend = FALSE) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    labs(y = "Hard coral cover (%)", x = "Year", title = "GCRMN 2020" ) +
+    lims(x = c(1980, 2023), y = c(0, 100))
+
+#### Algae cover ####
+
+data_selected <- data_benthic %>% 
+  filter(category == "Algae") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+  
+data_selected_mean <- data_selected %>% 
+  group_by(year) %>% 
+  summarise(mean = mean(measurementValue),
+            sd = sd(measurementValue)) %>% 
+  ungroup()
+  
+# 1. First plot - Pointrange (mean +/- SD) ----
+  
+plot_ac_pointrange <- ggplot() +
+  geom_point(data = data_selected, aes(x = year, y = measurementValue),
+             alpha = 0.05, col = "#bdc3c7") +
+  geom_pointrange(data = data_selected_mean,
+                  aes(x = year, y = mean, ymin = mean - sd, ymax = mean + sd), col = "#d64541") +
+  labs(y = "Algae cover (%)", x = "Year", title = "Point range") +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 2. Second plot - Smooth ----
+
+plot_ac_smooth <- ggplot(data = data_selected, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.05, col = "#bdc3c7") +
+  geom_smooth(col = "#d64541") +
+  labs(y = "Algae cover (%)", x = "Year", title = "Loess") +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 3. Third plot - XGBoost ----
+  
+cm <- data_benthic %>% 
+  filter(category == "Algae") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  select(year) %>%
+  distinct() %>% 
+  mutate(data = TRUE) %>% 
+  left_join(data_model_algae %>% filter(territory == "Pacific"), .) %>% 
+  mutate(data = if_else(is.na(data), FALSE, data)) %>% 
+  mutate(rleid = with(rle(data), rep(seq_along(lengths), lengths)),
+         group = as.integer(rleid))
+  
+cm1 <- cm %>% 
+  ungroup %>% 
+  mutate(d = 3) %>%
+  uncount(d, .id = "A") %>%
+  mutate_at(vars(year, mean, ic_95_upper, ic_95_lower),
+            function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                 ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+  group_by_at(group_vars(cm)) %>%
+  filter(row_number()!= 1, row_number() !=n()) %>% 
+  ungroup() %>% 
+  select(-A, -rleid) %>% 
+  mutate(data = as.character(data),
+         data = str_replace_all(data, c("FALSE" = "#bdc3c7",
+                                        "TRUE" = "#d64541")))
+  
+plot_ac_xgboost <- ggplot(data = cm1) +
+  geom_point(data = data_selected, aes(x = year, y = measurementValue),
+             alpha = 0.05, col = "#bdc3c7") +
+  geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper, fill = as.factor(data), group = group), 
+              alpha = 0.25, show.legend = FALSE) +
+  geom_line(aes(x = year, y = mean, color = as.factor(data), group = group), 
+            size = 1, show.legend = FALSE) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  labs(y = "Algae cover (%)", x = "Year", title = "XGBoost" ) +
+  lims(x = c(1980, 2023), y = c(0, 100))
+
+# 4. Fourth plot - GCRMN 2020 ----
+
+cm <- read_csv("../data/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Algae") %>% 
+  mutate(Data = if_else(is.na(Data), FALSE, Data)) %>% 
+  mutate(rleid = with(rle(Data), rep(seq_along(lengths), lengths)),
+         group = as.integer(rleid))
+  
+cm1 <- cm %>% 
+  ungroup() %>% 
+  mutate(d = 3) %>%
+  uncount(d, .id = "A") %>%
+  mutate_at(vars(Year, value, .lower_0.8, .lower_0.95, .upper_0.8, .upper_0.95),
+            function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                 ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+  group_by_at(group_vars(cm)) %>%
+  filter(row_number()!= 1, row_number() !=n()) %>% 
+  ungroup() %>% 
+  select(-A, -rleid) %>% 
+  mutate(Data = as.character(Data),
+         Data = str_replace_all(Data, c("0" = "#bdc3c7",
+                                        "1" = "#d64541")))
+
+plot_ac_gcrmn2020 <- ggplot(data = cm1) +
+    geom_ribbon(aes(x = Year, ymin = .lower_0.8, ymax = .upper_0.8, fill = as.factor(Data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+  geom_ribbon(aes(x = Year, ymin = .lower_0.95, ymax = .upper_0.95, fill = as.factor(Data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+    geom_line(aes(x = Year, y = value, color = as.factor(Data), group = group), 
+              size = 1, show.legend = FALSE) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    labs(y = "Algae cover (%)", x = "Year", title = "GCRMN 2020" ) +
+    lims(x = c(1980, 2023), y = c(0, 100))
+
+# Combine plots ----
+  
+plot_combined <- plot_hcc_pointrange + plot_hcc_smooth + plot_hcc_xgboost + plot_hcc_gcrmn2020 +
+  plot_ac_pointrange + plot_ac_smooth + plot_ac_xgboost + plot_ac_gcrmn2020 + 
+  plot_layout(ncol = 4)
+
+ggsave(plot = plot_combined,
+       filename = "../figs/benthic_cover_trends.png",
+       width = 16, height = 8, dpi = 600)
+
+```
+
+## Territories
+
+```{r}
+
+load("../data/04_data-benthic.RData")
+
+map_trends <- function(territory_i){
+  
+  #### Hard coral cover ####
+  
+  data_selected <- data_benthic %>% 
+    filter(category == "Hard coral") %>% 
+    filter(territory == territory_i) %>% 
+    # 1. Make the sum of benthic cover per sampling unit and category
+    group_by(parentEventID, territory,
+             decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+    summarise(measurementValue = sum(measurementValue)) %>% 
+    ungroup()
+  
+  data_selected_mean <- data_selected %>% 
+    group_by(year) %>% 
+    summarise(mean = mean(measurementValue),
+              sd = sd(measurementValue)) %>% 
+    ungroup()
+  
+  # 1. First plot - Pointrange (mean +/- SD) ----
+  
+  plot_hcc_pointrange <- ggplot() +
+    geom_point(data = data_selected, aes(x = year, y = measurementValue),
+               alpha = 0.05, col = "#bdc3c7") +
+    geom_pointrange(data = data_selected_mean,
+                    aes(x = year, y = mean, ymin = mean - sd, ymax = mean + sd), col = "#2c82c9") +
+    labs(y = "Hard coral cover (%)", x = "Year", title = "Point range") +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  # 2. Second plot - Smooth ----
+  
+  plot_hcc_smooth <- ggplot(data = data_selected, aes(x = year, y = measurementValue)) +
+    geom_point(alpha = 0.05, col = "#bdc3c7") +
+    geom_smooth(col = "#2c82c9") +
+    labs(y = "Hard coral cover (%)", x = "Year", title = "Loess") +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  # 3. Third plot - XGBoost ----
+  
+  cm <- data_benthic %>% 
+    filter(category == "Hard coral") %>% 
+    # 1. Make the sum of benthic cover per sampling unit and category
+    select(territory, year) %>%
+    distinct() %>% 
+    mutate(data = TRUE) %>% 
+    left_join(data_model_coral, .) %>% 
+    mutate(data = if_else(is.na(data), FALSE, data)) %>% 
+    filter(territory == territory_i) %>%
+    mutate(rleid = with(rle(data), rep(seq_along(lengths), lengths)),
+           group = as.integer(rleid))
+  
+  cm1 <- cm %>% 
+    ungroup %>% 
+    mutate(d = 3) %>%
+    uncount(d, .id = "A") %>%
+    mutate_at(vars(year, mean, ic_95_upper, ic_95_lower),
+              function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                   ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+    group_by_at(group_vars(cm)) %>%
+    filter(row_number()!= 1, row_number() !=n()) %>% 
+    ungroup() %>% 
+    select(-A, -rleid) %>% 
+    mutate(data = as.character(data),
+           data = str_replace_all(data, c("FALSE" = "#bdc3c7",
+                                          "TRUE" = "#2c82c9")))
+  
+  plot_hcc_xgboost <- ggplot(data = cm1) +
+    geom_point(data = data_selected, aes(x = year, y = measurementValue),
+               alpha = 0.05, col = "#bdc3c7") +
+    geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper, fill = as.factor(data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+    geom_line(aes(x = year, y = mean, color = as.factor(data), group = group), 
+              size = 1, show.legend = FALSE) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    labs(y = "Hard coral cover (%)", x = "Year", title = "XGBoost" ) +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  #### Algae cover ####
+
+  data_selected <- data_benthic %>% 
+    filter(category == "Algae") %>% 
+    filter(territory == territory_i) %>% 
+    # 1. Make the sum of benthic cover per sampling unit and category
+    group_by(parentEventID, territory,
+             decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+    summarise(measurementValue = sum(measurementValue)) %>% 
+    ungroup()
+  
+  data_selected_mean <- data_selected %>% 
+    group_by(year) %>% 
+    summarise(mean = mean(measurementValue),
+              sd = sd(measurementValue)) %>% 
+    ungroup()
+  
+  # 1. First plot - Pointrange (mean +/- SD) ----
+  
+  plot_ac_pointrange <- ggplot() +
+    geom_point(data = data_selected, aes(x = year, y = measurementValue),
+               alpha = 0.05, col = "#bdc3c7") +
+    geom_pointrange(data = data_selected_mean,
+                    aes(x = year, y = mean, ymin = mean - sd, ymax = mean + sd), col = "#d64541") +
+    labs(y = "Algae cover (%)", x = "Year", title = "Point range") +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  # 2. Second plot - Smooth ----
+  
+  plot_ac_smooth <- ggplot(data = data_selected, aes(x = year, y = measurementValue)) +
+    geom_point(alpha = 0.05, col = "#bdc3c7") +
+    geom_smooth(col = "#d64541") +
+    labs(y = "Algae cover (%)", x = "Year", title = "Loess") +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  # 3. Third plot - XGBoost ----
+  
+  cm <- data_benthic %>% 
+    filter(category == "Algae") %>% 
+    # 1. Make the sum of benthic cover per sampling unit and category
+    select(territory, year) %>%
+    distinct() %>% 
+    mutate(data = TRUE) %>% 
+    left_join(data_model_algae, .) %>% 
+    mutate(data = if_else(is.na(data), FALSE, data)) %>% 
+    filter(territory == territory_i) %>%
+    mutate(rleid = with(rle(data), rep(seq_along(lengths), lengths)),
+           group = as.integer(rleid))
+  
+  cm1 <- cm %>% 
+    ungroup %>% 
+    mutate(d = 3) %>%
+    uncount(d, .id = "A") %>%
+    mutate_at(vars(year, mean, ic_95_upper, ic_95_lower),
+              function(x=.) ifelse(.$A == 1,(x + lag(x))/2,
+                                   ifelse(.$A == 3, (x + lead(x))/2, x))) %>%
+    group_by_at(group_vars(cm)) %>%
+    filter(row_number()!= 1, row_number() !=n()) %>% 
+    ungroup() %>% 
+    select(-A, -rleid) %>% 
+    mutate(data = as.character(data),
+           data = str_replace_all(data, c("FALSE" = "#bdc3c7",
+                                          "TRUE" = "#d64541")))
+  
+  plot_ac_xgboost <- ggplot(data = cm1) +
+    geom_point(data = data_selected, aes(x = year, y = measurementValue),
+               alpha = 0.05, col = "#bdc3c7") +
+    geom_ribbon(aes(x = year, ymin = ic_95_lower, ymax = ic_95_upper, fill = as.factor(data), group = group), 
+                alpha = 0.25, show.legend = FALSE) +
+    geom_line(aes(x = year, y = mean, color = as.factor(data), group = group), 
+              size = 1, show.legend = FALSE) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    labs(y = "Algae cover (%)", x = "Year", title = "XGBoost" ) +
+    lims(x = c(1980, 2023), y = c(0, 100))
+  
+  # Combine plots ----
+  
+  plot_combined <- plot_hcc_pointrange + plot_hcc_smooth + plot_hcc_xgboost + 
+    plot_ac_pointrange + plot_ac_smooth + plot_ac_xgboost + plot_layout(ncol = 3)
+  
+  ggsave(plot = plot_combined,
+         filename = paste0("../figs/territories_fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 11, height = 8, dpi = 600)
+  
+}
+
+map(unique(data_benthic$territory), ~map_trends(territory_i = .))
+
+```
