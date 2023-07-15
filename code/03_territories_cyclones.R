@@ -93,7 +93,6 @@ map_cyclone <- function(territory_i){
       geom_sf(data = data_ts_points_i, aes(col = color), show.legend = FALSE, size = 0.75) +
       geom_sf_label(data = data_ts_lines_i, aes(col = color, label = name), show.legend = FALSE,
                     size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.4, "lines")) +
-      scale_fill_identity() +
       scale_color_identity() +
       facet_wrap(~time_range, ncol = 2, drop = FALSE) +
       theme_minimal() +
@@ -116,14 +115,7 @@ map_cyclone <- function(territory_i){
       scale_color_identity() +
       lims(x = c(ymd("1975-01-01"), ymd("2025-01-01"))) +
       labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
-      theme_graph() +
-      theme(panel.border = element_blank(),
-            panel.background = element_blank(),
-            panel.grid = element_blank(),
-            axis.ticks = element_line(linewidth = 0.5),
-            panel.grid.major.y = element_line(color = "black", linewidth = 0.5),
-            axis.text.y = element_text(vjust = -0.005),
-            plot.margin = margin(10, 4, 4, 4, "pt"))
+      theme_graph()
     
     ggsave(filename = paste0("figs/territories_fig-3-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_b, height = 5, width = 8, dpi = 600)
@@ -189,7 +181,6 @@ map_cyclone <- function(territory_i){
       geom_sf(data = data_ts_points_i, aes(col = color), show.legend = FALSE, size = 0.75) +
       geom_sf_label(data = data_ts_lines_i, aes(col = color, label = name), show.legend = FALSE,
                    size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.3, "lines")) +
-      scale_fill_identity() +
       scale_color_identity() +
       facet_wrap(~time_range, ncol = 2, drop = FALSE) +
       theme_minimal() +
@@ -212,14 +203,7 @@ map_cyclone <- function(territory_i){
       scale_color_identity() +
       lims(x = c(ymd("1975-01-01"), ymd("2025-01-01"))) +
       labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
-      theme_graph() +
-      theme(panel.border = element_blank(),
-            panel.background = element_blank(),
-            panel.grid = element_blank(),
-            axis.ticks = element_line(linewidth = 0.5),
-            panel.grid.major.y = element_line(color = "black", linewidth = 0.5),
-            axis.text.y = element_text(vjust = -0.005),
-            plot.margin = margin(10, 4, 4, 4, "pt"))
+      theme_graph()
     
     ggsave(filename = paste0("figs/territories_fig-3-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_b, height = 5, width = 8, dpi = 600)
