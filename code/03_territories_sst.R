@@ -18,6 +18,7 @@ theme_set(theme_graph())
 
 load("data/07_data_sst.RData")
 load("data/09_data-dhw.RData")
+load("data/10_data-dhw-percent.RData")
 load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 4. Transform data ----
@@ -87,7 +88,7 @@ data_warming <- data_sst %>%
 
 write.csv2(data_warming, file = "figs/sst_indicators.csv", row.names = FALSE)
 
-# 6. Make the plots for each territory ----
+# 6. Make the plots of SST for each territory ----
 
 # 6.1 Create the function --
 
@@ -122,14 +123,7 @@ map_sst <- function(territory_i){
     labs(x = "Year", y = "SST anomaly (°C)", title = "B") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
-  # 2.3 DHW --
-  
-  plot_c <- ggplot(data = data_dhw_i, aes(x = date, y = dhw)) +
-    geom_line(color = "black", linewidth = 0.25) +
-    labs(x = "Year", y = "DHW (°C-weeks)", title = "C") +
-    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
-  
-  # 2.4 SST by year --
+  # 2.3 SST by year --
   
   data_sst_i_mean <- data_sst_i %>% 
     group_by(daymonth) %>% 
@@ -137,7 +131,7 @@ map_sst <- function(territory_i){
     ungroup() %>% 
     mutate(year = "all")
   
-  plot_d <- ggplot() +
+  plot_c <- ggplot() +
     geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year), color = "grey", alpha = 0.75, linewidth = 0.5) +
     geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year), color = "black", linewidth = 1) +
     scale_color_identity() +
@@ -145,21 +139,64 @@ map_sst <- function(territory_i){
                                 "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
                      labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
                                 "Sep.", "Oct.", "Nov.", "Dec.")) +
-    labs(x = "Month", y = "SST (°C)", title = "D") + 
+    labs(x = "Month", y = "SST (°C)", title = "C") + 
     theme(axis.text.x = element_text(size = 8)) +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2.4 Combine the plot --
   
-  plot_a + plot_b + plot_c + plot_d + plot_layout(ncol = 2)
+  plot_a + plot_b + plot_c + plot_layout(ncol = 3)
   
   # 3. Export the plot ----
   
-  ggsave(filename = paste0("figs/territories_fig-2/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 10, height = 8, dpi = 600)
+  ggsave(filename = paste0("figs/territories_fig-2-a/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 13, height = 4, dpi = 600)
   
 }
 
 # 6.2 Map over the function --
 
 map(unique(data_sst$TERRITORY1), ~map_sst(territory_i = .))
+
+# 7. Make the plots of DHW for each territory ----
+
+# 7.1 Create the function --
+
+map_dhw <- function(territory_i){
+  
+  # 1. Max DHW over time ----
+  
+  data_dhw_i <- data_dhw %>% 
+    filter(TERRITORY1 == territory_i)
+  
+  plot_a <- ggplot(data = data_dhw_i, aes(x = date, y = dhw)) +
+    geom_line(color = "black", linewidth = 0.25) +
+    labs(x = "Year", y = "DHW (°C-weeks)", title = "A") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+  
+  # 2. DHW percent over time ----
+  
+  data_dhw_percent_i <- data_dhw_percent %>% 
+    filter(territory == territory_i)
+  
+  plot_b <- ggplot(data = data_dhw_percent_i, aes(x = date, y = freq, fill = dhw)) +
+    geom_bar(stat = "identity", width = 1) +
+    labs(x = "Year", y = "Percent of coral reefs", title = "B") +
+    scale_fill_scico(palette = "vikO") 
+  
+  # 3. Combine the plot --
+  
+  plot_a + plot_b + plot_layout(ncol = 2)
+  
+  # 4. Export the plot ----
+  
+  ggsave(filename = paste0("figs/territories_fig-2-b/", 
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 9, height = 4, dpi = 600)
+
+}
+  
+# 7.2 Map over the function --
+
+map(unique(data_dhw$TERRITORY1), ~map_dhw(territory_i = .))
