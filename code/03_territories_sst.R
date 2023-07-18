@@ -172,7 +172,7 @@ map_dhw <- function(territory_i){
   
   plot_a <- ggplot(data = data_dhw_i, aes(x = date, y = dhw)) +
     geom_line(color = "black", linewidth = 0.25) +
-    labs(x = "Year", y = "DHW (°C-weeks)", title = "A") +
+    labs(x = "Year", y = "Max. DHW (°C-weeks)", title = "A") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   # 2. DHW percent over time ----
@@ -180,10 +180,15 @@ map_dhw <- function(territory_i){
   data_dhw_percent_i <- data_dhw_percent %>% 
     filter(territory == territory_i)
   
-  plot_b <- ggplot(data = data_dhw_percent_i, aes(x = date, y = freq, fill = dhw)) +
-    geom_bar(stat = "identity", width = 1) +
+  plot_b <- ggplot(data = data_dhw_percent_i, aes(x = date, y = freq, fill = dhw_type)) +
+    geom_area(stat = "identity", position = "identity") +
+    scale_y_continuous(limits = c(0, 110), breaks = c(0, 25, 50, 75, 100)) +
+    scale_fill_manual(breaks = c("> 0 DHW", "> 5 DHW", "> 10 DHW"), 
+                      values = c("#2c82c9", "#fabe58", "#d64541"), name = NULL) +
     labs(x = "Year", y = "Percent of coral reefs", title = "B") +
-    scale_fill_scico(palette = "vikO") 
+    theme(legend.direction = "horizontal",
+          legend.position = c(0.5, 0.925),
+          legend.background = element_blank())
   
   # 3. Combine the plot --
   
@@ -193,7 +198,7 @@ map_dhw <- function(territory_i){
   
   ggsave(filename = paste0("figs/territories_fig-2-b/", 
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 9, height = 4, dpi = 600)
+         width = 10, height = 4, dpi = 600)
 
 }
   

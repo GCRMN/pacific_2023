@@ -46,7 +46,14 @@ data_dhw_percent <- map_dfr(ncdf_files[1:50], ~extract_dhw_percent(.)) %>%
   tidyr::complete(date, dhw, territory, fill = list(count = 0)) %>% 
   group_by(territory, date) %>% 
   mutate(freq = count*100/sum(count)) %>% 
-  ungroup()
+  ungroup() %>% 
+  group_by(date, territory) %>% 
+  summarise("> 0 DHW" = sum(freq[dhw > 0]),
+            "> 5 DHW" = sum(freq[dhw > 5]),
+            "> 10 DHW" = sum(freq[dhw > 10])) %>% 
+  ungroup() %>% 
+  pivot_longer("> 0 DHW":"> 10 DHW", names_to = "dhw_type", values_to = "freq") %>% 
+  mutate(dhw_type = as_factor(dhw_type))
 
 # 6. Export the data ----
 
