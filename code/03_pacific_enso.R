@@ -39,12 +39,13 @@ data_enso <- read_table("data/enso_soi.txt", skip = 87) %>%
 ggplot(data = data_enso, aes(x = date, y = soi, fill = color)) +
   geom_bar(stat = "identity") +
   scale_fill_identity() +
-  labs(x = "Year", y = "SOI") +
+  labs(x = "Year", y = "Southern Oscillation Index") +
   geom_hline(yintercept = 0) +
-  annotate(geom = "text", x = ym("1990-01"), y = 2.5, color = "#446CB3",
-           label = "La Nina", family = font_choose_graph, size = 5) +
-  annotate(geom = "text", x = ym("2015-01"), y = -2.5, color = "#d64541",
-           label = "El Nino", family = font_choose_graph, size = 5)
+  annotate(geom = "text", x = ym("1990-01"), y = 3, color = "#446CB3",
+           label = "La Niña", family = font_choose_graph, size = 5) +
+  annotate(geom = "text", x = ym("2015-01"), y = -3, color = "#d64541",
+           label = "El Niño", family = font_choose_graph, size = 5) +
+  lims(y = c(-3.5, 3.5))
 
 # 5. Save the plot ----
 

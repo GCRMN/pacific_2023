@@ -34,12 +34,12 @@ data_ts_points <- read.csv(textConnection(all_content), header = TRUE, stringsAs
   group_by(ts_id) %>% 
   mutate(max_windspeed = max(wind_speed)) %>% 
   ungroup() %>% 
-  filter(max_windspeed >= 119) %>% # Filter only tropical storms
-  mutate(saffir = case_when(max_windspeed >= 119 & max_windspeed <= 153 ~ "1",
-                            max_windspeed > 153 & max_windspeed <= 177 ~ "2",
-                            max_windspeed > 177 & max_windspeed <= 210 ~ "3",
-                            max_windspeed > 210 & max_windspeed <= 251 ~ "4",
-                            max_windspeed > 251 ~ "5")) %>% 
+  mutate(saffir = case_when(max_windspeed < 119 ~ 0,
+                            max_windspeed >= 119 & max_windspeed <= 153 ~ 1,
+                            max_windspeed > 153 & max_windspeed <= 177 ~ 2,
+                            max_windspeed > 177 & max_windspeed <= 210 ~ 3,
+                            max_windspeed > 210 & max_windspeed <= 251 ~ 4,
+                            max_windspeed > 251 ~ 5)) %>% 
   st_as_sf(., coords = c("long", "lat"), crs = "EPSG:4326") %>% 
   st_make_valid() %>% 
   mutate(time = as_date(time))

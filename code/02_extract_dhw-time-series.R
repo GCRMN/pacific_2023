@@ -15,7 +15,7 @@ plan(multisession, workers = 6) # Set parallelization with 6 cores
 ncdf_extract <- function(ncdf_i){
   
   ncdf <- rast(ncdf_i)$degree_heating_week
-  
+
   dhw_i <- terra::extract(x = ncdf, y = data_reef, fun = max, na.rm = TRUE) %>% 
     mutate(date = unique(time(ncdf)))
   
@@ -44,11 +44,3 @@ data_dhw <- future_map_dfr(ncdf_files[1:20], ~ncdf_extract(.)) %>%
 # 7. Export the data ----
 
 save(data_dhw, file = "data/09_data_dhw.RData")
-
-load("data/09_data_dhw.RData")
-
-### A SUPPRIMER A TERME
-
-ggplot(data = data_dhw, aes(x = date, y = dhw)) +
-  geom_path() +
-  facet_wrap(~GEONAME)

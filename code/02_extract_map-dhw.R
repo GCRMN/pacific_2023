@@ -29,5 +29,3 @@ raster_max_dhw <- function(year_i){
 # 3. Map over the function ----
 
 map(unique(ncdf_files$year), ~raster_max_dhw(.))
-
-raster_max_dhw(2009)
