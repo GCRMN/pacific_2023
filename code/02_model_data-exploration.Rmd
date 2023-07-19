@@ -1,0 +1,100 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-03-24"
+---
+
+# Load package
+
+```{r}
+
+# 1. Load packages ----
+
+library(tidyverse) # Core tidyverse packages
+library(patchwork)
+
+# 2. Source functions ----
+
+source("function/graphical_par.R")
+source("function/theme_graph.R")
+theme_set(theme_graph())
+
+# 3. Load gcrmndb_benthos data ----
+
+load("../data/04_data-benthic.RData")
+
+# 4. Transform data ----
+
+data_hcc <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+
+data_algae <- data_benthic %>% 
+  filter(category == "Algae") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(parentEventID, territory,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup()
+
+```
+
+```{r}
+
+plot_a <- ggplot(data = data_hcc, aes(x = measurementValue)) +
+  geom_density(fill = "#2c82c9", alpha = 0.75) +
+  geom_vline(xintercept = c(0, 100))
+
+plot_b <- ggplot(data = data_hcc, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1, col = "#2c82c9") +
+  geom_hline(yintercept = 100)
+
+plot_c <- ggplot(data = data_algae, aes(x = measurementValue)) +
+  geom_density(fill = "#d64541", alpha = 0.75) +
+  geom_vline(xintercept = c(0, 100))
+
+plot_d <- ggplot(data = data_algae, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1, col = "#d64541") +
+  geom_hline(yintercept = 100)
+
+plot_a + plot_b + plot_c + plot_d + 
+  plot_layout(ncol = 2) +
+  plot_annotation(title = "Hard coral cover (in blue) and algae cover (in red)")
+
+ggsave("../figs/03_benthic-trends_data-explo_pacific.png", height = 8, width = 10)
+
+```
+
+```{r}
+
+plot_a <- ggplot(data = data_hcc, aes(x = measurementValue)) +
+  geom_density(fill = "#2c82c9", alpha = 0.75) +
+  geom_vline(xintercept = c(0, 100)) +
+  facet_wrap(~territory, scales = "free", ncol = 1)
+
+plot_b <- ggplot(data = data_hcc, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1, col = "#2c82c9") +
+  geom_hline(yintercept = 100) +
+  facet_wrap(~territory, scales = "free", ncol = 1)
+
+plot_c <- ggplot(data = data_algae, aes(x = measurementValue)) +
+  geom_density(fill = "#d64541", alpha = 0.75) +
+  geom_vline(xintercept = c(0, 100)) +
+  facet_wrap(~territory, scales = "free", ncol = 1)
+
+plot_d <- ggplot(data = data_algae, aes(x = year, y = measurementValue)) +
+  geom_point(alpha = 0.1, col = "#d64541") +
+  geom_hline(yintercept = 100) +
+  facet_wrap(~territory, scales = "free", ncol = 1)
+
+plot_a + plot_b + plot_c + plot_d + 
+  plot_layout(ncol = 4) +
+  plot_annotation(title = "Hard coral cover (in blue) and algae cover (in red)")
+
+ggsave("../figs/03_benthic-trends_data-explo_territories.png", height = 40, width = 16)
+
+```
