@@ -61,14 +61,25 @@ map_eez <- function(territory){
     
     ggplot() +
       # Bathymetry
-      geom_sf(data = data_bathy_i, aes(fill = color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
       scale_fill_identity() +
       # EEZ borders
       geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
       # Lands
       geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
       # Benthic data
-      geom_sf(data = data_benthic_sites_i, aes(color = interval_class)) +
+      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class), aes(color = interval_class)) +
       scale_color_manual(values = palette_5cols,
                          labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                          drop = FALSE, name = "Number of years with data") +
@@ -93,14 +104,25 @@ map_eez <- function(territory){
     
     ggplot() +
       # Bathymetry
-      geom_sf(data = data_bathy_i, aes(fill = color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
+      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
       scale_fill_identity() +
       # EEZ borders
       geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
       # Lands
       geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
       # Benthic data
-      geom_sf(data = data_benthic_sites_i, aes(color = interval_class)) +
+      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class), aes(color = interval_class)) +
       scale_color_manual(values = palette_5cols,
                          labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                          drop = FALSE, name = "Number of years with data") +

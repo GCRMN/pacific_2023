@@ -119,7 +119,7 @@ plot_a <- ggplot() +
   # Country boundaries
   geom_sf(data = data_countries, fill = "#363737", col = "grey") +
   # Benthic data
-  geom_sf(data = data_benthic, aes(color = interval_class)) +
+  geom_sf(data = data_benthic %>% arrange(interval_class), aes(color = interval_class)) +
   scale_color_manual(values = palette_5cols,
                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                      drop = FALSE, name = "Number of years with data") +
