@@ -15,22 +15,19 @@ theme_set(theme_graph())
 
 data_warming <- read.csv2("figs/sst_indicators.csv") %>% 
   mutate(warming_rate = round(warming_rate, 3),
-         color = if_else(sst_increase > 0, "#d64541", "#446CB3"),
-         warming_rate_label = glue("<b><span style='color:{color}'>{warming_rate}</span></b> °C.y<sup>-1</sup>"),
-         label_x = if_else(sst_increase > 0, sst_increase + 0.18, sst_increase - 0.18)) %>% 
+         color = if_else(sst_increase > 0, "#d64541", "#446CB3")) %>% 
   arrange(desc(sst_increase))
 
 # 4. Make the plot ----
 
-ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, sst_increase), fill = color)) +
-  geom_bar(stat = "identity", width = 0.5, color = "black") +
+ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, sst_increase))) +
+  geom_segment(aes(xend = 0, yend = fct_reorder(TERRITORY1, sst_increase))) +
+  geom_point(aes(fill = color), shape = 21, size = 3) +
   scale_fill_identity() +
   scale_color_identity() +
-  geom_richtext(aes(x = label_x, y = fct_reorder(TERRITORY1, sst_increase), label = warming_rate_label),
-                size = 3, label.padding = grid::unit(rep(0, 4), "pt"), fill = NA, label.color = NA, family = font_choose_graph) +
   geom_vline(xintercept = 0) +
   labs(x = "Change in SST (°C) between 1980 and 2022", y = NULL) +
-  lims(x = c(-0.45, 1.4))
+  lims(x = c(-0.45, 1.25))
 
 # 5. Save the plot ----
 
