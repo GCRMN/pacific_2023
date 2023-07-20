@@ -22,18 +22,26 @@ library(DT)
 # 2. Load data ----
 
 load("../data/04_data-benthic.RData")
+load("../data/12_grid-coral-reef-extent.RData")
 
-# 3. Transform data ----
+# 3. Associate grid weight to each site ----
 
 data_selected <- data_benthic %>% 
-  filter(category == "Hard coral") %>% 
-  # 1. Make the sum of benthic cover per sampling unit and category
-  group_by(parentEventID, territory,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
-  summarise(measurementValue = sum(measurementValue)) %>% 
-  ungroup() %>% 
-  # 2. Convert character to numeric
-  mutate(territory_num = as.numeric(as.factor(territory)))
+  select(decimalLatitude, decimalLongitude) %>% 
+  distinct()
+
+data_selected2 <- data_selected %>% 
+  st_as_sf(crs = 4326, coords = c("decimalLongitude", "decimalLatitude")) %>% 
+  st_intersection(., data_grid %>% select(weight)) %>% 
+  mutate(decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry()
+
+data_selected3 <- left_join(data_selected, data_selected2)
+
+data_benthic <- left_join(data_benthic, data_selected3)
+
+rm(data_selected, data_selected2, data_selected3)
 
 ```
 
@@ -114,8 +122,7 @@ xgboost_model <- function(data_selected, bootstrap){
   # 4.3 Train the model --
   
   xgb_model <- caret::train(x = data_train_x, y = data_train_y, trControl = xgb_trcontrol, tuneGrid = xgbGrid,
-                            method = "xgbTree")
-  
+                            method = "xgbTree", weights = data_weight$weight)
   
   # 5. Extract the results
   
@@ -147,10 +154,72 @@ xgboost_model <- function(data_selected, bootstrap){
 
 # Run the model and export data
 
+## Hard coral cover
+
 ```{r}
+
+# 1. Select data for the model --
+
+data_selected <- data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day, weight) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  select(-higherGeography, -country, -locality) %>% 
+  # 2. Convert character to numeric
+  mutate(territory_num = as.numeric(as.factor(territory)),
+         habitat_num = as.numeric(as.factor(habitat)),
+         datasetID = as.numeric(datasetID)) %>% 
+  select(-habitat)
+
+data_weight <- data_selected %>% select(weight) %>% mutate(weight = replace_na(weight, 0))
+
+data_selected <- data_selected %>% select(-weight)
+
+# 2. Run the model ----
 
 data_results <- map_dfr(seq(1, 100, 1), ~xgboost_model(data_selected, bootstrap = .))
 
-write_csv(data_results, file = "../data/11_model_results.csv")
+# 3. Export the data ----
+
+write_csv(data_results, file = "../data/11_model-results_hard-coral.csv")
+
+```
+
+## Algae cover
+
+```{r}
+
+# 1. Select data for the model --
+
+data_selected <- data_benthic %>% 
+  filter(category == "Algae") %>% 
+  # 1. Make the sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day, weight) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  select(-higherGeography, -country, -locality) %>% 
+  # 2. Convert character to numeric
+  mutate(territory_num = as.numeric(as.factor(territory)),
+         habitat_num = as.numeric(as.factor(habitat)),
+         datasetID = as.numeric(datasetID)) %>% 
+  select(-habitat)
+
+data_weight <- data_selected %>% select(weight) %>% mutate(weight = replace_na(weight, 0))
+
+data_selected <- data_selected %>% select(-weight)
+
+# 2. Run the model ----
+
+data_results <- map_dfr(seq(1, 100, 1), ~xgboost_model(data_selected, bootstrap = .))
+
+# 3. Export the data ----
+
+write_csv(data_results, file = "../data/11_model-results_algae.csv")
 
 ```
