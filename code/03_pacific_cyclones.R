@@ -5,6 +5,7 @@ library(stringr)
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 library(patchwork)
+library(scico)
 
 # 2. Source functions ----
 
@@ -63,14 +64,31 @@ data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180),
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
+data_tropics_no_eez <- st_intersection(data_tropics, data_eez)
+
+data_tropics_no_eez$var <- "true"
+
+data_tropics_no_eez <- st_difference(data_tropics, st_union(st_geometry(data_tropics_no_eez)))
+
 # 8. Cyclones that passed within 100 km from a coral reef ----
 
 load("data/05_cyclones/02_cyclones_extracted.RData")
 load("data/05_cyclones/01_cyclones_lines.RData")
+load("data/05_cyclones/01_cyclones_points.RData")
+
+# 8.1 Get cyclone category (Saffir scale) --
+
+data_cyclones_saffir <- data_ts_points %>% 
+  st_drop_geometry() %>% 
+  filter(ts_id %in% unique(data_cyclones$ts_id)) %>% 
+  select(ts_id, saffir) %>% 
+  distinct()
+  
+# 8.2 Extract cyclone trajectories --
 
 data_cyclones <- data_ts_lines %>% 
   filter(ts_id %in% unique(data_cyclones$ts_id)) %>% 
-  st_transform(crs = crs_selected)
+  left_join(., data_cyclones_saffir)
 
 # 9. Create text annotation ----
 
@@ -102,7 +120,8 @@ data_text_australia <- tibble(long = c(140),
 
 ggplot() +
   # Tropics
-  geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  #geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  geom_sf(data = data_tropics_no_eez, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   # EEZ
   geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
   # Background map
@@ -110,7 +129,7 @@ ggplot() +
   # Country boundaries
   geom_sf(data = data_countries, fill = "#363737", col = "grey") +
   # Cyclones
-  geom_sf(data = data_cyclones, alpha = 0.5, col = "#d64541", linewidth = 0.6) +
+  geom_sf(data = data_cyclones, col = "#d64541", alpha = 0.5, linewidth = 0.5) +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
                color = "darkgrey", size = 2.5, family = font_choose_map) +

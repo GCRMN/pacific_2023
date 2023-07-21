@@ -64,6 +64,12 @@ data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180),
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
+data_tropics_no_eez <- st_intersection(data_tropics, data_eez)
+
+data_tropics_no_eez$var <- "true"
+
+data_tropics_no_eez <- st_difference(data_tropics, st_union(st_geometry(data_tropics_no_eez)))
+
 # 3.8 Create text annotation --
 
 # 3.8.1 Tropics --
@@ -111,7 +117,8 @@ data_benthic <- data_benthic %>%
 
 plot_a <- ggplot() +
   # Tropics
-  geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  #geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
+  geom_sf(data = data_tropics_no_eez, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   # EEZ
   geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
   # Background map
