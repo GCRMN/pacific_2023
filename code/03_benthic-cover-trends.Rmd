@@ -30,7 +30,7 @@ theme_set(theme_graph())
 
 # 3.1 Hard coral cover --
 
-data_model_coral <- read_csv("../data/11_model_results_hard-coral.csv")
+data_model_coral <- read_csv("../data/11_model-results_hard-coral.csv")
 
 data_model_coral <- data_model_coral %>% 
   group_by(year, territory) %>% 
@@ -41,7 +41,7 @@ data_model_coral <- data_model_coral %>%
 
 # 3.2 Algae cover --
 
-data_model_algae <- read_csv("../data/11_model_results_algae.csv")
+data_model_algae <- read_csv("../data/11_model-results_algae.csv")
 
 data_model_algae <- data_model_algae %>% 
   group_by(year, territory) %>% 
@@ -200,13 +200,16 @@ ggplot() +
 
 ```{r}
 
+load("../data/04_data-benthic.RData")
+
 #### Hard coral cover ####
 
 data_selected <- data_benthic %>% 
   filter(category == "Hard coral") %>% 
   # 1. Make the sum of benthic cover per sampling unit and category
-  group_by(parentEventID, territory,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day) %>% 
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup()
   
@@ -314,8 +317,9 @@ plot_hcc_gcrmn2020 <- ggplot(data = cm1) +
 data_selected <- data_benthic %>% 
   filter(category == "Algae") %>% 
   # 1. Make the sum of benthic cover per sampling unit and category
-  group_by(parentEventID, territory,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day) %>% 
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup()
   
@@ -444,8 +448,9 @@ map_trends <- function(territory_i){
     filter(category == "Hard coral") %>% 
     filter(territory == territory_i) %>% 
     # 1. Make the sum of benthic cover per sampling unit and category
-    group_by(parentEventID, territory,
-             decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+    group_by(datasetID, higherGeography, country, territory, locality, habitat,
+             parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+             year, month, day) %>% 
     summarise(measurementValue = sum(measurementValue)) %>% 
     ungroup()
   
@@ -520,8 +525,9 @@ map_trends <- function(territory_i){
     filter(category == "Algae") %>% 
     filter(territory == territory_i) %>% 
     # 1. Make the sum of benthic cover per sampling unit and category
-    group_by(parentEventID, territory,
-             decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+    group_by(datasetID, higherGeography, country, territory, locality, habitat,
+             parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+             year, month, day) %>% 
     summarise(measurementValue = sum(measurementValue)) %>% 
     ungroup()
   
