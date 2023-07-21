@@ -28,16 +28,18 @@ load("../data/04_data-benthic.RData")
 data_hcc <- data_benthic %>% 
   filter(category == "Hard coral") %>% 
   # 1. Make the sum of benthic cover per sampling unit and category
-  group_by(parentEventID, territory,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day) %>% 
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup()
 
 data_algae <- data_benthic %>% 
   filter(category == "Algae") %>% 
   # 1. Make the sum of benthic cover per sampling unit and category
-  group_by(parentEventID, territory,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventID) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat,
+           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
+           year, month, day) %>% 
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup()
 
@@ -98,3 +100,15 @@ plot_a + plot_b + plot_c + plot_d +
 ggsave("../figs/03_benthic-trends_data-explo_territories.png", height = 40, width = 16)
 
 ```
+
+
+
+```{r}
+
+ggplot(data = data_hcc, aes(x = measurementValue)) +
+  geom_density(fill = "#2c82c9", alpha = 0.75) +
+  geom_vline(xintercept = c(0, 100)) +
+  facet_wrap(~datasetID, scales = "free")
+
+```
+
