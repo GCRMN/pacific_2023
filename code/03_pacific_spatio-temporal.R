@@ -192,8 +192,14 @@ plot_b <- data_benthic %>%
 
 # 6. Combine plots ----
 
+# 6.1 Horizontal --
+
 plot_a + plot_b + plot_layout(ncol = 2)
 
-# 7. Save the plots ----
+ggsave(filename = "figs/01_pacific_surveys_horizontal.png", width = 10, height = 4, dpi = 600)
 
-ggsave(filename = "figs/01_pacific_surveys.png", width = 10, height = 4, dpi = 600)
+# 6.2 Vertical --
+
+plot_a + plot_b + plot_layout(ncol = 1)
+
+ggsave(filename = "figs/01_pacific_surveys_vertical.png", width = 5, height = 8, dpi = 600)
