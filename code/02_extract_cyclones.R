@@ -14,28 +14,21 @@ data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>%
   st_wrap_dateline() %>% 
   st_make_valid()
 
-# 2.2 Coral reef distribution buffer --
-
-data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
-  st_transform(crs = 4326) %>% 
-  st_wrap_dateline() %>% 
-  st_make_valid()
-
-# 2.3 Cyclones lines --
+# 2.2 Cyclones lines --
 
 load("data/05_cyclones/01_cyclones_lines.RData")
 
 data_ts_lines <- data_ts_lines %>% 
   st_transform(crs = 4326)
 
-# 2.4 Cyclones points --
+# 2.3 Cyclones points --
 
 load("data/05_cyclones/01_cyclones_points.RData")
 
 data_ts_points <- data_ts_points %>% 
   st_transform(crs = 4326)
 
-# 2.5 EEZ --
+# 2.4 EEZ --
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
@@ -44,51 +37,21 @@ data_eez <- data_eez %>%
   st_wrap_dateline() %>% 
   st_make_valid()
 
-# 3. Attribute a EEZ name to reef buffer ----
+# 2.5 Coral reef distribution 100 km buffer --
 
-data_reef_buffer <- st_intersection(data_eez, data_reef_buffer)
+data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid() %>% 
+  st_intersection(., data_eez) %>% 
+  select(TERRITORY1) %>% 
+  rename(territory = TERRITORY1)
 
-# 4. Visual check ----
+# 3. Extract tropical storms ----
 
-ggplot() +
-  geom_sf(data = data_eez, col = "blue") +
-  geom_sf(data = data_reef_buffer, col = "red") +
-  geom_sf(data = data_ts_lines, alpha = 0.25)
+# 3.1 Create a function to extract tropical storm for a given EEZ --
 
-# 5. Extract cyclones that crosses coral reef buffer ----
-
-# 5.1 Create the function --
-
-map_cyclone <- function(territory_i){
-  
-  # 1. Extract the EEZ i ----
-  
-  data_reef_buffer_i <- data_reef_buffer %>% 
-    filter(TERRITORY1 == territory_i)
-  
-  # 2. Filter TS lines crossing the coral reef distribution 100 km buffer ----
-  
-  data_ts_lines_i <- st_filter(data_ts_lines, data_reef_buffer_i, join = st_intersects) %>% 
-    st_drop_geometry() %>% 
-    mutate(TERRITORY1 = territory_i)
-  
-  # 3. Return the results ----
-  
-  return(data_ts_lines_i)
-  
-}
-
-# 5.2 Map over the function --
-
-data_ts_reef <- map_dfr(data_eez$TERRITORY1, ~map_cyclone(.))
-
-# 6. Extract information's for each cyclone ----
-
-# 6.1 Create the function --
-
-map_event <- function(territory_i, ts_id_i){
-  
-  # 1. Extract data ----
+map_event <- function(ts_id_i, data_reef_i){
   
   data_ts_lines_i <- data_ts_lines %>% 
     filter(ts_id == ts_id_i)
@@ -96,30 +59,45 @@ map_event <- function(territory_i, ts_id_i){
   data_ts_points_i <- data_ts_points %>% 
     filter(ts_id == ts_id_i)
   
+  dist <- as.numeric(st_distance(data_reef_i, data_ts_lines_i))/1000
+  
+  nearest <- st_nearest_feature(data_reef_i, data_ts_points_i)
+
+  wind_speed <- data_ts_points_i[nearest,]
+  
+  result <- wind_speed %>% 
+    mutate(dist = dist) %>% 
+    st_drop_geometry()
+  
+  return(result)
+  
+}
+
+# 3.2 Create a function to extract tropical storms within 100 km from a reef --
+
+map_cyclone <- function(territory_i){
+  
+  data_reef_buffer_i <- data_reef_buffer %>% 
+    filter(territory == territory_i)
+  
   data_reef_i <- data_reef %>% 
     filter(TERRITORY1 == territory_i)
   
-  # 2. Extract information's ----
+  # Extract tropical storms passing within 100 km from a reef ----
   
-  results <- st_join(data_reef_i, data_ts_points_i, join = st_nearest_feature) %>% # TS speed and wind at nearest point
-    st_drop_geometry() %>% 
-    mutate(ts_dist = as.numeric(st_distance(data_reef_i, data_ts_lines_i))) %>% # distance between site and TS path
-    select(ts_id, name, time, storm_speed, wind_speed, max_windspeed, saffir, ts_dist) %>% 
-    mutate(territory = territory_i,
-           ts_dist = ts_dist/1000)
+  data_ts_lines_i <- st_filter(data_ts_lines, data_reef_buffer_i, join = st_intersects)
   
-  # 3. Return the results ----
+  results <- map_dfr(unique(data_ts_lines_i$ts_id), ~map_event(ts_id_i = ., data_reef_i)) %>% 
+    mutate(territory = territory_i)
   
   return(results)
   
 }
 
-# 6.2 Map over the function --
+# 3.3 Map over the function --
 
-data_cyclones <- pmap_dfr(list(territory_i = data_ts_reef$TERRITORY1, 
-                         ts_id_i = data_ts_reef$ts_id),
-                    map_event)
+data_cyclones <- map_dfr(unique(data_eez$TERRITORY1), ~map_cyclone(territory_i = .))
 
-# 7. Save the data ----
+# 4. Export the results ----
 
 save(data_cyclones, file = "data/05_cyclones/02_cyclones_extracted.RData")

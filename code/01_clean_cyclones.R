@@ -32,7 +32,8 @@ data_ts_points <- read.csv(textConnection(all_content), header = TRUE, stringsAs
   mutate(long = ifelse(long > 180, long - 360, long)) %>% # Transform long greater than 180
   filter(time > as.Date("1980-01-01")) %>% # Remove TS before 1980 due to high position uncertainty
   group_by(ts_id) %>% 
-  mutate(max_windspeed = max(wind_speed)) %>% 
+  mutate(max_windspeed = max(wind_speed, na.rm = TRUE)) %>% 
+  filter(max_windspeed != -Inf) %>% 
   ungroup() %>% 
   mutate(saffir = case_when(max_windspeed < 119 ~ 0,
                             max_windspeed >= 119 & max_windspeed <= 153 ~ 1,
