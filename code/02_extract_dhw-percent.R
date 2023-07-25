@@ -31,20 +31,24 @@ extract_dhw_percent <- function(ncdf_i){
   
   results <- terra::freq(x = ncdf, zones = data_reef) %>% 
     mutate(date = lubridate::date(unique(time(ncdf))))
-
+  
   return(results)
   
 }
 
 # 5. Map over the function ----
 
-data_dhw_percent <- map_dfr(ncdf_files[1:50], ~extract_dhw_percent(.)) %>% 
+data_dhw_percent <- map_dfr(ncdf_files, ~extract_dhw_percent(.)) %>% 
   rename(dhw = value) %>% 
   left_join(., tibble(territory = data_reef$TERRITORY1) %>%
               mutate(zone = row_number())) %>% 
   select(-layer, -zone) %>% 
-  tidyr::complete(date, dhw, territory, fill = list(count = 0)) %>% 
-  group_by(territory, date) %>% 
+  tidyr::complete(date, dhw, territory, fill = list(count = 0))
+
+# 6. DHW percent per territory ----
+
+data_dhw_percent_territory <- data_dhw_percent %>%  
+  group_by(date, territory) %>% 
   mutate(freq = count*100/sum(count)) %>% 
   ungroup() %>% 
   group_by(date, territory) %>% 
@@ -55,6 +59,25 @@ data_dhw_percent <- map_dfr(ncdf_files[1:50], ~extract_dhw_percent(.)) %>%
   pivot_longer("> 0 DHW":"> 10 DHW", names_to = "dhw_type", values_to = "freq") %>% 
   mutate(dhw_type = as_factor(dhw_type))
 
-# 6. Export the data ----
+# 7. DHW percent for the Pacific ----
+
+data_dhw_percent_pacific <- data_dhw_percent %>%  
+  group_by(date) %>% 
+  mutate(freq = count*100/sum(count)) %>% 
+  ungroup() %>% 
+  group_by(date) %>% 
+  summarise("> 0 DHW" = sum(freq[dhw > 0]),
+            "> 5 DHW" = sum(freq[dhw > 5]),
+            "> 10 DHW" = sum(freq[dhw > 10])) %>% 
+  ungroup() %>% 
+  pivot_longer("> 0 DHW":"> 10 DHW", names_to = "dhw_type", values_to = "freq") %>% 
+  mutate(dhw_type = as_factor(dhw_type),
+         territory = "Pacific")
+
+# 8. Combine data ----
+
+data_dhw_percent <- bind_rows(data_dhw_percent_territory, data_dhw_percent_pacific)
+
+# 9. Export the data ----
 
 save(data_dhw_percent, file = "data/10_data-dhw-percent.RData")
