@@ -96,7 +96,8 @@ map_cyclone <- function(territory_i){
 
 # 3.3 Map over the function --
 
-data_cyclones <- map_dfr(unique(data_eez$TERRITORY1), ~map_cyclone(territory_i = .))
+data_cyclones <- map_dfr(unique(data_eez$TERRITORY1), ~map_cyclone(territory_i = .)) %>% 
+  filter(dist < 100) # Remove rows with dist > 100, due to two particular cases (see notebook)
 
 # 4. Export the results ----
 
