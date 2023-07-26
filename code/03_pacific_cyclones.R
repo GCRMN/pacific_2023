@@ -72,23 +72,13 @@ data_tropics_no_eez <- st_difference(data_tropics, st_union(st_geometry(data_tro
 
 # 8. Cyclones that passed within 100 km from a coral reef ----
 
-load("data/05_cyclones/02_cyclones_extracted.RData")
 load("data/05_cyclones/01_cyclones_lines.RData")
-load("data/05_cyclones/01_cyclones_points.RData")
+load("data/05_cyclones/02_cyclones_extracted.RData")
 
-# 8.1 Get cyclone category (Saffir scale) --
-
-data_cyclones_saffir <- data_ts_points %>% 
-  st_drop_geometry() %>% 
-  filter(ts_id %in% unique(data_cyclones$ts_id)) %>% 
-  select(ts_id, saffir) %>% 
-  distinct()
-  
-# 8.2 Extract cyclone trajectories --
-
-data_cyclones <- data_ts_lines %>% 
-  filter(ts_id %in% unique(data_cyclones$ts_id)) %>% 
-  left_join(., data_cyclones_saffir)
+data_cyclones <- data_cyclones %>% 
+  filter(saffir > 0) %>% 
+  mutate(saffir = as.factor(saffir)) %>% 
+  right_join(data_ts_lines, .)
 
 # 9. Create text annotation ----
 
@@ -129,7 +119,10 @@ ggplot() +
   # Country boundaries
   geom_sf(data = data_countries, fill = "#363737", col = "grey") +
   # Cyclones
-  geom_sf(data = data_cyclones, col = "#d64541", alpha = 0.5, linewidth = 0.5) +
+  geom_sf(data = data_cyclones %>% arrange(saffir), aes(color = saffir),
+          alpha = 0.75, linewidth = 0.5, show.legend = "line") +
+  scale_color_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"),
+                     name = "Saffir-Simpson") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
                color = "darkgrey", size = 2.5, family = font_choose_map) +
@@ -143,10 +136,11 @@ ggplot() +
   theme(text = element_text(family = font_choose_map),
         panel.background = element_rect(fill = "#ebf5fd"),
         panel.grid = element_blank(),
+        legend.key = element_rect(fill = NA),
         panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
         axis.title = element_blank(),
         axis.text.x.top = element_text())
 
 # 11. Save the plot ----
 
-ggsave(filename = "figs/01_pacific-cyclone.png", width = 8, height = 5, dpi = 600)
+ggsave(filename = "figs/01_pacific-cyclone.png", width = 10, height = 5, dpi = 600)
