@@ -11,6 +11,7 @@ library(scico)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_map.R")
+source("code/function/theme_graph.R")
 
 # 3. Define changed CRS ----
 
@@ -144,3 +145,27 @@ ggplot() +
 # 11. Save the plot ----
 
 ggsave(filename = "figs/01_pacific-cyclone.png", width = 10, height = 5, dpi = 600)
+
+# 12. Transform data ----
+
+data_cyclones <- data_cyclones %>% 
+  st_drop_geometry() %>% 
+  group_by(territory, saffir) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  group_by(territory) %>% 
+  mutate(n_tot = sum(n)) %>% 
+  ungroup()
+
+# 13. Make the plot ----
+
+ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill = saffir)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"),
+                     name = "Saffir-Simpson") +
+  theme_graph() +
+  labs(x = "Number of tropical storms", y = NULL)
+  
+# 14. Save the plot ----
+
+ggsave(filename = "figs/01_pacific-cyclone-territories.png", width = 10, height = 5, dpi = 600)
