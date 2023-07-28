@@ -155,17 +155,21 @@ data_cyclones <- data_cyclones %>%
   ungroup() %>% 
   group_by(territory) %>% 
   mutate(n_tot = sum(n)) %>% 
-  ungroup()
+  ungroup() %>% 
+  bind_rows(., tibble(territory = setdiff(data_eez$TERRITORY1, data_cyclones$territory),
+                      n = rep(0, length(setdiff(data_eez$TERRITORY1, data_cyclones$territory))),
+                      n_tot = n)) %>% 
+  filter(territory != "Matthew and Hunter Islands")
 
 # 13. Make the plot ----
 
 ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill = saffir)) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"),
-                     name = "Saffir-Simpson") +
+                     name = "Saffir-Simpson", breaks = 1:5) +
   theme_graph() +
   labs(x = "Number of tropical storms", y = NULL)
   
 # 14. Save the plot ----
 
-ggsave(filename = "figs/01_pacific-cyclone-territories.png", width = 10, height = 5, dpi = 600)
+ggsave(filename = "figs/01_pacific-cyclone-territories.png", width = 10, height = 8, dpi = 600)
