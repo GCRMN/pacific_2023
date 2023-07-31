@@ -5,7 +5,7 @@ var elevation = ee.Image('CGIAR/SRTM90_V4').select('elevation');
 // 2. Extract maximum elevation ----
 
 var data_elevation = elevation.reduceRegions({
-  reducer: ee.Reducer.max(),
+  reducer: ee.Reducer.mean(),
   collection: data_eez,
   scale: 90,
 });
@@ -18,5 +18,5 @@ Export.table.toDrive({
   fileNamePrefix:"02_elevation",
   fileFormat:"CSV",
   description:"02_elevation",
-  selectors:["GEONAME", "max"]
+  selectors:["TERRITORY1", "mean"]
 });

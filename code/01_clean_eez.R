@@ -65,6 +65,13 @@ data_eez <- data_eez %>%
   # Union with PNG land polygon
   st_union(., data_land) %>% 
   nngeo::st_remove_holes(.) %>%
+  # Add AREA_KM2 (sum of the two EEZ polygons)
+  mutate(AREA_KM2 = read_sf("data/01_background-shp/03_eez/World_EEZ_v11_20191118/eez_v11.shp") %>%
+           filter(TERRITORY1 == "Papua New Guinea") %>%
+           st_drop_geometry() %>%
+           select(AREA_KM2) %>%
+           summarise(AREA_KM2 = sum(AREA_KM2)) %>%
+           pull()) %>% 
   # Add to main EEZ data
   bind_rows(data_eez %>% 
               filter(TERRITORY1 != "Papua New Guinea"),
