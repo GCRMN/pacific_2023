@@ -90,6 +90,12 @@ write.csv2(data_warming, file = "figs/sst_indicators.csv", row.names = FALSE)
 
 # 6. Make the plots of SST for each territory ----
 
+# 6.1 Transform data --
+
+data_sst <- left_join(data_sst, data_warming) %>% 
+  mutate(date_num = as.numeric(as_date(date)),
+         sst_linear = slope*date_num+intercept)
+
 # 6.1 Create the function --
 
 map_sst <- function(territory_i){
@@ -110,8 +116,8 @@ map_sst <- function(territory_i){
   
   plot_a <- ggplot(data = data_sst_i, aes(x = date, y = sst)) +
     geom_line(color = "black", linewidth = 0.25) +
-    geom_smooth(method = "lm", se = FALSE, color = "#446CB3") +
-    geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 1) +
+    geom_line(aes(x = date, y = sst_linear), color = "#446CB3", linewidth = 0.8) +
+    geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 0.8) +
     labs(x = "Year", y = "SST (°C)", title = "A") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
