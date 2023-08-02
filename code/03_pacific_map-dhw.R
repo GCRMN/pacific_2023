@@ -22,11 +22,21 @@ data_eez <- read_sf("data/01_background-shp/03_eez/data_eez.shp")
 
 crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 
-# 4. Create the function ----
+# 4. List of files ----
 
-map_dhw <- function(year_i){
+data_files <- tibble(path = list.files("data/11_max-dhw/", full.names = TRUE)) %>% 
+  mutate(year = as.numeric(str_sub(path, 24, 27)),
+         group = rep(1:50, each = 8, length.out = nrow(.))) # 8 is the number of subplots (i.e. years) per plot
 
-  raster <- rast(paste0("data/11_max-dhw/raster_", year_i, ".tif"))
+# 5. Create the function to make the plot for each year ----
+
+map_dhw_year <- function(year_i, data_files_i){
+
+  # 1. Load data ----
+  
+  raster <- rast(data_files_i %>% filter(year == year_i) %>% select(path) %>% pull)
+  
+  # 2. Make the plot ----
   
   ggplot() +
     geom_spatraster(data = raster) +
@@ -58,16 +68,32 @@ map_dhw <- function(year_i){
   
 }
 
-# 5. Map over the function ----
+# 6. Create the function to make the plot for each group ----
 
-#map_dhw(year_i = 1985)
-
-plots <- map(c(1985, 1990, 1995, 1998, 2007, 2016, 2017, 2018), ~map_dhw(year_i = .))
-
-# 6. Combine plots ----
-
-combined_plots <- wrap_plots(plots) + 
-  plot_layout(guides = "collect", ncol = 2) & 
-  theme(legend.position = "bottom")
+map_dhw_plot <- function(group_i){
   
-ggsave(filename = "figs/01_pacific_dhw.png", height = 10, combined_plots, dpi = 600)
+  # 1. Filter the data_files ----
+  
+  data_files_i <- data_files %>% 
+    filter(group == group_i)
+  
+  # 2. Create all the plots ----
+  
+  plots <- map(c(data_files_i$year), ~map_dhw_year(data_files_i = data_files_i, year_i = .))
+  
+  # 3. Combine plots ----
+  
+  combined_plots <- wrap_plots(plots) + 
+    plot_layout(guides = "collect", ncol = 2) & 
+    theme(legend.position = "bottom")
+  
+  # 4. Save the plot ----
+  
+  ggsave(filename = paste0("figs/01_pacific_dhw_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
+         height = 10, combined_plots, dpi = 600)
+  
+}
+
+# 7. Map over the function ----
+
+map(unique(data_files$group), ~map_dhw_plot(group_i = .))
