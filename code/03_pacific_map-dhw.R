@@ -60,7 +60,7 @@ map_dhw_year <- function(year_i, data_files_i){
           axis.ticks = element_blank(),
           axis.text = element_blank(),
           legend.text = element_text(family = "Open Sans"),
-          plot.title = element_text(face = "bold", family = "Open Sans", hjust = 0.5),
+          plot.title = element_text(family = "Open Sans", hjust = 0.5),
           panel.border = element_rect(colour = "black", fill = NA),
           legend.key.width = unit(1.5, "cm"),
           legend.key.height = unit(0.2, "cm"),
@@ -89,7 +89,7 @@ map_dhw_plot <- function(group_i){
   
   # 4. Save the plot ----
   
-  ggsave(filename = paste0("figs/01_pacific_dhw_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
+  ggsave(filename = paste0("figs/pacific-dhw/years_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
          height = 10, combined_plots, dpi = 600)
   
 }
