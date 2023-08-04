@@ -184,12 +184,13 @@ map_dhw <- function(territory_i){
   # 2. DHW percent over time ----
   
   data_dhw_percent_i <- data_dhw_percent %>% 
+    filter(dhw_type != "DHW = 0") %>% 
     filter(territory == territory_i)
   
   plot_b <- ggplot(data = data_dhw_percent_i, aes(x = date, y = freq, fill = dhw_type)) +
     geom_area(stat = "identity", position = "identity") +
     scale_y_continuous(limits = c(0, 110), breaks = c(0, 25, 50, 75, 100)) +
-    scale_fill_manual(breaks = c("> 0 DHW", "> 5 DHW", "> 10 DHW"), 
+    scale_fill_manual(breaks = c("0 < DHW < 4", "4 <= DHW < 8", "DHW >= 8"), 
                       values = c("#2c82c9", "#fabe58", "#d64541"), name = NULL) +
     labs(x = "Year", y = "Percent of coral reefs", title = "B") +
     theme(legend.direction = "horizontal",

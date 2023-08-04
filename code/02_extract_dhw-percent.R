@@ -51,13 +51,13 @@ data_dhw_percent_territory <- data_dhw_percent %>%
   group_by(date, territory) %>% 
   mutate(freq = count*100/sum(count)) %>% 
   ungroup() %>% 
-  group_by(date, territory) %>% 
-  summarise("> 0 DHW" = sum(freq[dhw > 0]),
-            "> 5 DHW" = sum(freq[dhw > 5]),
-            "> 10 DHW" = sum(freq[dhw > 10])) %>% 
-  ungroup() %>% 
-  pivot_longer("> 0 DHW":"> 10 DHW", names_to = "dhw_type", values_to = "freq") %>% 
-  mutate(dhw_type = as_factor(dhw_type))
+  mutate(dhw_type = case_when(dhw == 0 ~ "DHW = 0",
+                              dhw > 0 & dhw < 4 ~ "0 < DHW < 4",
+                              dhw >= 4 & dhw < 8 ~ "4 <= DHW < 8",
+                              dhw >= 8 ~ "DHW >= 8")) %>% 
+  group_by(date, territory, dhw_type) %>%
+  summarise(freq = sum(freq)) %>% 
+  ungroup()
 
 # 7. DHW percent for the Pacific ----
 
@@ -65,14 +65,14 @@ data_dhw_percent_pacific <- data_dhw_percent %>%
   group_by(date) %>% 
   mutate(freq = count*100/sum(count)) %>% 
   ungroup() %>% 
-  group_by(date) %>% 
-  summarise("> 0 DHW" = sum(freq[dhw > 0]),
-            "> 5 DHW" = sum(freq[dhw > 5]),
-            "> 10 DHW" = sum(freq[dhw > 10])) %>% 
+  mutate(dhw_type = case_when(dhw == 0 ~ "DHW = 0",
+                              dhw > 0 & dhw < 4 ~ "0 < DHW < 4",
+                              dhw >= 4 & dhw < 8 ~ "4 <= DHW < 8",
+                              dhw >= 8 ~ "DHW >= 8")) %>% 
+  group_by(date, dhw_type) %>%
+  summarise(freq = sum(freq)) %>% 
   ungroup() %>% 
-  pivot_longer("> 0 DHW":"> 10 DHW", names_to = "dhw_type", values_to = "freq") %>% 
-  mutate(dhw_type = as_factor(dhw_type),
-         territory = "Pacific")
+  mutate(territory = "Pacific")
 
 # 8. Combine data ----
 
