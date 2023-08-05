@@ -23,13 +23,13 @@ data_elevation <- read.csv("data/02_geo-inf/02_elevation.csv") %>%
 
 # 4. Human population ----
 
-data_population <- left_join(read.csv("data/02_geo-inf/01_human-pop-2000.csv") %>% 
-                               rename(pop_2000 = sum),
-                             read.csv("data/02_geo-inf/01_human-pop-2020.csv") %>% 
-                               rename(pop_2020 = sum)) %>% 
-  rename(territory = TERRITORY1) %>% 
+data_population <- read.csv("data/02_geo-inf/01_human-pop.csv") %>% 
+  rename(population = sum, territory = TERRITORY1, year = date) %>% 
+  mutate(year = year(year),
+         population = population*1e-06) %>% 
+  pivot_wider(names_from = year, values_from = population, names_prefix = "pop_") %>% 
   mutate(diff_pop_abs = pop_2020 - pop_2000,
-         diff_pop_rel = 100*(pop_2020 - pop_2000)/pop_2000) %>% 
+       diff_pop_rel = 100*(pop_2020 - pop_2000)/pop_2000) %>% 
   select(territory, pop_2020, diff_pop_rel) %>% 
   mutate(diff_pop_rel = replace_na(diff_pop_rel, 0))
 
