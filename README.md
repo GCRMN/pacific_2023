@@ -38,6 +38,7 @@
 * `03_pacific_enso.R` Produce figure of ENSO.
 * `03_pacific_map.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
 * `03_pacific_map-dhw.R` Produce map of DHW for each year.
+* `03_pacific_population.R` Produce figure of human population change between 2000 and 2020.
 * `03_pacific_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for the Pacific region.
 * `03_pacific_sst.R` Produce figures of maximum DHW and DHW percent for the Pacific region.
 * `03_territories_cyclones.R` Produce figures and maps of cyclones that occurred on each EEZ.
