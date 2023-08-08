@@ -7,6 +7,7 @@
 
 ### A. Cleaning and selection (`01_`)
 
+* `01_benthic_data_sources.R` Extract data sources from [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos).
 * `01_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
 * `01_clean_cyclones.R` Clean cyclone dataset from [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive).
 * `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
