@@ -18,6 +18,7 @@ library(patchwork)
 source("function/graphical_par.R")
 source("function/theme_graph.R")
 theme_set(theme_graph())
+source("function/taxonomic_levels.R")
 
 # 3. Load gcrmndb_benthos data ----
 
@@ -109,6 +110,30 @@ ggplot(data = data_hcc, aes(x = measurementValue)) +
   geom_density(fill = "#2c82c9", alpha = 0.75) +
   geom_vline(xintercept = c(0, 100)) +
   facet_wrap(~datasetID, scales = "free")
+
+```
+
+
+# Taxonomic levels distribution
+
+```{r}
+
+# 1. For the entire dataset ----
+
+data_benthic %>% 
+  taxonomic_levels()
+  
+# 2. For hards corals ----
+
+data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  taxonomic_levels()
+
+# 3. For algae ----
+
+data_benthic %>% 
+  filter(category == "Algae") %>% 
+  taxonomic_levels()
 
 ```
 
