@@ -36,7 +36,7 @@ data_reef_area_pacific <- st_intersection(data_eez, data_reefs) %>%
   mutate(color = scico(30, begin = 0.85, end = 0, palette = "lajolla"))
 
 ggplot(data = data_reef_area_pacific, aes(area = reef_area_abs, fill = color, label = territory)) +
-  geom_treemap(show.legend = FALSE, color = "black") +
+  geom_treemap(show.legend = FALSE, color = "white", size = 2) +
   geom_treemap_text(color = "white", place = "centre", reflow = TRUE, family = font_choose_graph) +
   scale_fill_identity()
 
@@ -54,12 +54,12 @@ data_reef_area_gcrmn <- st_intersection(data_gcrmn_regions, data_reefs) %>%
   mutate(reef_area_abs = as.numeric(reef_area_abs)*1e-6,
          gcrmn_region = str_replace_all(gcrmn_region, "EAS", "East Asian Seas"),
          color = case_when(gcrmn_region == "Pacific" ~ scico(2, begin = 0.7, end = 0.2, palette = "lajolla")[1],
-                           TRUE ~ "white"),
+                           TRUE ~ "#dadfe1"),
          color_text = case_when(gcrmn_region == "Pacific" ~ "white",
                                 TRUE ~ "black"))
 
 ggplot(data = data_reef_area_gcrmn, aes(area = reef_area_abs, fill = color, label = gcrmn_region)) +
-  geom_treemap(show.legend = FALSE, color = "black", start = "bottomright") +
+  geom_treemap(show.legend = FALSE, color = "white", size = 2, start = "bottomright") +
   geom_treemap_text(aes(color = color_text), place = "centre", reflow = TRUE,
                     family = font_choose_graph, start = "bottomright") +
   scale_fill_identity() +
