@@ -144,32 +144,32 @@ data_eez_text <- data_eez %>%
   st_drop_geometry() %>% 
   select(TERRITORY1, number) %>% 
   mutate(y_pos = -number,
-         x_pos = case_when(number %in% 1:11 ~ 1,
-                           number %in% 12:21 ~ 3,
-                           number %in% 22:31 ~ 5),
-         y_pos = case_when(number %in% 1:11 ~ y_pos,
-                           number %in% 12:21 ~ y_pos+11,
-                           number %in% 22:31 ~ y_pos+21))
+         x_pos = case_when(number %in% 1:10 ~ 1,
+                           number %in% 11:20 ~ 3,
+                           number %in% 21:30 ~ 5),
+         y_pos = case_when(number %in% 1:10 ~ y_pos,
+                           number %in% 11:20 ~ y_pos+10,
+                           number %in% 21:30 ~ y_pos+20))
 
 # 10.2 Make the plot --
 
 plot_eez <- ggplot() +
   # Points
-  geom_point(data = tibble(x = 1, y = -1:-11), aes(x = x, y = y), size = 6, color = "#5c97bf") +
+  geom_point(data = tibble(x = 1, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
   geom_point(data = tibble(x = 3, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
   geom_point(data = tibble(x = 5, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
   # Text inside points
-  geom_text(aes(x = 1, y = -1:-11, label = as.character(1:11)), 
+  geom_text(aes(x = 1, y = -1:-10, label = as.character(1:10)), 
             color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
-  geom_text(aes(x = 3, y = -1:-10, label = as.character(12:21)), 
+  geom_text(aes(x = 3, y = -1:-10, label = as.character(11:20)), 
             color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
-  geom_text(aes(x = 5, y = -1:-10, label = as.character(22:31)), 
+  geom_text(aes(x = 5, y = -1:-10, label = as.character(21:30)), 
             color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
   # Names of territories
   geom_text(data = data_eez_text, aes(x = x_pos, y = y_pos, label = TERRITORY1),
             hjust = 0, size = 3, nudge_x = 0.25, family = font_choose_map) +
   # Graphical aspects
-  lims(x = c(0.75, 6.25), y = c(-12, 0)) +
+  lims(x = c(0.75, 6.25), y = c(-11, 0)) +
   coord_cartesian(expand = FALSE) +
   theme(text = element_text(family = font_choose_map), 
         axis.title = element_blank(),

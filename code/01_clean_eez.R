@@ -29,7 +29,7 @@ correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 9
 
 list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
               "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
-              "Matthew and Hunter Islands", "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
+              "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
               "Palau", "Palmyra Atoll", "Papua New Guinea", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
               "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island", "Wallis and Futuna")
 
@@ -94,34 +94,33 @@ data_eez <- data_eez %>%
                             TERRITORY1 == "Solomon Islands" ~ 11,
                             TERRITORY1 == "Vanuatu" ~ 12,
                             TERRITORY1 == "New Caledonia" ~ 13,
-                            TERRITORY1 == "Matthew and Hunter Islands" ~ 14,
-                            TERRITORY1 == "Fiji" ~ 15,
-                            TERRITORY1 == "Wallis and Futuna" ~ 16,
-                            TERRITORY1 == "Tuvalu" ~ 17,
-                            TERRITORY1 == "Gilbert Islands" ~ 18,
-                            TERRITORY1 == "Howland and Baker islands" ~ 19,
-                            TERRITORY1 == "Phoenix Group" ~ 20,
-                            TERRITORY1 == "Tokelau" ~ 21,
-                            TERRITORY1 == "American Samoa" ~ 22,
-                            TERRITORY1 == "Samoa" ~ 23,
-                            TERRITORY1 == "Tonga" ~ 24,
-                            TERRITORY1 == "Niue" ~ 25,
-                            TERRITORY1 == "Cook Islands" ~ 26,
-                            TERRITORY1 == "French Polynesia" ~ 27,
-                            TERRITORY1 == "Palmyra Atoll" ~ 28,
-                            TERRITORY1 == "Jarvis Island" ~ 29,
-                            TERRITORY1 == "Line Group" ~ 30,
-                            TERRITORY1 == "Pitcairn" ~ 31))
+                            TERRITORY1 == "Fiji" ~ 14,
+                            TERRITORY1 == "Wallis and Futuna" ~ 15,
+                            TERRITORY1 == "Tuvalu" ~ 16,
+                            TERRITORY1 == "Gilbert Islands" ~ 17,
+                            TERRITORY1 == "Howland and Baker islands" ~ 18,
+                            TERRITORY1 == "Phoenix Group" ~ 19,
+                            TERRITORY1 == "Tokelau" ~ 20,
+                            TERRITORY1 == "American Samoa" ~ 21,
+                            TERRITORY1 == "Samoa" ~ 22,
+                            TERRITORY1 == "Tonga" ~ 23,
+                            TERRITORY1 == "Niue" ~ 24,
+                            TERRITORY1 == "Cook Islands" ~ 25,
+                            TERRITORY1 == "French Polynesia" ~ 26,
+                            TERRITORY1 == "Palmyra Atoll" ~ 27,
+                            TERRITORY1 == "Jarvis Island" ~ 28,
+                            TERRITORY1 == "Line Group" ~ 29,
+                            TERRITORY1 == "Pitcairn" ~ 30))
 
 # 9. Create coordinates for label placement ----
 
-data_eez <- tibble(number = 1:31,
+data_eez <- tibble(number = 1:30,
                    lat = c(4, 6, 13, 20, 15, 19.5, 27, 16, -2, -1,
-                           -10, -18, -21, -24, -21, -13.5, -8, -1, 1, -5,
+                           -10, -18, -21, -21, -13.5, -8, -1, 1, -5,
                            -9, -15, -13, -23, -19, -20, -22, 7, -1, -9.5,
                            -25),
                    long = c(132, 143, 144, 144.5, 170, 167, -175, -169, 146, 167,
-                            165, 170, 160, 172.5, 177, -178, 178, 171, -176, -175,
+                            165, 170, 160, 177, -178, 178, 171, -176, -175,
                             -172, -168, -172, -176, -169, -160, -150, -163, -160.5, -150,
                             -130)) %>% 
   left_join(data_eez, .)

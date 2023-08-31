@@ -2,9 +2,10 @@
 
 library(tidyverse)
 library(magrittr) # For special pipe %<>%
-library(sf)
-library(ggspatial) # For annotation_scale function
 library(s2)
+library(sf)
+sf_use_s2(TRUE)
+library(ggspatial) # For annotation_scale function
 
 # 2. Load functions ----
 
