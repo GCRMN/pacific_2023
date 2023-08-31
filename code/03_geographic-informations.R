@@ -6,7 +6,9 @@ sf_use_s2(FALSE)
 library(pdftools)
 library(docxtractr)
 
-# 2. Maritime area ----
+# 2. Table 1 - Geographic information ----
+
+# 2.1 Maritime area ----
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
@@ -18,12 +20,17 @@ data_maritime_area <- data_eez %>%
   ungroup() %>% 
   rename(territory = TERRITORY1, maritime_area = AREA_KM2)
 
-# 3. Mean land elevation ----
+# 2.2 Land area ----
+
+data_land <- read.csv("data/02_geo-inf/02_land-area.csv") %>% 
+  rename(territory = TERRITORY1, land_area = sum)
+
+# 2.3 Mean land elevation ----
 
 data_elevation <- read.csv("data/02_geo-inf/02_elevation.csv") %>% 
   rename(territory = TERRITORY1, mean_elevation = mean)
 
-# 4. Reef area ----
+# 2.4 Reef area ----
 
 data_reefs <- st_read("data/03_reefs-area_wri/reef_500_poly.shp") %>% 
   st_transform(crs = 4326) %>% 
@@ -46,29 +53,135 @@ data_reef_area <- st_intersection(data_eez, data_reefs) %>%
   st_drop_geometry() %>% 
   mutate(reef_area_abs = as.numeric(reef_area_abs)*1e-6) %>% 
   rename(territory = TERRITORY1) %>% 
-  mutate(reef_area_rel_world = (100*reef_area_abs)/(as.numeric(st_area(data_reefs))*1e-6),
-         reef_area_rel_pacific = (100*reef_area_abs)/sum(reef_area_abs))
+  mutate(reef_area_rel_pacific = (100*reef_area_abs)/sum(reef_area_abs),
+         reef_area_rel_world = (100*reef_area_abs)/(as.numeric(st_area(data_reefs))*1e-6))
 
-# 5. Land area ----
+# 2.5 Group data together ----
 
-data_land <- read.csv("data/02_geo-inf/02_land-area.csv") %>% 
-  rename(territory = TERRITORY1, land_area = sum)
+data_table_1 <- left_join(data_reef_area, data_maritime_area) %>% 
+  left_join(., data_land) %>% 
+  left_join(., data_elevation) %>% 
+  # Add subterritory
+  mutate(subterritory = territory,
+       territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                             subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                 "Wake Island", "Howland and Baker islands",
+                                                 "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                             TRUE ~ subterritory),
+       subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, subterritory) %>% 
+  relocate(subterritory, .after = territory)
 
-# 6. Human population ----
+# 2.6 Add the sum for all territories ----
 
-data_population <- read.csv("data/02_geo-inf/01_human-pop.csv") %>% 
+data_table_1 <- bind_rows(data_table_1, data_table_1 %>% 
+              summarise(across(c("reef_area_abs", "reef_area_rel_world", "reef_area_rel_pacific",
+                                 "maritime_area", "land_area"), ~sum(.x)))) %>% 
+  mutate(territory = if_else(is.na(territory), "Total", territory))
+
+# 2.7 Add the sum for Kiribati and Pacific Remote Islands Area ----
+
+data_table_1 <- bind_rows(data_table_1, data_table_1 %>% 
+                            filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
+                            group_by(territory) %>% 
+                            summarise(across(c("reef_area_abs", "reef_area_rel_world", "reef_area_rel_pacific",
+                                               "maritime_area", "land_area"), ~sum(.x))) %>% 
+                            ungroup() %>% 
+                            mutate(subterritory = "All")) %>% 
+  arrange(territory, subterritory) %>% 
+  arrange(., territory == "Total")
+
+# 2.8 Reformat the table ----
+
+data_table_1 <- data_table_1 %>% 
+  mutate(reef_area_abs = format(round(reef_area_abs, 0), big.mark = ",", scientific = FALSE),
+         reef_area_rel_world = format(round(reef_area_rel_world, 3), nsmall = 3),
+         reef_area_rel_pacific = format(round(reef_area_rel_pacific, 2), nsmall = 2),
+         land_area = format(round(land_area, 0), big.mark = ",", scientific = FALSE),
+         maritime_area = format(round(maritime_area, 0), big.mark = ",", scientific = FALSE),
+         mean_elevation = round(mean_elevation, 0))
+
+# 2.9 Export the table ----
+
+write_csv2(data_table_1, file = "figs/01_table-1_geo-inf.csv")
+
+# 2.10 Remove useless objects ----
+
+rm(data_reefs, data_reef_area, data_maritime_area, data_land, data_elevation)
+
+# 2.11 Create a function to produce geographic information output (for LaTeX report) ----
+
+export_geoinf <- function(territory_i){
+  
+  data_i <- data_table_1 %>% 
+    filter(territory == territory_i)
+  
+  writeLines(c("\\begin{tabular}{>{\\bfseries}>{\\color{color1}}rl}",
+               paste0("Maritime area & ", data_i[1, "maritime_area"], " km\\textsuperscript{2} \\\\"),
+               paste0("Land area & ", data_i[1, "land_area"], " km\\textsuperscript{2} \\\\"),
+               paste0("Reef area & ", data_i[1, "reef_area_abs"], " km\\textsuperscript{2} \\\\"),
+               paste0("Mean elevation & ", data_i[1, "mean_elevation"], " m \\\\")),
+             paste0("figs/03_geo-inf/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+  
+}
+
+# 2.12 Map over the function ----
+
+map(unique(data_table_1$territory), ~export_geoinf(territory_i = .))
+
+# 3. Table 2 - Human population ----
+
+# 3.1 Load and transform data ----
+
+data_table_2 <- read.csv("data/02_geo-inf/01_human-pop.csv") %>% 
   rename(population = sum, territory = TERRITORY1, year = date) %>% 
   mutate(year = year(year),
-         population = population*1e-06) %>% 
+         population = population) %>% 
   pivot_wider(names_from = year, values_from = population, names_prefix = "pop_") %>% 
   mutate(diff_pop_abs = pop_2020 - pop_2000,
          diff_pop_rel = 100*(pop_2020 - pop_2000)/pop_2000) %>% 
   select(territory, pop_2020, diff_pop_rel) %>% 
-  mutate(diff_pop_rel = replace_na(diff_pop_rel, 0))
+  mutate(diff_pop_rel = replace_na(diff_pop_rel, 0)) %>% 
+  # Add subterritory
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, subterritory) %>% 
+  relocate(subterritory, .after = territory)
 
-# 7. Tourism (extract table from supp. mat. of Spalding et al, 2017) ----
+# 3.2 Add the sum for all territories ----
 
-# 7.1 Extract first part of the table (page 1) --
+data_table_2 <- bind_rows(data_table_2, data_table_2 %>% 
+                            summarise(pop_2020 = sum(pop_2020))) %>% 
+  mutate(territory = if_else(is.na(territory), "Total", territory))
+
+# 3.3 Add the sum for Kiribati and Pacific Remote Islands Area ----
+
+data_table_2 <- bind_rows(data_table_2, data_table_2 %>% 
+                            filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
+                            group_by(territory) %>% 
+                            summarise(pop_2020 = sum(pop_2020)) %>% 
+                            ungroup() %>% 
+                            mutate(subterritory = "All")) %>% 
+  arrange(territory, subterritory) %>% 
+  arrange(., territory == "Total")
+
+# 3.4 Reformat and export the table ----
+
+data_table_2 <- data_table_2 %>% 
+  mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE),
+         diff_pop_rel = round(diff_pop_rel, 2)) %>%
+  write_csv2(., file = "figs/01_table-2_human-pop.csv")
+
+# 4. Table 3 - Socio-economy ----
+
+# 4.1 Tourism (extract table from supp. mat. of Spalding et al, 2017) ----
+
+# 4.1.1 Extract first part of the table (page 1) --
 
 spalding_a <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>% 
   magrittr::extract(1) %>% 
@@ -77,7 +190,7 @@ spalding_a <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>%
   magrittr::extract(78:87) %>% 
   as_tibble()
 
-# 7.2 Extract second part of the table (page 2) --
+# 4.1.2 Extract second part of the table (page 2) --
 
 spalding_b <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>% 
   magrittr::extract(2) %>% 
@@ -86,7 +199,7 @@ spalding_b <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>%
   magrittr::extract(48:87) %>% 
   as_tibble()
 
-# 7.3 Extract third part of the table (page 3) --
+# 4.1.3 Extract third part of the table (page 3) --
 
 spalding_c <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>% 
   magrittr::extract(3) %>% 
@@ -95,7 +208,7 @@ spalding_c <- pdf_text("data/spalding-et-al-2017_supp-material.pdf") %>%
   magrittr::extract(48:78) %>% 
   as_tibble()
 
-# 7.4 Combine tables and data cleaning --
+# 4.1.4 Combine tables and data cleaning --
 
 data_tourism <- bind_rows(spalding_a, spalding_b, spalding_c) %>% 
   separate(data = ., col = 1, sep = "\\s{3,}+",
@@ -120,7 +233,7 @@ data_tourism <- bind_rows(spalding_a, spalding_b, spalding_c) %>%
 
 remove(spalding_a, spalding_b, spalding_c)
 
-# 8. Coastal protection (extract data from supp; mat. of Spalding et al, 2022 ----
+# 4.2 Coastal protection (extract data from supp; mat. of Spalding et al, 2022 ----
 
 data_protection <- docx_extract_tbl(docx = read_docx("data/spalding-et-al-2022_supp-material.docx"), tbl_number = 2) %>% 
   filter(Country.territory %in% c("Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands",
@@ -133,64 +246,33 @@ data_protection <- docx_extract_tbl(docx = read_docx("data/spalding-et-al-2022_s
          flooding_people = "Thousands.of.people.avoiding.flooding",
          flooding_dollars = "Millions.of.dollars.protected.from.flooding")
 
-# 9. Group data together ----
+# 4.3 Combine data ----
 
-data_geoinf <- left_join(data_maritime_area, data_elevation) %>% 
-  left_join(., data_population) %>% 
-  left_join(., data_reef_area) %>% 
-  left_join(., data_land) %>% 
+data_table_3 <- data_eez %>% 
+  mutate(territory = TERRITORY1) %>% 
+  select(territory) %>% 
+  st_drop_geometry() %>% 
   left_join(., data_tourism) %>% 
-  left_join(., data_protection)
+  left_join(., data_protection) %>% 
+  # Add subterritory
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, subterritory) %>% 
+  relocate(subterritory, .after = territory)
 
-# 10. Calculate the totals ----
+# 4.4 Add the sum for Kiribati and Pacific Remote Islands Area ----
 
-data_geoinf <- bind_rows(data_geoinf, 
-                         data_geoinf %>% summarise(maritime_area = sum(maritime_area, na.rm = TRUE),
-                                                   pop_2020 = sum(pop_2020, na.rm = TRUE),
-                                                   reef_area_abs = sum(reef_area_abs, na.rm = TRUE),
-                                                   reef_area_rel_world = sum(reef_area_rel_world, na.rm = TRUE),
-                                                   reef_area_rel_pacific = sum(reef_area_rel_pacific, na.rm = TRUE),
-                                                   land_area = sum(land_area, na.rm = TRUE)) %>%
-                           mutate(territory = "TOTAL"))
-
-# 11. Round and convert formats ----
-
-data_geoinf <- data_geoinf %>% 
-  mutate(maritime_area = format(maritime_area, big.mark = ",", scientific = FALSE),
-         mean_elevation = round(mean_elevation, 0),
-         pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE),
-         diff_pop_rel = paste0(round(diff_pop_rel, 0), " %"),
-         reef_tourists = format(reef_tourists, big.mark = ",", scientific = FALSE),
-         reef_area_abs = format(round(reef_area_abs, 0), big.mark = ",", scientific = FALSE),
-         reef_area_rel_world = paste0(format(round(reef_area_rel_world, 3), nsmall = 3), " %"),
-         reef_area_rel_pacific = paste0(format(round(reef_area_rel_pacific, 2), nsmall = 2), " %"),
-         land_area = format(round(land_area, 0), big.mark = ",", scientific = FALSE)) %>% 
-  mutate(across(c(diff_pop_rel, reef_tourists, reef_area_abs, reef_area_rel_world, reef_area_rel_pacific),
-                ~ replace(., str_detect(., "NA"), NA)))
-
-# 12. Export the data ----
-
-write_csv2(data_geoinf, file = "figs/01_geographic-information.csv")
-
-# 13. Create a function to produce geographic information output (for LaTeX report) ----
-
-export_geoinf <- function(territory_i){
-  
-  data_i <- data_geoinf %>% 
-    filter(territory == territory_i)
-  
-  writeLines(c("\\begin{tabular}{>{\\bfseries}>{\\color{color1}}rl}",
-               paste0("Maritime area & ", data_i[1, "maritime_area"], " km\\textsuperscript{2} \\\\"),
-               paste0("Land area & ", data_i[1, "land_area"], " km\\textsuperscript{2} \\\\"),
-               paste0("Reef area & ", data_i[1, "reef_area_abs"], " km\\textsuperscript{2} \\\\"),
-               paste0("Mean elevation & ", data_i[1, "mean_elevation"], " m \\\\"),
-               paste0("Population (2020) & ", data_i[1, "pop_2020"], " \\\\"),
-               paste0("Population change & ", data_i[1, "diff_pop_rel"], " \\\\"),
-               "\\end{tabular}"),
-             paste0("figs/03_geo-inf/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
-  
-}
-
-# 14. Map over the function ----
-
-map(unique(data_geoinf$territory), ~export_geoinf(territory_i = .))
+data_table_3 <- bind_rows(data_table_3, data_table_3 %>% 
+                            filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
+                            group_by(territory) %>% 
+                            summarise(across(c("reef_tourists", "spending_prop"), ~sum(., na.rm = FALSE))) %>% 
+                            ungroup() %>% 
+                            mutate(subterritory = "All")) %>% 
+  arrange(territory, subterritory) %>% 
+  arrange(., territory == "Total") %>% 
+  mutate(reef_tourists = format(reef_tourists, big.mark = ",", scientific = FALSE))
