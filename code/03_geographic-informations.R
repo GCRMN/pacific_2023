@@ -131,17 +131,10 @@ map(unique(data_table_1$territory), ~export_geoinf(territory_i = .))
 
 # 3. Table 2 - Human population ----
 
-# 3.1 Load and transform data ----
+# 3.1 Add subterritories --
 
-data_table_2 <- read.csv("data/02_geo-inf/01_human-pop.csv") %>% 
-  rename(population = sum, territory = TERRITORY1, year = date) %>% 
-  mutate(year = year(year),
-         population = population) %>% 
-  pivot_wider(names_from = year, values_from = population, names_prefix = "pop_") %>% 
-  mutate(diff_pop_abs = pop_2020 - pop_2000,
-         diff_pop_rel = 100*(pop_2020 - pop_2000)/pop_2000) %>% 
-  select(territory, pop_2020, diff_pop_rel) %>% 
-  mutate(diff_pop_rel = replace_na(diff_pop_rel, 0)) %>% 
+data_table_2 <- read.csv2("data/02_geo-inf/01_human-pop.csv") %>% 
+  mutate(across(c("pop_reefs_2000", "pop_reefs_2020", "pop_eez_2020"), ~if_else(is.na(.x), 0, .x))) %>% 
   # Add subterritory
   mutate(subterritory = territory,
          territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
@@ -153,28 +146,33 @@ data_table_2 <- read.csv("data/02_geo-inf/01_human-pop.csv") %>%
   arrange(territory, subterritory) %>% 
   relocate(subterritory, .after = territory)
 
-# 3.2 Add the sum for all territories ----
+# 3.2 Add total --
 
 data_table_2 <- bind_rows(data_table_2, data_table_2 %>% 
-                            summarise(pop_2020 = sum(pop_2020))) %>% 
-  mutate(territory = if_else(is.na(territory), "Total", territory))
+                            summarise(across(c("pop_reefs_2000", "pop_reefs_2020", "pop_eez_2020"), ~sum(.x))) %>% 
+                            mutate(territory = "Total", subterritory = NA))
 
-# 3.3 Add the sum for Kiribati and Pacific Remote Islands Area ----
+# 3.3 Add total for two territories --
 
 data_table_2 <- bind_rows(data_table_2, data_table_2 %>% 
                             filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
                             group_by(territory) %>% 
-                            summarise(pop_2020 = sum(pop_2020)) %>% 
-                            ungroup() %>% 
+                            summarise(across(c("pop_reefs_2000", "pop_reefs_2020", "pop_eez_2020"), ~sum(.x))) %>% 
                             mutate(subterritory = "All")) %>% 
   arrange(territory, subterritory) %>% 
   arrange(., territory == "Total")
 
-# 3.4 Reformat and export the table ----
+# 3.4 Calculate population change 
 
-data_table_2 <- data_table_2 %>% 
-  mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE),
-         diff_pop_rel = round(diff_pop_rel, 2)) %>%
+data_table_2 %>% 
+  mutate(pop_change_reefs = ((pop_reefs_2020-pop_reefs_2000)/pop_reefs_2000)*100,
+         pop_percent = (pop_reefs_2020*100)/pop_eez_2020) %>% 
+  mutate(across(c("pop_change_reefs", "pop_percent"), ~if_else(is.na(.x), 0, .x))) %>% 
+  select(-pop_eez_2020, -pop_reefs_2000) %>% 
+  # Reformat the data
+  mutate(pop_reefs_2020 = format(round(pop_reefs_2020, 0), big.mark = ",", scientific = FALSE),
+         pop_percent = format(round(pop_percent, 2), nsmall = 2),
+         pop_change_reefs = format(round(pop_change_reefs, 2), nsmall = 2)) %>%
   write_csv2(., file = "figs/01_table-2_human-pop.csv")
 
 # 4. Table 3 - Socio-economy ----
