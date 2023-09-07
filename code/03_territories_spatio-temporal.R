@@ -143,21 +143,13 @@ map(unique(data_eez$TERRITORY1), ~map_eez(territory = .))
 
 # 5. Plots of number of surveys per year ----
 
-# 5.1 Select data --
-
-load("data/04_data-benthic.RData")
-
-data_benthic <- data_benthic %>% 
-  select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
-  distinct()
-
-# 5.2 Create the function --
+# 5.1 Create the function --
 
 map_survey_years <- function(territory_i){
   
   # 1. Plot of percentage of sites per interval_class ----
   
-  plot_b <- data_benthic_sites %>% 
+  plot_a <- data_benthic_sites %>% 
     st_drop_geometry() %>% 
     filter(TERRITORY1 == territory_i) %>% 
     group_by(interval_class) %>% 
@@ -166,41 +158,55 @@ map_survey_years <- function(territory_i){
     complete(interval_class, fill = list(n = 0)) %>% 
     mutate(percent = n*100/sum(n)) %>% 
     ggplot(data = ., aes(x = interval_class, y = percent, fill = interval_class)) +
-      geom_bar(stat = "identity", color = "black", show.legend = FALSE, width = 0.75) +
+      geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
       scale_fill_manual(values = palette_5cols,
                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                         drop = FALSE, name = "Number of years with data") +
-      labs(x = "Duration", y = "Sites (%)", title = "B") +
+      labs(x = "Duration", y = "Sites (%)", title = "A") +
       lims(y = c(0, 100)) +
       theme_graph() +
-      theme(plot.title = element_text(size = 20),
+      theme(plot.title = element_text(size = 15),
             axis.text.x = element_text(size = 7))
   
   # 2. Plot of number of surveys per year ----
   
-  plot_c <- data_benthic %>% 
+  plot_b <- data_benthic %>% 
     filter(territory == territory_i) %>% 
-    ggplot(data = ., aes(x = year)) +
-    # By default its density, width*density*100 gives percentage
-    geom_histogram(binwidth = 1, aes(y = after_stat(width*density*100)),
-                   color = "black", fill = "#5c97bf") +
-    lims(x = c(1970, 2024)) +
-    labs(x = "Year", y = "Surveys (%)", title = "C") +
-    theme_graph() +
-    theme(plot.title = element_text(size = 20))
+    select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
+    st_drop_geometry() %>% 
+    distinct() %>% 
+    group_by(year) %>% 
+    count() %>% 
+    ungroup() %>% 
+    complete(year, fill = list(n = 0)) %>% 
+    mutate(percent = n*100/sum(n)) %>% 
+      ggplot(data = ., aes(x = year, y = percent)) +
+      geom_bar(stat = "identity", show.legend = FALSE, width = 1, color = "white", fill = "#C9504B") +
+      labs(x = "Year", y = "Surveys (%)", title = "B") +
+      lims(x = c(1970, 2024)) +
+      theme_graph() +
+      theme(plot.title = element_text(size = 15),
+            axis.text.x = element_text(size = 7))
   
-  # 3. Combine plots ----
+  # 3. Combine and export plots ----
   
-  plot_b + plot_c + plot_layout(ncol = 1)
+  # 3.1 Portrait --
   
-  # 4. Export the plot ----
+  plot_a + plot_b + plot_layout(ncol = 1)
   
-  ggsave(filename = paste0("figs/territories_fig-4-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/territories_fig-4-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), "_prt.png"),
          width = 4, height = 6, dpi = 600)
+  
+  # 3.2 Landscape --
+  
+  plot_a + plot_b + plot_layout(ncol = 2)
+  
+  ggsave(filename = paste0("figs/territories_fig-4-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), "_lds.png"),
+         width = 8, height = 3.5, dpi = 600)
   
 }
 
-# 5.3 Map over the function --
+# 5.2 Map over the function --
 
 map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
 

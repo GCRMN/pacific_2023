@@ -15,8 +15,9 @@ col_fill_map <- "#f2caae"
 col_color_map <- "#888888"
 col_background_map <- "#e4f1fe"
 
-# Derived from RColorBrewer "RdYlBu" but with another yellow
-palette_5cols <- c("#2c7bb6", "#91bfdb", "#f7ca18", "#fc8d59", "#d73027")
+# Derived from scico package and lajolla palette
+# scico(5, begin = 0, end = 0.9, palette = "lajolla", direction = -1)
+palette_5cols <- c("#F8E283", "#E79652", "#C9504B", "#5B3023", "#191900")
 
 # 4. Define a common crs ----
 
