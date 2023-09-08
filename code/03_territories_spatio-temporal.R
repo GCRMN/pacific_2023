@@ -218,6 +218,8 @@ map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
 
 load("data/04_data-benthic.RData")
 
+# 6.1 Add subterritories --
+
 monitoring_descriptors <- data_benthic %>% 
   group_by(territory) %>% 
   data_descriptors() %>% 
@@ -228,4 +230,47 @@ monitoring_descriptors <- data_benthic %>%
               st_drop_geometry() %>% 
               rename(territory = TERRITORY1),
             .) %>% 
-  mutate(across(everything(), .fns = ~replace_na(.,0)))
+  mutate(across(c("nb_sites", "nb_surveys", "nb_datasets"), .fns = ~replace_na(.,0))) %>% 
+  # Add subterritory
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, subterritory) %>% 
+  relocate(subterritory, .after = territory)
+
+# 6.2 Add total --
+
+monitoring_descriptors <- data_benthic %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(territory = "Entire Pacific region") %>% 
+  bind_rows(monitoring_descriptors, .)
+
+# 6.3 Add total for two territories --
+
+monitoring_descriptors <- data_benthic %>% 
+  mutate(territory = case_when(territory %in% c("Line Group", "Phoenix Group", 
+                                                "Gilbert Islands") ~ "Kiribati",
+                               territory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                "Wake Island", "Howland and Baker islands",
+                                                "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ territory)) %>% 
+  filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
+  group_by(territory) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(subterritory = "All") %>% 
+  bind_rows(monitoring_descriptors, .) %>% 
+  arrange(territory, subterritory) %>% 
+  arrange(., territory == "Entire Pacific region")
+
+# 6.4 Reformat the data and export the table ----
+
+monitoring_descriptors %>% 
+  mutate(nb_sites = as.character(format(nb_sites, big.mark = ",", scientific = FALSE)),
+         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE))) %>% 
+  openxlsx::write.xlsx(., file = "figs/01_table-3_monitoring-descriptors.xlsx")
