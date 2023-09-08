@@ -164,15 +164,15 @@ plot_a <- data_benthic %>%
   ungroup() %>% 
   mutate(percent = n*100/sum(n)) %>% 
   ggplot(data = ., aes(x = interval_class, y = percent, fill = interval_class)) +
-  geom_bar(stat = "identity", color = "black", show.legend = FALSE, width = 0.75) +
-  scale_fill_manual(values = palette_5cols,
-                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                    drop = FALSE, name = "Number of years with data") +
-  labs(x = "Duration", y = "Sites (%)", title = "A") +
-  lims(y = c(0, 100)) +
-  theme_graph() +
-  theme(plot.title = element_text(size = 20),
-        axis.text.x = element_text(size = 10))
+    geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
+    scale_fill_manual(values = palette_5cols,
+                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                      drop = FALSE, name = "Number of years with data") +
+    labs(x = "Duration", y = "Sites (%)", title = "A") +
+    lims(y = c(0, 100)) +
+    theme_graph() +
+    theme(plot.title = element_text(size = 15),
+          axis.text.x = element_text(size = 7))
 
 # 5. Plot of number of surveys per year ----
 
@@ -180,15 +180,20 @@ load("data/04_data-benthic.RData")
 
 plot_b <- data_benthic %>% 
   select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
+  st_drop_geometry() %>% 
   distinct() %>% 
-  ggplot(data = ., aes(x = year)) +
-  # By default its density, width*density*100 gives percentage
-  geom_histogram(binwidth = 1, aes(y = after_stat(width*density*100)),
-                 color = "black", fill = "#5c97bf") +
-  lims(x = c(1970, 2024)) +
-  labs(x = "Year", y = "Surveys (%)", title = "B") +
-  theme_graph() +
-  theme(plot.title = element_text(size = 20))
+  group_by(year) %>% 
+  count() %>% 
+  ungroup() %>% 
+  complete(year, fill = list(n = 0)) %>% 
+  mutate(percent = n*100/sum(n)) %>% 
+  ggplot(data = ., aes(x = year, y = percent)) +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.5, color = "#C9504B", fill = "#C9504B") +
+    labs(x = "Year", y = "Surveys (%)", title = "B") +
+    lims(x = c(1970, 2024)) +
+    theme_graph() +
+    theme(plot.title = element_text(size = 15),
+          axis.text.x = element_text(size = 7))
 
 # 6. Combine plots ----
 
@@ -196,10 +201,10 @@ plot_b <- data_benthic %>%
 
 plot_a + plot_b + plot_layout(ncol = 2)
 
-ggsave(filename = "figs/01_pacific_surveys_horizontal.png", width = 10, height = 4, dpi = 600)
+ggsave(filename = "figs/01_pacific_surveys_lds.png", width = 10, height = 4, dpi = 600)
 
 # 6.2 Vertical --
 
 plot_a + plot_b + plot_layout(ncol = 1)
 
-ggsave(filename = "figs/01_pacific_surveys_vertical.png", width = 5, height = 8, dpi = 600)
+ggsave(filename = "figs/01_pacific_surveys_prt.png", width = 5, height = 8, dpi = 600)

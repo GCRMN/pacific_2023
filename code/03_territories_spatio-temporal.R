@@ -86,7 +86,9 @@ map_eez <- function(territory){
       theme_minimal() +
       theme(axis.text = element_blank(),
             axis.ticks = element_blank(),
-            panel.grid = element_blank())
+            panel.grid = element_blank(),
+            text = element_text(family = font_choose_map)) +
+      guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
     
   }else{
     
@@ -129,7 +131,9 @@ map_eez <- function(territory){
       theme_minimal() +
       theme(axis.text = element_blank(),
             axis.ticks = element_blank(),
-            panel.grid = element_blank())
+            panel.grid = element_blank(),
+            text = element_text(family = font_choose_map)) +
+      guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
     
   }
   
@@ -180,8 +184,8 @@ map_survey_years <- function(territory_i){
     ungroup() %>% 
     complete(year, fill = list(n = 0)) %>% 
     mutate(percent = n*100/sum(n)) %>% 
-      ggplot(data = ., aes(x = year, y = percent)) +
-      geom_bar(stat = "identity", show.legend = FALSE, width = 1, color = "white", fill = "#C9504B") +
+    ggplot(data = ., aes(x = year, y = percent)) +
+      geom_bar(stat = "identity", show.legend = FALSE, width = 0.5, color = "#C9504B", fill = "#C9504B") +
       labs(x = "Year", y = "Surveys (%)", title = "B") +
       lims(x = c(1970, 2024)) +
       theme_graph() +

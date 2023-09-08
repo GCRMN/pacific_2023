@@ -17,7 +17,7 @@ col_background_map <- "#e4f1fe"
 
 # Derived from scico package and lajolla palette
 # scico(5, begin = 0, end = 0.9, palette = "lajolla", direction = -1)
-palette_5cols <- c("#F8E283", "#E79652", "#C9504B", "#5B3023", "#191900")
+palette_5cols <- c("#2c82c9", "#848ccf", "#E79652", "#C9504B", "#5B3023")
 
 # 4. Define a common crs ----
 

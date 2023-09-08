@@ -23,7 +23,7 @@
 * `02_extract_elevation.js` Extract mean land elevation for each territory using Google Earth Engine (GEE). Estimated values are used as geographic information's.
 * `02_extract_land-area.js` Extract total land area for each territory using GEE. Estimated values are used as geographic information's.
 * `02_extract_map-dhw.R` Create raster with the mean annual DHW for each cell.
-* `02_extract_population.js` Extract human population for each territory using GEE. Estimated values are used as geographic information's.
+* `02_extract_population.R` Extract human population for each territory. Estimated values are used as geographic information's.
 * `02_reef-buffer.js` Create coral reef distribution buffer of 100 km. Used to extract cyclones occurrence.
 * `02_extract_sst-time-series.R` Extract SST and SST anomaly on coral reefs of each EEZ.
 * `02_model_benthic-data_grid.R` Create weights for the benthic model based on coral reef extent.
