@@ -215,3 +215,31 @@ map_cyclone <- function(territory_i){
 # 6.2 Map over the function --
 
 map(unique(data_cyclones$territory), ~map_cyclone(territory_i = .))
+
+# 7. Extract indicators of tropical storms per territory ----
+
+# 7.1 Number of tropical storms -- 
+
+data_cyclone_a <- data_cyclones %>% 
+  filter(saffir >= 1) %>% 
+  group_by(territory) %>% 
+  summarise(n_ts = n_distinct(ts_id)) %>% 
+  ungroup()
+
+# 7.2 Number of tropical storms with wind > 100 km.h -- 
+
+data_cyclone_b <- data_cyclones %>% 
+  filter(saffir >= 1 & wind_speed >= 100) %>% 
+  group_by(territory) %>% 
+  summarise(n_ts_100 = n_distinct(ts_id)) %>% 
+  ungroup()
+
+# 7.3 Tropical storm with the highest wind speed --
+
+data_cyclone_summary <- data_cyclones %>% 
+  group_by(territory) %>% 
+  filter(wind_speed == max(wind_speed, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  select(territory, ts_id, name, time, wind_speed, saffir, dist) %>% 
+  left_join(., data_cyclone_a) %>% 
+  left_join(., data_cyclone_b)
