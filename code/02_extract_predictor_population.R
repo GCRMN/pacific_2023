@@ -8,22 +8,16 @@ library(tidyterra)
 
 # 2. Benthic cover sites ----
 
-# 2.1 Load data --
+# 2.1 Import site coordinates --
 
-load("data/04_data-benthic.RData")
-
-# 2.2 Extract site coordinates --
-
-data_benthic_sites <- data_benthic %>% 
-  select(decimalLatitude, decimalLongitude) %>% 
-  distinct() %>% 
+data_benthic_sites <- st_read("data/15_benthic-site-coords/benthic-site-coords.shp") %>% 
+  select(-FID) %>% 
   mutate(site_id = row_number())
 
-# 2.3 Convert to sf and create buffer --
+# 2.2 Convert to sf and create buffer --
 
 data_benthic_buffer <- data_benthic_sites %>% 
-  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
-  # Create 100 km buffer around each site
+  # Create 50 km buffer around each site
   st_transform(crs = 7801) %>% 
   st_buffer(., dist = 50000) %>% 
   st_transform(crs = 4326) %>% 
@@ -64,11 +58,11 @@ extract_population <- function(i, data_vector){
 
 # 5.3 Map over the function --
 
-data_results <- map_dfr(unique(list_names$number), 
+data_pred_pop <- map_dfr(unique(list_names$number), 
                         ~extract_population(i = ., data_vector = data_benthic_buffer)) %>% 
   left_join(data_benthic_sites, .) %>% 
   select(-site_id)
 
 # 5.4 Export the data --
 
-write.csv2(data_results, "data/14_predictors/population.csv")
+save(data_pred_pop, file = "data/14_predictors/population.RData")
