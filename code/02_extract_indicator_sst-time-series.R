@@ -12,7 +12,8 @@ plan(multisession, workers = 6) # Set parallelization with 6 cores
 
 # 2. List of NetCDF4 files ----
 
-ncdf_files <- list.files(path = "../disturbance/data/011_sst_raw/", pattern = "\\.nc$", full.names = TRUE)
+ncdf_files <- list.files(path = "F:/Recherche/03_projects/2020-07-30_disturbance/disturbance/data/011_sst_raw",
+                         pattern = "\\.nc$", full.names = TRUE)
 
 # 3. Check if files are missing ----
 
@@ -49,7 +50,7 @@ ncdf_extract <- function(ncdf_i){
 
 # 6. Map over the function ----
 
-data_sst <- future_map_dfr(ncdf_files, ~ncdf_extract(.)) %>% 
+data_sst <- future_map_dfr(ncdf_files[1:10], ~ncdf_extract(.)) %>% 
   rename(sst = analysed_sst) %>% 
   left_join(., data_reef %>% 
               st_drop_geometry() %>% 

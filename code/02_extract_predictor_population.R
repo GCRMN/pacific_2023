@@ -61,7 +61,10 @@ extract_population <- function(i, data_vector){
 data_pred_pop <- map_dfr(unique(list_names$number), 
                         ~extract_population(i = ., data_vector = data_benthic_buffer)) %>% 
   left_join(data_benthic_sites, .) %>% 
-  select(-site_id)
+  select(-site_id) %>% 
+  mutate(decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry()
 
 # 5.4 Export the data --
 

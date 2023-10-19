@@ -61,7 +61,10 @@ extract_reef_area <- function(site_id_i){
 
 data_pred_reef <- map_dfr(unique(data_benthic_buffer$site_id), ~extract_reef_area(site_id_i = .)) %>% 
   left_join(data_benthic_sites, .) %>% 
-  select(-site_id)
+  select(-site_id) %>% 
+  mutate(decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry()
 
 # 5.3 Export the data --
 
