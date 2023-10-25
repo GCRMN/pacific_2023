@@ -10,7 +10,9 @@ load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_bentho
 # 3. Filter required data ----
 
 data_benthic <- synthetic_data %>% 
+  # Filter GCRMN region
   filter(higherGeography == "Pacific") %>% 
+  # Remove useless datasets
   filter(datasetID != "0009")
 
 # 4. Save the data ----

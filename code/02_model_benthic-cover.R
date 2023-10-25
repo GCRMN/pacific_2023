@@ -39,106 +39,139 @@ data_benthic <- data_benthic %>%
 
 rm(data_pred_pop, data_pred_reef, data_pred)
 
-# 1. Split data ----
+# 3. Create a function ---- 
 
-data_split <- initial_split(data_benthic, prop = 1/5)
-data_train <- training(data_split)
-data_test <- testing(data_split)
+model_bootstrap <- function(iteration, data_benthic){
+  
+  # 1. Split data ----
+  
+  data_split <- initial_split(data_benthic, prop = 1/5)
+  data_train <- training(data_split)
+  data_test <- testing(data_split)
+  
+  # 2. Define the recipe ----
+  
+  boosted_recipe <- recipe(measurementValue ~ ., data = data_train) %>% 
+    step_dummy(all_nominal_predictors())
+  
+  # 2. Define the model ----
+  
+  boosted_model <- boost_tree(trees = 1000, 
+                              min_n = tune(), 
+                              tree_depth = tune(), 
+                              learn_rate = tune()) %>% # Model type
+    set_engine("xgboost") %>% # Model engine
+    set_mode("regression") # Model mode
+  
+  # 3. Define the workflow ----
+  
+  boosted_workflow <- workflow() %>%
+    add_recipe(boosted_recipe) %>% 
+    add_model(boosted_model)
+  
+  # 4. Hyperparameters tuning ----
+  
+  # 4.1 Create the grid ----
+  
+  tune_grid <- grid_max_entropy(tree_depth(),
+                                learn_rate(),
+                                min_n(),
+                                size = 5)
+  
+  # 4.2 Run the hyperparameters tuning ----
+  
+  tuned_results <- tune_grid(boosted_workflow,
+                             resamples = bootstraps(data_train, times = 5),
+                             grid = tune_grid)
+  
+  # 4.3 Get best set of parameters ----
+  
+  model_hyperparams <- select_best(tuned_results, metric = "rmse") %>% 
+    select(-".config")
+  
+  # 5. Run the model with the best set of parameters ----
+  
+  final_model <- boosted_workflow %>%
+    finalize_workflow(model_hyperparams) %>%
+    last_fit(data_split)
+  
+  # 6. Evaluate final model performance ----
+  
+  # 6.1 Model performance metrics ----
+  
+  model_performance <- collect_metrics(final_model) %>% 
+    select(-".estimator", -".config") %>% 
+    pivot_wider(names_from = ".metric", values_from = ".estimate") %>% 
+    mutate(iteration = iteration, .before = 1)
+  
+  # 6.2 Dataviz (Pred. vs Obs.) ----
+  
+  final_fitted <- final_model$.workflow[[1]]
+  
+  data_test <- data_test %>% 
+    mutate(measurementValuepred = predict(final_fitted, data_test)$.pred)
+  
+  # 7. Variable importance ----
+  
+  result_vip <- final_model %>% 
+    extract_fit_parsnip() %>% 
+    vip(num_features = 100) %>% 
+    .$data %>% 
+    rename(predictor = 1, importance = 2) %>% 
+    mutate(iteration = iteration, .before = 1)
+  
+  # 8. Partial Dependance Plot (PDP) ----
+  
+  model_explain <- explain_tidymodels(final_fitted, 
+                                      data = dplyr::select(data_train, -measurementValue), 
+                                      y = data_train$measurementValue)
+  
+  # 8.1 For territories --
+  
+  result_pdp_territory <- model_profile(explainer = model_explain,
+                                        N = NULL, 
+                                        center = FALSE,
+                                        type = "partial",
+                                        groups = "territory",
+                                        variables = "year") %>% 
+    .$agr_profiles %>% 
+    as_tibble(.) %>% 
+    select(-"_label_", -"_ids_") %>% 
+    rename(x = "_x_", y_pred = "_yhat_", predictor = "_vname_", territory = "_groups_") %>% 
+    mutate(iteration = iteration, .before = 1)
+  
+  # 8.2 For entire region --
+  
+  result_pdp_region <- model_profile(explainer = model_explain,
+                                     N = NULL, 
+                                     center = FALSE,
+                                     type = "partial",
+                                     variables = "year") %>% 
+    .$agr_profiles %>% 
+    as_tibble(.) %>% 
+    select(-"_label_", -"_ids_") %>% 
+    rename(x = "_x_", y_pred = "_yhat_", predictor = "_vname_") %>% 
+    mutate(iteration = iteration, .before = 1)
+  
+  # 9. Format results ----
+  
+  return(lst(model_hyperparams %>% 
+               mutate(iteration = iteration, .before = 1), 
+             model_performance, 
+             result_vip,
+             result_pdp_territory,
+             result_pdp_region))
+  
+}
 
-# 2. Define the recipe ----
+# 4. Map over the function ----
 
-boosted_recipe <- recipe(measurementValue ~ ., data = data_train) %>% 
-  step_dummy(all_nominal_predictors())
+list_results <- map(1:2, ~model_bootstrap(iteration = ., data_benthic = data_benthic))
 
-# 2. Define the model ----
+# 5. Reformat the output ----
 
-boosted_model <- boost_tree(trees = 1000, 
-                            min_n = tune(), 
-                            tree_depth = tune(), 
-                            learn_rate = tune()) %>% # Model type
-  set_engine("xgboost", num.threads = 8) %>% # Model engine
-  set_mode("regression") # Model mode
+data_results <- map(map_df(list_results, ~ as.data.frame(map(.x, ~ unname(nest(.))))), bind_rows)
 
-# 3. Define the workflow ----
-
-boosted_workflow <- workflow() %>%
-  add_recipe(boosted_recipe) %>% 
-  add_model(boosted_model)
-
-# 4. Hyperparameters tuning ----
-
-# 4.1 Create the grid ----
-
-tune_grid <- grid_max_entropy(tree_depth(),
-                              learn_rate(),
-                              min_n(),
-                              size = 5)
-
-# 4.2 Run the hyperparameters tuning ----
-
-tuned_results <- tune_grid(boosted_workflow,
-                           resamples = bootstraps(data_train, times = 5),
-                           grid = tune_grid)
-
-# 4.3 Get best set of parameters ----
-
-best_params <- select_best(tuned_results, metric = "rmse") %>% 
-  select(-".config")
-
-# 5. Run the model with the best set of parameters ----
-
-final_model <- boosted_workflow %>%
-  finalize_workflow(best_params) %>%
-  last_fit(data_split)
-
-# 6. Evaluate final model performance ----
-
-# 6.1 Model performance metrics ----
-
-model_performance <- collect_metrics(final_model) %>% 
-  select(-".estimator", -".config") %>% 
-  pivot_wider(names_from = ".metric", values_from = ".estimate")
-
-# 6.2 Dataviz (Pred. vs Obs.) ----
-
-final_fitted <- final_model$.workflow[[1]]
-
-data_test <- data_test %>% 
-  mutate(measurementValuepred = predict(final_fitted, data_test)$.pred)
-
-# 7. Variable importance ----
-
-var_importance <- final_model %>% 
-  extract_fit_parsnip() %>% 
-  vip(num_features = 100) %>% 
-  .$data %>% 
-  rename(predictor = 1, importance = 2)
-
-# 8. Partial Dependance Plot (PDP) ----
-
-model_explain <- explain_tidymodels(final_fitted, 
-                                    data = dplyr::select(data_train, -measurementValue), 
-                                    y = data_train$measurementValue)
-
-pdp_boosted <- model_profile(explainer = model_explain,
-                             N = NULL, 
-                             center = FALSE,
-                             type = "partial",
-                             groups = "territory",
-                             variables = "year")
-
-# 9. Format results ----
-
-data_results <- as_tibble(pdp_boosted$agr_profiles) %>% 
-  select(-"_label_", -"_ids_") %>% 
-  rename(x = "_x_", y_pred = "_yhat_", predictor = "_vname_", territory = "_groups_") %>% 
-  # Add variable importance
-  left_join(., var_importance) %>% 
-  # Add model performance 
-  bind_cols(., model_performance) %>% 
-  # Add best set of hyperparameters used
-  bind_cols(., best_params)
-
-# 10. Export results ----
+# 6. Export the results ----
 
 save(data_results, file = "data/results-model-coral.RData")
