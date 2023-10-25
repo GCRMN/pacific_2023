@@ -8,6 +8,11 @@ library(caret)
 library(xgboost)
 library(vip)
 library(pdp)
+library(future)
+library(furrr)
+
+plan(multisession, workers = 6) # Set parallelization with 6 cores
+
 source("code/function/summarise_cover.R")
 
 # 2. Data preparation ----
@@ -166,7 +171,7 @@ model_bootstrap <- function(iteration, data_benthic){
 
 # 4. Map over the function ----
 
-list_results <- map(1:2, ~model_bootstrap(iteration = ., data_benthic = data_benthic))
+list_results <- future_map(1:100, ~model_bootstrap(iteration = ., data_benthic = data_benthic))
 
 # 5. Reformat the output ----
 
