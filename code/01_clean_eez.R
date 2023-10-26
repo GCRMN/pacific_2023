@@ -28,14 +28,14 @@ correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 9
 # 3. List of EEZ to plot ----
 
 list_eez <- c("American Samoa", "Cook Islands", "Fiji", "French Polynesia", "Gilbert Islands", "Guam", "Hawaii",
-              "Howland and Baker islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
+              "Howland and Baker Islands", "Jarvis Island", "Johnston Atoll", "Line Group", "Marshall Islands",
               "Micronesia", "Nauru", "New Caledonia", "Niue", "Northern Mariana Islands",
               "Palau", "Palmyra Atoll", "Papua New Guinea", "Phoenix Group", "Pitcairn", "Samoa", "Solomon Islands",
-              "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island", "Wallis and Futuna")
+              "Tokelau", "Tonga", "Tuvalu", "Vanuatu", "Wake Island / Enenkio", "Wallis and Futuna")
 
 # 4. Filter and change CRS ----
 
-data_eez <- read_sf("data/01_background-shp/03_eez/World_EEZ_v11_20191118/eez_v11.shp") %>% 
+data_eez <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
   filter(TERRITORY1 %in% list_eez) %>% 
   st_transform(crs = 4326) %>% 
   st_difference(correction_polygon) %>% 
@@ -48,7 +48,36 @@ data_eez %<>% # Special pipe from magrittr
 
 # 6. Remove holes within polygons ----
 
+# 6.1 For all territory (except Micronesia and Palau) --
+
 data_eez <- nngeo::st_remove_holes(data_eez)
+
+# 6.2 For Micronesia and Palau (particular cases) --
+
+data_eez_micronesia <- data_eez %>% 
+  filter(TERRITORY1 == "Micronesia") %>% 
+  # Transform MULTIPOLYGON to POLYGON
+  st_cast(., "POLYGON") %>% 
+  # Extract larger POLYGON
+  mutate(area = st_area(.)) %>% 
+  filter(area == max(area)) %>% 
+  select(-area)
+
+data_eez_palau <- data_eez %>% 
+  filter(TERRITORY1 == "Palau") %>% 
+  # Transform MULTIPOLYGON to POLYGON
+  st_cast(., "POLYGON") %>% 
+  # Extract larger POLYGON
+  mutate(area = st_area(.)) %>% 
+  filter(area == max(area)) %>% 
+  select(-area)
+
+data_eez <- data_eez %>%
+  filter(!(TERRITORY1 %in% c("Micronesia", "Palau"))) %>% 
+  bind_rows(., data_eez_micronesia) %>% 
+  bind_rows(., data_eez_palau)
+
+rm(data_eez_micronesia, data_eez_palau)
 
 # 7. Include land within Papua New Guinea EEZ (to extract population, elevation, etc) ----
 
@@ -66,7 +95,7 @@ data_eez <- data_eez %>%
   st_union(., data_land) %>% 
   nngeo::st_remove_holes(.) %>%
   # Add AREA_KM2 (sum of the two EEZ polygons)
-  mutate(AREA_KM2 = read_sf("data/01_background-shp/03_eez/World_EEZ_v11_20191118/eez_v11.shp") %>%
+  mutate(AREA_KM2 = read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>%
            filter(TERRITORY1 == "Papua New Guinea") %>%
            st_drop_geometry() %>%
            select(AREA_KM2) %>%
@@ -80,7 +109,8 @@ data_eez <- data_eez %>%
 # 8. Attribute EEZ number ----
 
 data_eez <- data_eez %>% 
-  mutate(TERRITORY1 = str_replace_all(TERRITORY1, "Micronesia", "Federated States of Micronesia")) %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Micronesia" = "Federated States of Micronesia",
+                                                    "Wake Island / Enenkio" = "Wake Island"))) %>% 
   mutate(number = case_when(TERRITORY1 == "Palau" ~ 1,
                             TERRITORY1 == "Federated States of Micronesia" ~ 2,
                             TERRITORY1 == "Guam" ~ 3,
@@ -98,7 +128,7 @@ data_eez <- data_eez %>%
                             TERRITORY1 == "Wallis and Futuna" ~ 15,
                             TERRITORY1 == "Tuvalu" ~ 16,
                             TERRITORY1 == "Gilbert Islands" ~ 17,
-                            TERRITORY1 == "Howland and Baker islands" ~ 18,
+                            TERRITORY1 == "Howland and Baker Islands" ~ 18,
                             TERRITORY1 == "Phoenix Group" ~ 19,
                             TERRITORY1 == "Tokelau" ~ 20,
                             TERRITORY1 == "American Samoa" ~ 21,
