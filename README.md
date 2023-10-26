@@ -29,7 +29,9 @@
 
 ### B. Extraction and models (`02_`)
 
-- `02_extract_cyclones.R` Extract cyclones for each EEZ.
+#### B1. Indicators
+
+- `02_extract_indicator_cyclones` Extract cyclones for each EEZ.
 - `02_extract_dhw-percent.R` Extract percent of coral reefs under DHW
   for each EEZ.
 - `02_extract_dhw-time-series.R` Extract maximum DHW within each EEZ.
@@ -46,11 +48,21 @@
   Used to extract cyclones occurrence.
 - `02_extract_sst-time-series.R` Extract SST and SST anomaly on coral
   reefs of each EEZ.
+
+#### B2. Predictors
+
+- `02_extract_predictor_population.js` Extract total human population
+  within 10 km from each site as a predictor, using GEE.
+- `02_extract_predictor_elevation.js` Extract mean land elevation within
+  10 km from each site as a predictor, using GEE.
+
+#### B3. Models
+
+- `02_model_data-exploration.Rmd` Data exploration for benthic cover.
 - `02_model_benthic-data_grid.R` Create weights for the benthic model
   based on coral reef extent.
-- `02_model_benthic-data.Rmd` Machine learning model to estimate
-  temporal trends of hard coral and algae cover.
-- `02_model_data-exploration.Rmd` Data exploration for benthic cover.
+- `02_model_benthic-cover.R` Machine learning model to estimate temporal
+  trends of hard coral and algae cover.
 
 ### C. Figures and tables (`03_`)
 
@@ -106,7 +118,7 @@
      collate  French_France.utf8
      ctype    French_France.utf8
      tz       Europe/Paris
-     date     2023-10-19
+     date     2023-10-26
      pandoc   3.1.1 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
     ─ Packages ───────────────────────────────────────────────────────────────────
