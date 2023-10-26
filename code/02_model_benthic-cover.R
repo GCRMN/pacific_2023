@@ -17,11 +17,11 @@ source("code/function/summarise_cover.R")
 
 # 2. Data preparation ----
 
-# 2.1 Load benthic cover data --
+# 2.1 Load benthic cover data ----
 
 load("data/04_data-benthic.RData")
 
-# 2.2 Load predictors --
+# 2.2 Load predictors ----
 
 load("data/14_predictors/population.RData")
 load("data/14_predictors/reef_extent.RData")
@@ -31,18 +31,25 @@ data_pred <- data_pred_pop %>%
   select(-year) %>% 
   left_join(., data_pred_reef) %>% 
   rename(pred_pop = population,
-         pred_reef = reef_area) # /!\ Nom des variables à changer directement lors de l'extraction
+         pred_reef = reef_area)
 
-# 2.3. Filter and summarise data ----
+# 2.3 Load weights ----
+
+load("data/12_weight-model-benthic-cover.RData")
+
+# 2.4 Summarize data and add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
   filter(territory %in% c("French Polynesia", "New Caledonia", "Fiji")) %>% 
-  # Filter and summarise data
+  # Filter and summarize data
   summarise_cover(., category_i = "Hard coral") %>% 
   # Add predictors
-  left_join(data_pred)
+  left_join(., data_pred) %>% 
+  # Add weight
+  left_join(., data_weight) %>% 
+  mutate(weight = importance_weights(weight))
 
-rm(data_pred_pop, data_pred_reef, data_pred)
+rm(data_pred_pop, data_pred_reef, data_pred, data_weight)
 
 # 3. Create a function ---- 
 
@@ -71,6 +78,7 @@ model_bootstrap <- function(iteration, data_benthic){
   # 3. Define the workflow ----
   
   boosted_workflow <- workflow() %>%
+    add_case_weights(weight) %>% 
     add_recipe(boosted_recipe) %>% 
     add_model(boosted_model)
   
@@ -81,7 +89,7 @@ model_bootstrap <- function(iteration, data_benthic){
   tune_grid <- grid_max_entropy(tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 10)
+                                size = 20)
   
   # 4.2 Run the hyperparameters tuning ----
   
