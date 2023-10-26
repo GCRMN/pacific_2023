@@ -61,7 +61,7 @@ model_bootstrap <- function(iteration, data_benthic){
   
   # 2. Define the model ----
   
-  boosted_model <- boost_tree(trees = 1000, 
+  boosted_model <- boost_tree(trees = 5000, 
                               min_n = tune(), 
                               tree_depth = tune(), 
                               learn_rate = tune()) %>% # Model type
@@ -81,7 +81,7 @@ model_bootstrap <- function(iteration, data_benthic){
   tune_grid <- grid_max_entropy(tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 5)
+                                size = 10)
   
   # 4.2 Run the hyperparameters tuning ----
   
@@ -171,7 +171,7 @@ model_bootstrap <- function(iteration, data_benthic){
 
 # 4. Map over the function ----
 
-list_results <- future_map(1:100, ~model_bootstrap(iteration = ., data_benthic = data_benthic))
+list_results <- future_map(1:100, ~model_bootstrap(iteration = ., data_benthic = data_benthic), .progress = TRUE)
 
 # 5. Reformat the output ----
 
