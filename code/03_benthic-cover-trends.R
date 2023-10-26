@@ -14,11 +14,39 @@ load("data/16_model-results/results-model-coral.RData")
 
 # 4. Variable importance ----
 
-data_results %>% 
+# 4.1 Extract data --
+
+data_imp_raw <- data_results %>% 
   .$result_vip %>% 
-  ggplot(data = ., aes(x = predictor, y = importance)) +
-  geom_point() +
-  coord_flip()
+  mutate(importance = importance*100)
+
+# 4.2 Calculate mean and sd of all iteration --
+
+data_imp_summary <- data_imp_raw %>% 
+  group_by(predictor) %>% 
+  summarise(mean_imp = mean(importance),
+            sd_imp = sd(importance)) %>% 
+  ungroup() %>% 
+  mutate(predictor = fct_reorder(predictor, mean_imp))
+
+# 4.3 Add mean to order factor --
+
+data_imp_raw <- left_join(data_imp_raw, data_imp_summary) %>% 
+  mutate(predictor = fct_reorder(predictor, mean_imp))
+
+# 4.4 Make the plot --
+
+ggplot() +
+  geom_jitter(data = data_imp_raw, aes(x = predictor, y = importance),
+              alpha = 0.075, col = "#446CB3", width = 0.1) +
+  geom_linerange(data = data_imp_summary, aes(x = predictor, 
+                                              ymin = mean_imp - sd_imp,
+                                              ymax = mean_imp + sd_imp),
+                 col = "black", linewidth = 0.7) +
+  geom_point(data = data_imp_summary, aes(x = predictor, y = mean_imp),
+             fill = "#446CB3", shape = 21, size = 3.25, col = "black") +
+  coord_flip() +
+  labs(y = "Importance (%)", x = NULL)
 
 # 5. PDP ----
 
