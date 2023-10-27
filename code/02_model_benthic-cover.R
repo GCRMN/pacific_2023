@@ -42,11 +42,16 @@ data_pred_reef_extent <- read.csv("data/14_predictors/pred_reef-extent.csv") %>%
 data_pred_land <- read.csv("data/14_predictors/pred_land.csv") %>% 
   rename(pred_land = sum)
 
+data_pred_chla <- read.csv("data/14_predictors/pred_chla.csv") %>% 
+  rename(pred_chla = mean)
+
 data_pred <- site_coords %>% 
   left_join(., data_pred_population) %>% 
   left_join(., data_pred_elevation) %>% 
   left_join(., data_pred_land) %>% 
-  left_join(., data_pred_reef_extent)
+  left_join(., data_pred_reef_extent) %>% 
+  left_join(., data_pred_chla) %>% 
+  select(-site_id)
 
 # 2.3 Load weights ----
 
@@ -55,7 +60,7 @@ load("data/12_weight-model-benthic-cover.RData")
 # 2.4 Summarize data and add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
-  filter(territory %in% c("French Polynesia", "New Caledonia", "Fiji")) %>% 
+  filter(territory %in% c("French Polynesia", "New Caledonia", "Fiji", "Vanuatu", "Palmyra Atoll")) %>% 
   # Filter and summarize data
   summarise_cover(., category_i = "Hard coral") %>% 
   # Add predictors
@@ -65,7 +70,7 @@ data_benthic <- data_benthic %>%
   mutate(weight = importance_weights(weight))
 
 rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
-   data_pred, data_weight, site_coords)
+   data_pred_land, data_pred_chla, data_pred, data_weight, site_coords)
 
 # 3. Create a function ---- 
 
@@ -195,7 +200,7 @@ model_bootstrap <- function(iteration, data_benthic){
 
 # 4. Map over the function ----
 
-list_results <- future_map(1:100, ~model_bootstrap(iteration = ., data_benthic = data_benthic), .progress = TRUE)
+list_results <- future_map(1:2, ~model_bootstrap(iteration = ., data_benthic = data_benthic), .progress = TRUE)
 
 # 5. Reformat the output ----
 
