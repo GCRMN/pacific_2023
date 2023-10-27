@@ -55,6 +55,8 @@
   within 10 km from each site as a predictor, using GEE.
 - `02_extract_predictor_elevation.js` Extract mean land elevation within
   10 km from each site as a predictor, using GEE.
+- `02_extract_predictor_reef-extent.js` Extract total coral reef extent
+  within 10 km from each site as a predictor, using GEE.
 
 #### B3. Models
 
@@ -118,7 +120,7 @@
      collate  French_France.utf8
      ctype    French_France.utf8
      tz       Europe/Paris
-     date     2023-10-26
+     date     2023-10-27
      pandoc   3.1.1 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
     ─ Packages ───────────────────────────────────────────────────────────────────

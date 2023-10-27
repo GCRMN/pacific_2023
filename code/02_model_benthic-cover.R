@@ -2,6 +2,7 @@
 
 library(tidyverse) # Core tidyverse packages
 library(tidymodels) # Core tidymodels packages
+library(sf)
 library(DALEX)
 library(DALEXtra)
 library(caret)
@@ -21,17 +22,27 @@ source("code/function/summarise_cover.R")
 
 load("data/04_data-benthic.RData")
 
-# 2.2 Load predictors ----
+# 2.2 Load and combine predictors ----
 
-load("data/14_predictors/population.RData")
-load("data/14_predictors/reef_extent.RData")
+site_coords <- st_read("data/15_benthic-site-coords/benthic-site-coords.shp") %>% 
+  mutate(decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry()
 
-data_pred <- data_pred_pop %>% 
-  filter(year == 2020) %>% 
-  select(-year) %>% 
-  left_join(., data_pred_reef) %>% 
-  rename(pred_pop = population,
-         pred_reef = reef_area)
+data_pred_elevation <- read.csv("data/14_predictors/pred_elevation.csv") %>% 
+  rename(pred_elevation = mean) %>% 
+  mutate(pred_elevation = replace_na(pred_elevation, 0))
+
+data_pred_population <- read.csv("data/14_predictors/pred_human-pop.csv") %>% 
+  rename(pred_population = sum)
+
+data_pred_reef_extent <- read.csv("data/14_predictors/pred_reef-extent.csv") %>% 
+  rename(pred_reefextent = sum)
+
+data_pred <- site_coords %>% 
+  left_join(., data_pred_population) %>% 
+  left_join(., data_pred_elevation) %>% 
+  left_join(., data_pred_reef_extent)
 
 # 2.3 Load weights ----
 
@@ -49,7 +60,8 @@ data_benthic <- data_benthic %>%
   left_join(., data_weight) %>% 
   mutate(weight = importance_weights(weight))
 
-rm(data_pred_pop, data_pred_reef, data_pred, data_weight)
+rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
+   data_pred, data_weight, site_coords)
 
 # 3. Create a function ---- 
 
