@@ -22,12 +22,12 @@ data_maritime_area <- data_eez %>%
 
 # 2.2 Land area ----
 
-data_land <- read.csv("data/02_geo-inf/02_land-area.csv") %>% 
+data_land <- read.csv("data/02_indicators/ind_land.csv") %>% 
   rename(territory = TERRITORY1, land_area = sum)
 
 # 2.3 Mean land elevation ----
 
-data_elevation <- read.csv("data/02_geo-inf/02_elevation.csv") %>% 
+data_elevation <- read.csv("data/02_indicators/ind_elevation.csv") %>% 
   rename(territory = TERRITORY1, mean_elevation = mean)
 
 # 2.4 Reef area ----
@@ -133,18 +133,22 @@ map(unique(data_table_1$territory), ~export_geoinf(territory_i = .))
 
 # 3.1 Add subterritories --
 
-data_table_2 <- read.csv2("data/02_geo-inf/01_human-pop.csv") %>% 
-  mutate(across(c("pop_reefs_2000", "pop_reefs_2020", "pop_eez_2020"), ~if_else(is.na(.x), 0, .x))) %>% 
+data_table_2 <- read.csv("data/02_indicators/ind_human-pop.csv") %>% 
+  mutate(year = as.numeric(str_sub(date, 1, 4))) %>% 
+  rename(territory = TERRITORY1) %>% 
+  select(-date) %>% 
   # Add subterritory
   mutate(subterritory = territory,
          territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
                                subterritory %in% c("Jarvis Island", "Johnston Atoll", 
-                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Wake Island", "Howland and Baker Islands",
                                                    "Palmyra Atoll") ~ "Pacific Remote Island Area",
                                TRUE ~ subterritory),
          subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
   arrange(territory, subterritory) %>% 
-  relocate(subterritory, .after = territory)
+  relocate(subterritory, .after = territory) %>% 
+  filter(year %in% c(2000, 2020)) %>% 
+  pivot_wider(names_from = year, values_from = sum, names_prefix = "pop_reefs_")
 
 # 3.2 Add total --
 

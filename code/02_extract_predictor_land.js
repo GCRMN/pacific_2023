@@ -23,7 +23,7 @@ var elevation = ee.Image('CGIAR/SRTM90_V4').selfMask();
 
 var data_area = ee.Image.pixelArea().divide(1000000);
 
-// 6. Use this layer to mask ACA data ----
+// 6. Use this layer to mask elevation data ----
 
 var data_area = data_area.mask(elevation);
 

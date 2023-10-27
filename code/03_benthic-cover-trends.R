@@ -52,8 +52,9 @@ ggplot() +
 
 # 5.1 For entire Pacific region --
 
-ggplot(data = data_results$result_pdp_region, aes(x = x, y = y_pred, group = iteration)) +
-  geom_line() +
+ggplot() +
+  geom_line(data = data_results$result_pdp_region, aes(x = x, y = y_pred, group = iteration)) +
+  geom_smooth(data = data_results$result_pdp_region, aes(x = x, y = y_pred)) +
   lims(y = c(0, 100)) +
   labs(x = "Year", y = "Hard coral cover (%)")
 
@@ -76,8 +77,9 @@ ggplot(data = data_pdp_region) +
 
 # 5.2 For territories --
 
-ggplot(data = data_results$result_pdp_territory, aes(x = x, y = y_pred, group = iteration)) +
-  geom_line() +
+ggplot() +
+  geom_line(data = data_results$result_pdp_territory, aes(x = x, y = y_pred, group = iteration)) +
+  geom_smooth(data = data_results$result_pdp_territory, aes(x = x, y = y_pred)) +
   facet_grid(~territory, scales = "free") +
   lims(y = c(0, 100)) +
   labs(x = "Year", y = "Hard coral cover (%)")

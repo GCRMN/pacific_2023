@@ -1,22 +1,26 @@
-// 1. Import elevation data ----
+// 1. Import data ----
+
+var data_eez = ee.FeatureCollection("users/jeremywicquart/pacific_2023_eez");
+
+// 2. Import elevation data ----
 
 var elevation = ee.Image('CGIAR/SRTM90_V4').select('elevation');
 
-// 2. Extract maximum elevation ----
+// 3. Extract maximum elevation ----
 
-var data_elevation = elevation.reduceRegions({
+var data_results = elevation.reduceRegions({
   reducer: ee.Reducer.mean(),
   collection: data_eez,
   scale: 90,
 });
 
-// 3. Export the data ----
+// 4. Export the data ----
 
 Export.table.toDrive({
-  collection:data_elevation,
+  collection:data_results,
   folder:"GEE",
-  fileNamePrefix:"02_elevation",
+  fileNamePrefix:"ind_elevation",
   fileFormat:"CSV",
-  description:"02_elevation",
-  selectors:["TERRITORY1", "mean"]
+  description:"ind_elevation",
+  selectors:["TERRITORY1", "mean"],
 });
