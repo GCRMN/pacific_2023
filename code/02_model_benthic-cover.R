@@ -39,9 +39,13 @@ data_pred_population <- read.csv("data/14_predictors/pred_human-pop.csv") %>%
 data_pred_reef_extent <- read.csv("data/14_predictors/pred_reef-extent.csv") %>% 
   rename(pred_reefextent = sum)
 
+data_pred_land <- read.csv("data/14_predictors/pred_land.csv") %>% 
+  rename(pred_land = sum)
+
 data_pred <- site_coords %>% 
   left_join(., data_pred_population) %>% 
   left_join(., data_pred_elevation) %>% 
+  left_join(., data_pred_land) %>% 
   left_join(., data_pred_reef_extent)
 
 # 2.3 Load weights ----

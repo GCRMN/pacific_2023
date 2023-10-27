@@ -57,6 +57,8 @@
   10 km from each site as a predictor, using GEE.
 - `02_extract_predictor_reef-extent.js` Extract total coral reef extent
   within 10 km from each site as a predictor, using GEE.
+- `02_extract_predictor_land.js` Extract total land area within 10 km
+  from each site as a predictor, using GEE.
 
 #### B3. Models
 

@@ -15,9 +15,9 @@ function bufferPoints(radius, bounds) {
 
 var site_buffer = site_coords.map(bufferPoints(10000, false));
 
-// 4. Load and Allen Coral Atlas (ACA) data ----
+// 4. Load elevation data ----
 
-var aca_benthic = ee.Image("ACA/reef_habitat/v2_0").select('benthic').selfMask();
+var elevation = ee.Image('CGIAR/SRTM90_V4').selfMask();
 
 // 5. Create a layer of surface by pixel (in km2) ----
 
@@ -25,23 +25,23 @@ var data_area = ee.Image.pixelArea().divide(1000000);
 
 // 6. Use this layer to mask ACA data ----
 
-var aca_area = data_area.mask(aca_benthic);
+var data_area = data_area.mask(elevation);
 
-// 7. Calculate reef area within each buffer ----
+// 7. Extract mean elevation ----
 
-var reef_extent = aca_area.reduceRegions({
+var data_elevation = data_area.reduceRegions({
+  reducer: ee.Reducer.sum(),
   collection: site_buffer,
-  reducer: ee.Reducer.sum(), 
-  scale:5
+  scale: 90,
 });
 
 // 8. Export the data ----
 
 Export.table.toDrive({
-  collection:reef_extent,
+  collection:data_elevation,
   folder:"GEE",
-  fileNamePrefix:"pred_reef-extent",
+  fileNamePrefix:"pred_land",
   fileFormat:"CSV",
-  description:"pred_reef-extent",
+  description:"pred_land",
   selectors:["site_id", "sum"]
 });

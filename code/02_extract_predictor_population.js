@@ -30,6 +30,6 @@ Export.table.toDrive({
   folder:"GEE",
   fileNamePrefix:"pred_human-pop",
   fileFormat:"CSV",
-  description:"extraction_pop",
+  description:"pred_human-pop",
   selectors:["site_id", "sum"]
 });

@@ -34,6 +34,6 @@ Export.table.toDrive({
   folder:"GEE",
   fileNamePrefix:"pred_elevation",
   fileFormat:"CSV",
-  description:"extraction_elevation",
+  description:"pred_elevation",
   selectors:["site_id", "mean"]
 });
