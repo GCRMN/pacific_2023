@@ -10,7 +10,13 @@ source("code/function/theme_graph.R")
 
 # 3. Load data ----
 
-data_population <- read.csv("data/14_human-pop_reef.csv") %>% 
+data_population <- read.csv("data/02_indicators/ind_human-pop_5km.csv") %>% 
+  group_by(TERRITORY1, date) %>% 
+  summarise(population = sum(sum)) %>% 
+  ungroup() %>% 
+  mutate(year = as.numeric(str_sub(date, 1, 4))) %>% 
+  rename(territory = TERRITORY1) %>% 
+  select(-date) %>% 
   mutate(population = population*1e-06, # Convert to million
          territory_type = if_else(territory %in% c("Papua New Guinea", "Fiji", "Hawaii"),
                                   territory, 
@@ -25,16 +31,16 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
   geom_area(show.legend = FALSE) +
   scale_fill_manual(values = rev(scico(5, begin = 0, end = 0.8, palette = "lajolla"))) +
   labs(x = "Year", y = "Number of inhabitants (millions)") +
-  annotate(geom = "text", label = "Papua New Guinea", x = 2003, y = 1.4, 
+  annotate(geom = "text", label = "Papua New Guinea", x = 2003, y = 0.45, 
            family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Other territories", x = 2003, y = 3.75, 
+  annotate(geom = "text", label = "Other territories", x = 2003, y = 1.75, 
            family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Hawaii", x = 2003, y = 5.3, 
+  annotate(geom = "text", label = "Hawaii", x = 2003, y = 3.1, 
            family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Fiji", x = 2003, y = 6.4, 
+  annotate(geom = "text", label = "Fiji", x = 2003, y = 3.8, 
            family = font_choose_graph, color = "white", hjust = 0) +
   theme_graph() + 
-  lims(y = c(0, 10))
+  lims(y = c(0, 6))
 
 # 5. Export the plot ----
 

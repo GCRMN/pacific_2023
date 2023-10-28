@@ -56,7 +56,7 @@ data_eez <- data_eez %>%
   # Pacific Remote Island Area
   mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Jarvis Island" = "Pacific Remote Island",
                                                     "Wake Island" = "Pacific Remote Island",
-                                                    "Howland and Baker islands" = "Pacific Remote Island",
+                                                    "Howland and Baker Islands" = "Pacific Remote Island",
                                                     "Johnston Atoll" = "Pacific Remote Island",
                                                     "Palmyra Atoll" = "Pacific Remote Island")))
 
