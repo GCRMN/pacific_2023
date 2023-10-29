@@ -11,7 +11,7 @@ load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_bentho
 
 data_benthic <- synthetic_data %>% 
   # Filter GCRMN region
-  filter(higherGeography == "Pacific") %>% 
+  filter(higherGeography == "Pacific" & territory != "Australia") %>% 
   # Remove useless datasets
   filter(datasetID != "0009")
 

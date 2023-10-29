@@ -34,13 +34,14 @@ data_elevation <- read.csv("data/02_indicators/ind_elevation.csv") %>%
 
 data_reefs <- st_read("data/03_reefs-area_wri/reef_500_poly.shp") %>% 
   st_transform(crs = 4326) %>% 
-  st_wrap_dateline(options = c("WRAPDATELINE=YES"))
+  st_wrap_dateline(options = c("WRAPDATELINE=YES")) 
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_eez <- data_eez %>% 
   st_transform(crs = 4326) %>% 
-  st_wrap_dateline(options = c("WRAPDATELINE=YES"))
+  st_wrap_dateline(options = c("WRAPDATELINE=YES")) %>% 
+  st_make_valid()
 
 ggplot() +
   geom_sf(data = data_eez) +
