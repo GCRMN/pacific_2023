@@ -45,12 +45,22 @@ data_pred_land <- read.csv("data/14_predictors/pred_land.csv") %>%
 data_pred_chla <- read.csv("data/14_predictors/pred_chla.csv") %>% 
   rename(pred_chla = mean)
 
+data_pred_sst_mean <- read.csv("data/14_predictors/pred_sst_mean.csv") %>% 
+  rename(pred_sst_mean = first) %>% 
+  mutate(pred_sst_mean = pred_sst_mean/100)
+
+data_pred_sst_sd <- read.csv("data/14_predictors/pred_sst_sd.csv") %>% 
+  rename(pred_sst_sd = first) %>% 
+  mutate(pred_sst_sd = pred_sst_sd/100)
+
 data_pred <- site_coords %>% 
   left_join(., data_pred_population) %>% 
   left_join(., data_pred_elevation) %>% 
   left_join(., data_pred_land) %>% 
   left_join(., data_pred_reef_extent) %>% 
   left_join(., data_pred_chla) %>% 
+  left_join(., data_pred_sst_mean) %>% 
+  left_join(., data_pred_sst_sd) %>% 
   select(-site_id)
 
 # 2.3 Load weights ----
@@ -70,7 +80,8 @@ data_benthic <- data_benthic %>%
   mutate(weight = importance_weights(weight))
 
 rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
-   data_pred_land, data_pred_chla, data_pred, data_weight, site_coords)
+   data_pred_land, data_pred_chla, data_pred_sst_mean, data_pred_sst_sd,
+   data_pred, data_weight, site_coords)
 
 # 3. Create a function ---- 
 
@@ -110,7 +121,7 @@ model_bootstrap <- function(iteration, data_benthic){
   tune_grid <- grid_max_entropy(tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 20)
+                                size = 10)
   
   # 4.2 Run the hyperparameters tuning ----
   
