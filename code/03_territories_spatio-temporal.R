@@ -137,7 +137,8 @@ map_eez <- function(territory){
     
   }
   
-  ggsave(filename = paste0("figs/territories_fig-4/", str_replace_all(str_to_lower(territory), " ", "-"), ".png"), dpi = 600)
+  ggsave(filename = paste0("figs/territories_fig-4/",
+                           str_replace_all(str_to_lower(territory), " ", "-"), ".png"), dpi = 600)
   
 }
 
@@ -198,14 +199,16 @@ map_survey_years <- function(territory_i){
   
   plot_a + plot_b + plot_layout(ncol = 1)
   
-  ggsave(filename = paste0("figs/territories_fig-4-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), "_prt.png"),
+  ggsave(filename = paste0("figs/territories_fig-4-b/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), "_prt.png"),
          width = 4, height = 6, dpi = 600)
   
   # 3.2 Landscape --
   
   plot_a + plot_b + plot_layout(ncol = 2)
   
-  ggsave(filename = paste0("figs/territories_fig-4-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), "_lds.png"),
+  ggsave(filename = paste0("figs/territories_fig-4-b/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), "_lds.png"),
          width = 8, height = 3.5, dpi = 600)
   
 }
@@ -235,7 +238,7 @@ monitoring_descriptors <- data_benthic %>%
   mutate(subterritory = territory,
          territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
                                subterritory %in% c("Jarvis Island", "Johnston Atoll", 
-                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Wake Island", "Howland and Baker Islands",
                                                    "Palmyra Atoll") ~ "Pacific Remote Island Area",
                                TRUE ~ subterritory),
          subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
@@ -256,7 +259,7 @@ monitoring_descriptors <- data_benthic %>%
   mutate(territory = case_when(territory %in% c("Line Group", "Phoenix Group", 
                                                 "Gilbert Islands") ~ "Kiribati",
                                territory %in% c("Jarvis Island", "Johnston Atoll", 
-                                                "Wake Island", "Howland and Baker islands",
+                                                "Wake Island", "Howland and Baker Islands",
                                                 "Palmyra Atoll") ~ "Pacific Remote Island Area",
                                TRUE ~ territory)) %>% 
   filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 

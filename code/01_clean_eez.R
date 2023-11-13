@@ -109,8 +109,8 @@ data_eez <- data_eez %>%
 # 8. Attribute EEZ number ----
 
 data_eez <- data_eez %>% 
-  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Micronesia" = "Federated States of Micronesia",
-                                                    "Wake Island / Enenkio" = "Wake Island"))) %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Micronesia" = "Federated States of Micronesia")),
+         TERRITORY1 = str_remove_all(TERRITORY1, " / Enenkio")) %>% 
   mutate(number = case_when(TERRITORY1 == "Palau" ~ 1,
                             TERRITORY1 == "Federated States of Micronesia" ~ 2,
                             TERRITORY1 == "Guam" ~ 3,

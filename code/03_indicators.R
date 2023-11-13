@@ -66,7 +66,7 @@ data_table_1 <- left_join(data_reef_area, data_maritime_area) %>%
   mutate(subterritory = territory,
        territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
                              subterritory %in% c("Jarvis Island", "Johnston Atoll", 
-                                                 "Wake Island", "Howland and Baker islands",
+                                                 "Wake Island", "Howland and Baker Islands",
                                                  "Palmyra Atoll") ~ "Pacific Remote Island Area",
                              TRUE ~ subterritory),
        subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
@@ -278,7 +278,7 @@ data_table_3 <- data_eez %>%
   mutate(subterritory = territory,
          territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
                                subterritory %in% c("Jarvis Island", "Johnston Atoll", 
-                                                   "Wake Island", "Howland and Baker islands",
+                                                   "Wake Island", "Howland and Baker Islands",
                                                    "Palmyra Atoll") ~ "Pacific Remote Island Area",
                                TRUE ~ subterritory),
          subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
