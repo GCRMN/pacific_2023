@@ -70,7 +70,10 @@ load("data/12_weight-model-benthic-cover.RData")
 # 2.4 Summarize data and add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
-  filter(territory %in% c("French Polynesia", "New Caledonia", "Fiji", "Vanuatu", "Palmyra Atoll")) %>% 
+  mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
+                              subcategory == "Turf algae" ~ "Turf algae",
+                              subcategory == "Coralline algae" ~ "Coralline algae",
+                              TRUE ~ category)) %>% 
   # Filter and summarize data
   summarise_cover(., category_i = "Hard coral") %>% 
   # Add predictors
@@ -100,7 +103,7 @@ model_bootstrap <- function(iteration, data_benthic){
   
   # 2. Define the model ----
   
-  boosted_model <- boost_tree(trees = 5000, 
+  boosted_model <- boost_tree(trees = tune(), 
                               min_n = tune(), 
                               tree_depth = tune(), 
                               learn_rate = tune()) %>% # Model type
@@ -118,10 +121,11 @@ model_bootstrap <- function(iteration, data_benthic){
   
   # 4.1 Create the grid ----
   
-  tune_grid <- grid_max_entropy(tree_depth(),
+  tune_grid <- grid_max_entropy(trees(),
+                                tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 10)
+                                size = 20)
   
   # 4.2 Run the hyperparameters tuning ----
   
@@ -200,8 +204,10 @@ model_bootstrap <- function(iteration, data_benthic){
   
   # 9. Format results ----
   
-  return(lst(model_hyperparams %>% 
-               mutate(iteration = iteration, .before = 1), 
+  model_hyperparams <- model_hyperparams %>% 
+    mutate(iteration = iteration, .before = 1)
+  
+  return(lst(model_hyperparams, 
              model_performance, 
              result_vip,
              result_pdp_territory,
@@ -211,6 +217,8 @@ model_bootstrap <- function(iteration, data_benthic){
 
 # 4. Map over the function ----
 
+list_results <- model_bootstrap(iteration = 1, data_benthic = data_benthic)
+
 list_results <- future_map(1:2, ~model_bootstrap(iteration = ., data_benthic = data_benthic), .progress = TRUE)
 
 # 5. Reformat the output ----
@@ -219,4 +227,4 @@ data_results <- map(map_df(list_results, ~ as.data.frame(map(.x, ~ unname(nest(.
 
 # 6. Export the results ----
 
-save(data_results, file = "data/results-model-coral.RData")
+save(data_results, file = "data/16_model-results/results-model_hard-coral.RData")
