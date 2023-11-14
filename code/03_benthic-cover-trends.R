@@ -139,10 +139,12 @@ combine_plot_trends <- function(territory, all){
     
     plots_hc <- plot_trends(category = "Hard coral", territory = TRUE, territory_i = territory) 
     plots_ma <- plot_trends(category = "Macroalgae", territory = TRUE, territory_i = territory)
+    plots_ta <- plot_trends(category = "Turf algae", territory = TRUE, territory_i = territory)
     plots_ca <- plot_trends(category = "Coralline algae", territory = TRUE, territory_i = territory)
     
     plots_hc[[1]] + plots_hc[[2]] + plots_hc[[3]] + plots_hc[[4]] + 
       plots_ma[[1]] + plots_ma[[2]] + plots_ma[[3]] + plots_ma[[4]] + 
+      plots_ta[[1]] + plots_ta[[2]] + plots_ta[[3]] + plots_ta[[4]] + 
       plots_ca[[1]] + plots_ca[[2]] + plots_ca[[3]] + plots_ca[[4]] + 
       plot_layout(ncol = 4)
     
@@ -154,14 +156,15 @@ combine_plot_trends <- function(territory, all){
     
     plots_hc <- plot_trends(category = "Hard coral", territory = TRUE, territory_i = territory)
     plots_ma <- plot_trends(category = "Macroalgae", territory = TRUE, territory_i = territory)
+    plots_ta <- plot_trends(category = "Turf algae", territory = TRUE, territory_i = territory)
     plots_ca <- plot_trends(category = "Coralline algae", territory = TRUE, territory_i = territory)
     
     (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
-      (plots_ca[[4]] + labs(title = NULL)) + plot_layout(ncol = 3)
+      (plots_ta[[4]] + labs(title = NULL)) + (plots_ca[[4]] + labs(title = NULL)) + plot_layout(ncol = 4)
     
     ggsave(filename = paste0("figs/territories_fig-5b/",
                              str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
-           height = 3, width = 10, dpi = 600)
+           height = 3, width = 12, dpi = 600)
   
   }
   
@@ -183,10 +186,12 @@ map(unique(data_benthic$territory), ~combine_plot_trends(territory = ., all = FA
 
 plots_hc <- plot_trends(category = "Hard coral", territory = FALSE) 
 plots_ma <- plot_trends(category = "Macroalgae", territory = FALSE)
+plots_ta <- plot_trends(category = "Turf algae", territory = FALSE)
 plots_ca <- plot_trends(category = "Coralline algae", territory = FALSE)
 
 plots_combined <- plots_hc[[1]] + plots_hc[[2]] + plots_hc[[3]] + plots_hc[[4]] + 
   plots_ma[[1]] + plots_ma[[2]] + plots_ma[[3]] + plots_ma[[4]] + 
+  plots_ta[[1]] + plots_ta[[2]] + plots_ta[[3]] + plots_ta[[4]] + 
   plots_ca[[1]] + plots_ca[[2]] + plots_ca[[3]] + plots_ca[[4]] + 
   plot_layout(ncol = 4)
 
@@ -197,13 +202,15 @@ ggsave(filename = paste0("figs/benthic_cover_trends_all.png"), plots_combined,
 
 plots_hc <- plot_trends(category = "Hard coral", territory = FALSE)
 plots_ma <- plot_trends(category = "Macroalgae", territory = FALSE)
+plots_ta <- plot_trends(category = "Turf algae", territory = FALSE)
 plots_ca <- plot_trends(category = "Coralline algae", territory = FALSE)
 
 plots_combined <- (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
-  (plots_ca[[4]] + labs(title = NULL)) + plot_layout(ncol = 3)
+  (plots_ta[[4]] + labs(title = NULL)) + (plots_ca[[4]] + labs(title = NULL)) + 
+  plot_layout(ncol = 4)
 
 ggsave(filename = paste0("figs/benthic_cover_trends_trends.png"), plots_combined,
-       height = 3, width = 10, dpi = 600)
+       height = 3, width = 12, dpi = 600)
 
 # 5. Variable importance ----
 
@@ -263,4 +270,4 @@ var_imp <- function(category){
 
 # 5.2 Map over the function for all benthic groups --
 
-map(c("Hard coral", "Coralline algae", "Macroalgae"), ~var_imp(category = .))
+map(c("Hard coral", "Turf algae", "Macroalgae", "Coralline algae"), ~var_imp(category = .))
