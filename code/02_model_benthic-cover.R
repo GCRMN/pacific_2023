@@ -9,10 +9,10 @@ library(caret)
 library(xgboost)
 library(vip)
 library(pdp)
-library(future)
-library(furrr)
+#library(future)
+#library(furrr)
 
-plan(multisession, workers = 6) # Set parallelization with 6 cores
+#plan(multisession(workers = 2)) # Set parallelization with 6 cores
 
 source("code/function/summarise_cover.R")
 
@@ -70,6 +70,7 @@ load("data/12_weight-model-benthic-cover.RData")
 # 2.4 Summarize data and add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
+  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
   mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
                               subcategory == "Turf algae" ~ "Turf algae",
                               subcategory == "Coralline algae" ~ "Coralline algae",
@@ -125,7 +126,7 @@ model_bootstrap <- function(iteration, data_benthic){
                                 tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 20)
+                                size = 10)
   
   # 4.2 Run the hyperparameters tuning ----
   
@@ -217,9 +218,7 @@ model_bootstrap <- function(iteration, data_benthic){
 
 # 4. Map over the function ----
 
-list_results <- model_bootstrap(iteration = 1, data_benthic = data_benthic)
-
-list_results <- future_map(1:2, ~model_bootstrap(iteration = ., data_benthic = data_benthic), .progress = TRUE)
+list_results <- map(1:10, ~model_bootstrap(iteration = ., data_benthic = data_benthic))
 
 # 5. Reformat the output ----
 
