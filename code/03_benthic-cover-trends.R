@@ -39,7 +39,7 @@ plot_trends <- function(category, territory, territory_i){
   
   plot_a <- ggplot(data_benthic_i, aes(x = year, y = measurementValue)) +
     geom_point(alpha = 0.25, shape = 21, fill = color, color = color) +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    lims(x = c(1987, 2023), y = c(0, 100)) + 
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "Raw data")
   
   # Pointrange
@@ -49,14 +49,14 @@ plot_trends <- function(category, territory, territory_i){
                     fun.min = function(x) mean(x) - sd(x),
                     fun.max = function(x) mean(x) + sd(x),
                     fun = mean, color = color) +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    lims(x = c(1987, 2023), y = c(0, 100)) + 
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "Pointrange")
   
   # Loess
   
   plot_c <- ggplot(data_benthic_i, aes(x = year, y = measurementValue)) +
     geom_smooth(color = color) +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    lims(x = c(1987, 2023), y = c(0, 100)) + 
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "Loess")
   
   # XGBoost (raw)
@@ -67,9 +67,8 @@ plot_trends <- function(category, territory, territory_i){
   plot_d <- ggplot() +
     geom_line(data = data_results$result_pdp_region,
               aes(x = x, y = y_pred, group = iteration), color = color) +
-    geom_rug(data = data_benthic_i, aes(x = year, y = measurementValue),
-             sides = "t", color = "grey") +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    geom_rug(data = data_benthic_i, aes(x = year), sides = "t", color = "grey") +
+    lims(x = c(1987, 2023)) +
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "XGboost")
   
   result <- plot_a + plot_b + plot_c + plot_d + plot_layout(ncol = 4)
@@ -99,14 +98,14 @@ plot_trends <- function(category, territory, territory_i){
                     fun.min = function(x) mean(x) - sd(x),
                     fun.max = function(x) mean(x) + sd(x),
                     fun = mean, color = color) +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    lims(x = c(1987, 2023), y = c(0, 100)) + 
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "Pointrange")
   
   # Loess
   
   plot_c <- ggplot(data_benthic_i, aes(x = year, y = measurementValue)) +
     geom_smooth(color = color) +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    lims(x = c(1987, 2023), y = c(0, 100)) + 
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "Loess")
   
   # XGBoost (raw)
@@ -118,12 +117,11 @@ plot_trends <- function(category, territory, territory_i){
     geom_line(data = data_results$result_pdp_territory %>% 
                 filter(territory == territory_i),
               aes(x = x, y = y_pred, group = iteration), color = color) +
-    geom_rug(data = data_benthic_i, aes(x = year, y = measurementValue),
-             sides = "t", color = "grey") +
-    lims(x = c(1987, 2023), y = c(0, 100)) +
+    geom_rug(data = data_benthic_i, aes(x = year), sides = "t", color = "grey") +
+    lims(x = c(1987, 2023)) +
     labs(x = "Year", y = paste0(category, " cover (%)"), title = "XGboost")
   
-  result <- plot_a + plot_b + plot_c + plot_d + plot_layout(ncol = 4)
+  result <- list(plot_a, plot_b, plot_c, plot_d)
   
 }
   
@@ -142,15 +140,15 @@ combine_plot_trends <- function(territory, all){
     plots_ta <- plot_trends(category = "Turf algae", territory = TRUE, territory_i = territory)
     plots_ca <- plot_trends(category = "Coralline algae", territory = TRUE, territory_i = territory)
     
-    plots_hc[[1]] + plots_hc[[2]] + plots_hc[[3]] + plots_hc[[4]] + 
-      plots_ma[[1]] + plots_ma[[2]] + plots_ma[[3]] + plots_ma[[4]] + 
-      plots_ta[[1]] + plots_ta[[2]] + plots_ta[[3]] + plots_ta[[4]] + 
-      plots_ca[[1]] + plots_ca[[2]] + plots_ca[[3]] + plots_ca[[4]] + 
-      plot_layout(ncol = 4)
+    plots_hc[[1]] + plots_hc[[2]] + plots_hc[[3]] + (plots_hc[[4]] + lims(y = c(0, 100))) + plots_hc[[4]] + 
+      plots_ma[[1]] + plots_ma[[2]] + plots_ma[[3]] + (plots_ma[[4]] + lims(y = c(0, 100))) + plots_ma[[4]] + 
+      plots_ta[[1]] + plots_ta[[2]] + plots_ta[[3]] + (plots_ta[[4]] + lims(y = c(0, 100))) + plots_ta[[4]] + 
+      plots_ca[[1]] + plots_ca[[2]] + plots_ca[[3]] + (plots_ca[[4]] + lims(y = c(0, 100))) + plots_ca[[4]] +  
+      plot_layout(ncol = 5)
     
     ggsave(filename = paste0("figs/territories_fig-5/",
                              str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
-           height = 10, width = 14, dpi = 600)
+           height = 12, width = 17, dpi = 600)
   
   }else{
     
@@ -159,12 +157,17 @@ combine_plot_trends <- function(territory, all){
     plots_ta <- plot_trends(category = "Turf algae", territory = TRUE, territory_i = territory)
     plots_ca <- plot_trends(category = "Coralline algae", territory = TRUE, territory_i = territory)
     
-    (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
-      (plots_ta[[4]] + labs(title = NULL)) + (plots_ca[[4]] + labs(title = NULL)) + plot_layout(ncol = 4)
+    (plots_hc[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+      (plots_ma[[4]] + labs(title = NULL) + lims(y = c(0, 100))) + 
+      (plots_ta[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+      (plots_ca[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+      (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
+      (plots_ta[[4]] + labs(title = NULL)) + (plots_ca[[4]] + labs(title = NULL)) + 
+      plot_layout(ncol = 4)
     
     ggsave(filename = paste0("figs/territories_fig-5b/",
                              str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
-           height = 3, width = 12, dpi = 600)
+           height = 6, width = 14, dpi = 600)
   
   }
   
@@ -189,28 +192,31 @@ plots_ma <- plot_trends(category = "Macroalgae", territory = FALSE)
 plots_ta <- plot_trends(category = "Turf algae", territory = FALSE)
 plots_ca <- plot_trends(category = "Coralline algae", territory = FALSE)
 
-plots_combined <- plots_hc[[1]] + plots_hc[[2]] + plots_hc[[3]] + plots_hc[[4]] + 
-  plots_ma[[1]] + plots_ma[[2]] + plots_ma[[3]] + plots_ma[[4]] + 
-  plots_ta[[1]] + plots_ta[[2]] + plots_ta[[3]] + plots_ta[[4]] + 
-  plots_ca[[1]] + plots_ca[[2]] + plots_ca[[3]] + plots_ca[[4]] + 
-  plot_layout(ncol = 4)
+plots_combined <- plots_hc[[1]] + plots_hc[[2]] + 
+  plots_hc[[3]] + (plots_hc[[4]] + lims(y = c(0, 100))) + plots_hc[[4]] + 
+  plots_ma[[1]] + plots_ma[[2]] + 
+  plots_ma[[3]] + (plots_ma[[4]] + lims(y = c(0, 100))) + plots_ma[[4]] + 
+  plots_ta[[1]] + plots_ta[[2]] + 
+  plots_ta[[3]] + (plots_ta[[4]] + lims(y = c(0, 100))) + plots_ta[[4]] + 
+  plots_ca[[1]] + plots_ca[[2]] + 
+  plots_ca[[3]] + (plots_ca[[4]] + lims(y = c(0, 100))) + plots_ca[[4]] + 
+  plot_layout(ncol = 5)
 
 ggsave(filename = paste0("figs/benthic_cover_trends_all.png"), plots_combined,
-       height = 10, width = 14, dpi = 600)
+       height = 12, width = 17, dpi = 600)
 
 # 4.4.2 Only xgboost trends --
 
-plots_hc <- plot_trends(category = "Hard coral", territory = FALSE)
-plots_ma <- plot_trends(category = "Macroalgae", territory = FALSE)
-plots_ta <- plot_trends(category = "Turf algae", territory = FALSE)
-plots_ca <- plot_trends(category = "Coralline algae", territory = FALSE)
-
-plots_combined <- (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
+plots_combined <- (plots_hc[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+  (plots_ma[[4]] + labs(title = NULL) + lims(y = c(0, 100))) + 
+  (plots_ta[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+  (plots_ca[[4]] + labs(title = NULL) + lims(y = c(0, 100))) +
+  (plots_hc[[4]] + labs(title = NULL)) + (plots_ma[[4]] + labs(title = NULL)) + 
   (plots_ta[[4]] + labs(title = NULL)) + (plots_ca[[4]] + labs(title = NULL)) + 
   plot_layout(ncol = 4)
 
 ggsave(filename = paste0("figs/benthic_cover_trends_trends.png"), plots_combined,
-       height = 3, width = 12, dpi = 600)
+       height = 6, width = 12, dpi = 600)
 
 # 5. Variable importance ----
 
