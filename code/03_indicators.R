@@ -78,7 +78,7 @@ data_table_1 <- left_join(data_reef_area, data_maritime_area) %>%
 data_table_1 <- bind_rows(data_table_1, data_table_1 %>% 
               summarise(across(c("reef_area_abs", "reef_area_rel_world", "reef_area_rel_pacific",
                                  "maritime_area", "land_area"), ~sum(.x)))) %>% 
-  mutate(territory = if_else(is.na(territory), "Total", territory))
+  mutate(territory = if_else(is.na(territory), "Entire Pacific region", territory))
 
 # 2.7 Add the sum for Kiribati and Pacific Remote Islands Area ----
 
@@ -104,7 +104,11 @@ data_table_1 <- data_table_1 %>%
 
 # 2.9 Export the table ----
 
-write_csv2(data_table_1, file = "figs/01_table-1_geo-inf.csv")
+data_table_1b <- data_table_1 %>% 
+  filter(territory != "Entire Pacific region") %>% 
+  bind_rows(., data_table_1 %>% 
+              filter(territory == "Entire Pacific region")) %>% 
+  openxlsx::write.xlsx(., file = "figs/01_table-1_indicators.xlsx")
 
 # 2.10 Remove useless objects ----
 
@@ -169,7 +173,7 @@ data_table_2 <- left_join(data_population_5km, data_population_eez) %>%
 data_table_2 <- bind_rows(data_table_2, data_table_2 %>% 
                             summarise(across(c("pop_5km_2000", "pop_5km_2020", "pop_eez_2000", "pop_eez_2020"),
                                              ~sum(.x))) %>% 
-                            mutate(territory = "Total", subterritory = NA))
+                            mutate(territory = "Entire Pacific region", subterritory = NA))
 
 # 3.4 Add total for two territories --
 
@@ -184,7 +188,7 @@ data_table_2 <- bind_rows(data_table_2, data_table_2 %>%
 
 # 3.5 Calculate population change and export results ----
 
-data_table_2 %>% 
+data_table_2 <- data_table_2 %>% 
   mutate(pop_5km_change = ((pop_5km_2020-pop_5km_2000)/pop_5km_2000)*100,
          pop_percent = (pop_5km_2020*100)/pop_eez_2020) %>% 
   mutate(across(c("pop_5km_change", "pop_percent"), ~if_else(is.na(.x), 0, .x))) %>% 
@@ -192,8 +196,13 @@ data_table_2 %>%
   # Reformat the data
   mutate(pop_5km_2020 = format(round(pop_5km_2020, 0), big.mark = ",", scientific = FALSE),
          pop_percent = format(round(pop_percent, 2), nsmall = 2),
-         pop_5km_change = format(round(pop_5km_change, 2), nsmall = 2)) %>%
-  write_csv2(., file = "figs/01_table-2_human-pop.csv")
+         pop_5km_change = format(round(pop_5km_change, 2), nsmall = 2))
+
+data_table_2 %>% 
+  filter(territory != "Entire Pacific region") %>% 
+  bind_rows(., data_table_2 %>% 
+              filter(territory == "Entire Pacific region")) %>% 
+  openxlsx::write.xlsx(., file = "figs/01_table-2_human-pop.xlsx")
 
 rm(data_population_5km, data_population_eez, data_table_2)
 
