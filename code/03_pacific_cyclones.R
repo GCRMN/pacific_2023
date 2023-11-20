@@ -120,7 +120,7 @@ ggplot() +
   #geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   geom_sf(data = data_tropics_no_eez, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   # EEZ
-  geom_sf(data = data_eez_disputed, color = "#363737", fill = "grey", alpha = 0.75) +
+  geom_sf(data = data_eez_disputed, color = "#95a5a6", fill = "#e4e9ed") +
   geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
   # Background map
   geom_sf(data = data_map, fill = "#363737", col = "grey") +
