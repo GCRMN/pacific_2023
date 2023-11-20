@@ -33,7 +33,8 @@ ggplot() +
 data_reef <- st_intersection(data_reef, data_eez)
 
 ggplot() +
-  geom_sf(data = data_reef) # Visual check
+  geom_sf(data = data_reef, aes(color = TERRITORY1)) + # Visual check
+  theme(legend.position = "bottom")
 
 # 4. Export the data ----
 

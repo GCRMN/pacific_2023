@@ -45,6 +45,12 @@ load("data/01_background-shp/03_eez/data_eez.RData")
 data_eez <- data_eez %>% 
   st_transform(crs = crs_selected)
 
+data_eez_disputed <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(GEONAME == "Overlapping claim Matthew and Hunter Islands: France / Vanuatu") %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
 # 6. Country boundaries ----
 
 data_countries <- read_sf("data/01_background-shp/01_ne/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
@@ -111,6 +117,7 @@ plot_map <- ggplot() +
   #geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   geom_sf(data = data_tropics_no_eez, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   # EEZ
+  geom_sf(data = data_eez_disputed, color = "#363737", fill = "grey", alpha = 0.75) +
   geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
   # Background map
   geom_sf(data = data_map, fill = "#363737", col = "grey") +
