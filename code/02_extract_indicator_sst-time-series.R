@@ -8,12 +8,11 @@ sf_use_s2(FALSE)
 library(future)
 library(furrr)
 
-plan(multisession, workers = 6) # Set parallelization with 6 cores
+plan(multisession, workers = 2) # Set parallelization with 2 cores
 
 # 2. List of NetCDF4 files ----
 
-ncdf_files <- list.files(path = "F:/Recherche/03_projects/2020-07-30_disturbance/disturbance/data/011_sst_raw",
-                         pattern = "\\.nc$", full.names = TRUE)
+ncdf_files <- list.files(path = "data/06_sst", pattern = "\\.nc$", full.names = TRUE)
 
 # 3. Check if files are missing ----
 
@@ -27,13 +26,16 @@ rm(theoric_files_list, real_files_list)
 
 # 4. File of EEZ ----
 
-data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
+data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>% 
+  select(TERRITORY1)
 
 # 5. Create function to extract SST ----
 
-ncdf_extract <- function(ncdf_i){
+ncdf_extract <- function(ncdf_i, data_reef){
   
-  ncdf <- rast(ncdf_i)
+  ncdf <- terra::rast(ncdf_i)$analysed_sst
+  
+  crs(ncdf) <- "epsg:4326"
   
   my_summary <- function(x) c(mean = mean(x, na.rm = TRUE),
                               min = min(x, na.rm = TRUE),
@@ -41,8 +43,9 @@ ncdf_extract <- function(ncdf_i){
                               sd = sd(x, na.rm = TRUE))
   
   sst_i <- terra::extract(x = ncdf, y = data_reef, fun = my_summary) %>% 
-    select(-starts_with("sea")) %>% 
-    mutate(date = unique(time(ncdf)))
+    as_tibble() %>% 
+    dplyr::select("ID", "analysed_sst") %>% 
+    dplyr::mutate(date = unique(time(ncdf)))
   
   return(sst_i)
   
@@ -50,11 +53,10 @@ ncdf_extract <- function(ncdf_i){
 
 # 6. Map over the function ----
 
-data_sst <- future_map_dfr(ncdf_files[1:10], ~ncdf_extract(.)) %>% 
+data_sst <- future_map_dfr(ncdf_files, ~ncdf_extract(ncdf_i = ., data_reef = data_reef)) %>% 
   rename(sst = analysed_sst) %>% 
   left_join(., data_reef %>% 
               st_drop_geometry() %>% 
-              select(GEONAME) %>%
               mutate(ID = row_number())) %>% 
   select(-ID)
 

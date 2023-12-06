@@ -5,6 +5,10 @@ library(terra)
 library(sf)
 sf_use_s2(FALSE)
 library(tidyterra)
+library(future)
+library(furrr)
+
+plan(multisession, workers = 2) # Set parallelization with 2 cores
 
 # 2. Get NCDF files ----
 
@@ -14,8 +18,7 @@ ncdf_files <- list.files("data/09_dhw/", full.names = TRUE)
 
 data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>% 
   select(TERRITORY1) %>% 
-  st_transform(crs = 4326) %>% 
-  terra::vect(.)
+  st_transform(crs = 4326)
 
 # Visual Check
 #plot(rast(ncdf_files[1])$degree_heating_week)
@@ -23,11 +26,13 @@ data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>%
 
 # 4. Create a function to extract values of cells ----
 
-extract_dhw_percent <- function(ncdf_i){
+extract_dhw_percent <- function(ncdf_i, data_reef){
   
   ncdf <- rast(ncdf_i)$degree_heating_week
   
   crs(ncdf) <- "epsg:4326"
+  
+  data_reef <- terra::vect(data_reef)
   
   results <- terra::freq(x = ncdf, zones = data_reef) %>% 
     mutate(date = lubridate::date(unique(time(ncdf))))
@@ -38,7 +43,7 @@ extract_dhw_percent <- function(ncdf_i){
 
 # 5. Map over the function ----
 
-data_dhw_percent <- map_dfr(ncdf_files, ~extract_dhw_percent(.)) %>% 
+data_dhw_percent <- future_map_dfr(ncdf_files[1:20], ~extract_dhw_percent(ncdf_i = ., data_reef = data_reef)) %>% 
   rename(dhw = value) %>% 
   left_join(., tibble(territory = data_reef$TERRITORY1) %>%
               mutate(zone = row_number())) %>% 

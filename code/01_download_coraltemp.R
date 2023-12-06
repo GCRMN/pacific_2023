@@ -46,7 +46,7 @@ list_url <- data.frame(date = seq(from = ymd("1985-03-25"), to = ymd("2023-11-30
 # 3.2 Download files ----
 
 for(i in 1:nrow(list_url)){
-
+  
   if(file.exists(paste0("data/09_dhw/", list_url[i, "filename"])) == FALSE){
     
     download.file(url = list_url[i, "url"],
