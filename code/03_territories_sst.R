@@ -17,38 +17,29 @@ theme_set(theme_graph())
 # 3. Load data ----
 
 load("data/07_data_sst.RData")
-load("data/09_data-dhw.RData")
+load("data/09_data_dhw.RData")
 load("data/10_data-dhw-percent.RData")
 load("data/01_background-shp/03_eez/data_eez.RData")
 
-# 4. Transform data ----
+# 4. Calculate SST anomaly ----
 
-# 4.1 SST --
-
-data_sst <- data_eez %>% 
-  # Join to add TERRITORY1
-  st_drop_geometry() %>% 
-  select(TERRITORY1, GEONAME) %>% 
-  left_join(data_sst, .) %>% 
-  # Calculate SST anomaly
+data_sst <- data_sst %>% 
   group_by(TERRITORY1) %>% 
   mutate(mean_sst = mean(sst, na.rm = TRUE),
          sst_anom = sst - mean_sst,
          sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
-  ungroup() %>% 
-  drop_na(TERRITORY1)
+  ungroup()
 
-# 4.2 DHW --
+# 5. Extract SST indicators ----
 
-data_dhw <- data_eez %>% 
-  # Join to add TERRITORY1
-  st_drop_geometry() %>% 
-  select(TERRITORY1, GEONAME) %>% 
-  left_join(data_dhw, .)
+# 5.1 Calculate long-term average SST ----
 
-# 5. Extract indicators (sst increase, warming rate, and mean sst) ----
+data_sst <- data_sst %>% 
+  group_by(TERRITORY1) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
+  ungroup()
 
-# 5.1 Create the function --
+# 5.2 Create the function ----
 
 extract_coeff <- function(data){
   
@@ -63,7 +54,7 @@ extract_coeff <- function(data){
   
 }
 
-# 5.2 Map over the function --
+# 5.3 Map over the function ----
 
 data_warming <- data_sst %>% 
   # Convert date as numeric
@@ -84,9 +75,9 @@ data_warming <- data_sst %>%
               select(TERRITORY1, mean_sst) %>% 
               distinct())
 
-# 5.3 Export results --
+# 5.4 Export the data ----
 
-write.csv2(data_warming, file = "figs/sst_indicators.csv", row.names = FALSE)
+write.csv2(data_warming, file = "figs/01_table-4_sst.csv", row.names = FALSE)
 
 # 6. Make the plots of SST for each territory ----
 
@@ -106,10 +97,7 @@ map_sst <- function(territory_i){
     filter(TERRITORY1 == territory_i) %>% 
     mutate(daymonth = str_sub(date, 6, 10),
            year = year(date))
-  
-  data_dhw_i <- data_dhw %>% 
-    filter(TERRITORY1 == territory_i)
-  
+
   # 2. Make the plot ----
   
   # 2.1 SST --
@@ -174,7 +162,7 @@ map_dhw <- function(territory_i){
   # 1. Max DHW over time ----
   
   data_dhw_i <- data_dhw %>% 
-    filter(TERRITORY1 == territory_i)
+    filter(territory == territory_i)
   
   plot_a <- ggplot(data = data_dhw_i, aes(x = date, y = dhw)) +
     geom_line(color = "black", linewidth = 0.25) +
@@ -211,4 +199,4 @@ map_dhw <- function(territory_i){
   
 # 7.2 Map over the function --
 
-map(unique(data_dhw$TERRITORY1), ~map_dhw(territory_i = .))
+map(unique(data_dhw$territory), ~map_dhw(territory_i = .))
