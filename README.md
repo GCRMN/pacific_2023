@@ -23,6 +23,9 @@
   from the [Tropical Coral Reefs of the
   World](https://datasets.wri.org/dataset/tropical-coral-reefs-of-the-world-500-m-resolution-grid)
   World Resources Institute (WRI).
+- `01_download_coraltemp.R` Download
+  [CoralTemp](https://coralreefwatch.noaa.gov/index.php) NetCDF4+ files
+  for SST and DHW.
 - `01_select_benthic-data.R` Select
   [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data
   to use in the analyses.
@@ -122,7 +125,7 @@
      collate  French_France.utf8
      ctype    French_France.utf8
      tz       Europe/Paris
-     date     2023-10-27
+     date     2023-12-06
      pandoc   3.1.1 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
     ─ Packages ───────────────────────────────────────────────────────────────────
@@ -151,7 +154,7 @@
      curl            5.1.0      2023-10-02 [1] CRAN (R 4.3.1)
      data.table      1.14.8     2023-02-17 [1] CRAN (R 4.3.0)
      DBI             1.1.3      2022-06-18 [1] CRAN (R 4.3.0)
-     dbplyr          2.3.4      2023-09-26 [1] CRAN (R 4.3.1)
+     dbplyr          2.4.0      2023-10-26 [1] CRAN (R 4.3.1)
      diagram         1.6.5      2020-09-30 [1] CRAN (R 4.3.0)
      dials           1.2.0      2023-04-03 [1] CRAN (R 4.3.1)
      DiceDesign      1.9        2021-02-13 [1] CRAN (R 4.3.1)
@@ -160,8 +163,8 @@
      dtplyr          1.3.1      2023-03-22 [1] CRAN (R 4.3.0)
      e1071           1.7-13     2023-02-01 [1] CRAN (R 4.3.1)
      ellipsis        0.3.2      2021-04-29 [1] CRAN (R 4.3.0)
-     evaluate        0.22       2023-09-29 [1] CRAN (R 4.3.1)
-     fansi           1.0.4      2023-01-22 [1] CRAN (R 4.3.0)
+     evaluate        0.23       2023-11-01 [1] CRAN (R 4.3.2)
+     fansi           1.0.5      2023-10-08 [1] CRAN (R 4.3.1)
      farver          2.1.1      2022-07-06 [1] CRAN (R 4.3.0)
      fastmap         1.1.1      2023-02-24 [1] CRAN (R 4.3.0)
      fontawesome     0.5.2      2023-08-19 [1] CRAN (R 4.3.1)
@@ -185,7 +188,7 @@
      haven           2.5.3      2023-06-30 [1] CRAN (R 4.3.1)
      highr           0.10       2022-12-22 [1] CRAN (R 4.3.0)
      hms             1.1.3      2023-03-21 [1] CRAN (R 4.3.0)
-     htmltools       0.5.6.1    2023-10-06 [1] CRAN (R 4.3.1)
+     htmltools       0.5.7      2023-11-03 [1] CRAN (R 4.3.2)
      httr            1.4.7      2023-08-15 [1] CRAN (R 4.3.1)
      ids             1.0.1      2017-05-31 [1] CRAN (R 4.3.0)
      infer           1.0.5      2023-09-06 [1] CRAN (R 4.3.1)
@@ -195,12 +198,12 @@
      jquerylib       0.1.4      2021-04-26 [1] CRAN (R 4.3.0)
      jsonlite        1.8.7      2023-06-29 [1] CRAN (R 4.3.1)
      KernSmooth      2.23-22    2023-07-10 [1] CRAN (R 4.3.1)
-     knitr           1.44       2023-09-11 [1] CRAN (R 4.3.1)
+     knitr           1.45       2023-10-30 [1] CRAN (R 4.3.2)
      labeling        0.4.3      2023-08-29 [1] CRAN (R 4.3.1)
-     lattice         0.21-9     2023-10-01 [1] CRAN (R 4.3.1)
-     lava            1.7.2.1    2023-02-27 [1] CRAN (R 4.3.1)
+     lattice         0.22-5     2023-10-24 [1] CRAN (R 4.3.2)
+     lava            1.7.3      2023-11-04 [1] CRAN (R 4.3.2)
      lhs             1.1.6      2022-12-17 [1] CRAN (R 4.3.1)
-     lifecycle       1.0.3      2022-10-07 [1] CRAN (R 4.3.0)
+     lifecycle       1.0.4      2023-11-07 [1] CRAN (R 4.3.1)
      listenv         0.9.0      2022-12-16 [1] CRAN (R 4.3.1)
      lubridate       1.9.3      2023-09-27 [1] CRAN (R 4.3.1)
      magrittr        2.0.3      2022-03-30 [1] CRAN (R 4.3.0)
@@ -241,7 +244,7 @@
      rematch         2.0.0      2023-08-30 [1] CRAN (R 4.3.1)
      rematch2        2.1.2      2020-05-01 [1] CRAN (R 4.3.0)
      reprex          2.0.2      2022-08-17 [1] CRAN (R 4.3.0)
-     rlang           1.1.1      2023-04-28 [1] CRAN (R 4.3.0)
+     rlang           1.1.2      2023-11-04 [1] CRAN (R 4.3.2)
      rmarkdown       2.25       2023-09-18 [1] CRAN (R 4.3.1)
      rpart           4.1.21     2023-10-09 [1] CRAN (R 4.3.1)
      rsample         1.2.0      2023-08-23 [1] CRAN (R 4.3.1)
@@ -273,17 +276,17 @@
      tune            1.1.2      2023-08-23 [1] CRAN (R 4.3.1)
      tzdb            0.4.0      2023-05-12 [1] CRAN (R 4.3.0)
      units           0.8-4      2023-09-13 [1] CRAN (R 4.3.1)
-     utf8            1.2.3      2023-01-31 [1] CRAN (R 4.3.0)
+     utf8            1.2.4      2023-10-22 [1] CRAN (R 4.3.1)
      uuid            1.1-1      2023-08-17 [1] CRAN (R 4.3.1)
      vctrs           0.6.4      2023-10-12 [1] CRAN (R 4.3.1)
      viridisLite     0.4.2      2023-05-02 [1] CRAN (R 4.3.0)
      vroom           1.6.4      2023-10-02 [1] CRAN (R 4.3.1)
-     warp            0.2.0      2020-10-21 [1] CRAN (R 4.3.1)
-     withr           2.5.1      2023-09-26 [1] CRAN (R 4.3.1)
-     wk              0.8.0      2023-08-25 [1] CRAN (R 4.3.1)
+     warp            0.2.1      2023-11-02 [1] CRAN (R 4.3.2)
+     withr           2.5.2      2023-10-30 [1] CRAN (R 4.3.2)
+     wk              0.9.0      2023-10-22 [1] CRAN (R 4.3.1)
      workflows       1.1.3      2023-02-22 [1] CRAN (R 4.3.1)
      workflowsets    1.0.1      2023-04-06 [1] CRAN (R 4.3.1)
-     xfun            0.40       2023-08-09 [1] CRAN (R 4.3.1)
+     xfun            0.41       2023-11-01 [1] CRAN (R 4.3.2)
      xml2            1.3.5      2023-07-06 [1] CRAN (R 4.3.1)
      yaml            2.3.7      2023-01-23 [1] CRAN (R 4.3.0)
      yardstick       1.2.0      2023-04-21 [1] CRAN (R 4.3.1)

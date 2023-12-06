@@ -28,6 +28,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
 * `01_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
 * `01_clean-reef-distribution.R` Select Pacific coral reefs distribution from the [Tropical Coral Reefs of the World](https://datasets.wri.org/dataset/tropical-coral-reefs-of-the-world-500-m-resolution-grid) World Resources Institute (WRI).
+* `01_download_coraltemp.R` Download [CoralTemp](https://coralreefwatch.noaa.gov/index.php) NetCDF4+ files for SST and DHW.
 * `01_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
 
 ### B. Extraction and models (`02_`)
