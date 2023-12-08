@@ -102,7 +102,7 @@ map_cyclone <- function(territory_i){
             strip.text.x = element_text(size = 12, family = font_choose_graph, face = "bold")) +
       labs(x = NULL, y = NULL)
     
-    ggsave(filename = paste0("figs/territories_fig-3-a/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/territories_fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_a, height = 10, width = 6, dpi = 600)
     
     plot_b <- ggplot(data = data_cyclones_i, aes(x = time, y = wind_speed)) +
@@ -117,7 +117,7 @@ map_cyclone <- function(territory_i){
       labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
       theme_graph()
     
-    ggsave(filename = paste0("figs/territories_fig-3-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/territories_fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_b, height = 5, width = 8, dpi = 600)
     
     }else{
@@ -190,7 +190,7 @@ map_cyclone <- function(territory_i){
             strip.text.x = element_text(size = 12, family = font_choose_graph, face = "bold")) +
       labs(x = NULL, y = NULL)
     
-    ggsave(filename = paste0("figs/territories_fig-3-a/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/territories_fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_a, height = 10, width = 6, dpi = 600)
     
     plot_b <- ggplot(data = data_cyclones_i, aes(x = time, y = wind_speed)) +
@@ -205,7 +205,7 @@ map_cyclone <- function(territory_i){
       labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
       theme_graph()
     
-    ggsave(filename = paste0("figs/territories_fig-3-b/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/territories_fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_b, height = 5, width = 8, dpi = 600)
 
     }

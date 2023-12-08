@@ -83,7 +83,7 @@ map_sphere <- function(territory_i){
     geom_sf(data = land_eez, fill = "#363737", col = "grey") +
     theme_minimal()
   
-  ggsave(filename = paste0("figs/territories_fig-0/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/territories_fig-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 4, height = 4, dpi = 600)
   
 }

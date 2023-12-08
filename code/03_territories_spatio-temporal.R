@@ -137,7 +137,7 @@ map_eez <- function(territory){
     
   }
   
-  ggsave(filename = paste0("figs/territories_fig-4/",
+  ggsave(filename = paste0("figs/territories_fig-9/",
                            str_replace_all(str_to_lower(territory), " ", "-"), ".png"), dpi = 600)
   
 }
@@ -199,7 +199,7 @@ map_survey_years <- function(territory_i){
   
   plot_a + plot_b + plot_layout(ncol = 1)
   
-  ggsave(filename = paste0("figs/territories_fig-4-b/",
+  ggsave(filename = paste0("figs/territories_fig-8/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), "_prt.png"),
          width = 4, height = 6, dpi = 600)
   
@@ -207,7 +207,7 @@ map_survey_years <- function(territory_i){
   
   plot_a + plot_b + plot_layout(ncol = 2)
   
-  ggsave(filename = paste0("figs/territories_fig-4-b/",
+  ggsave(filename = paste0("figs/territories_fig-8/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), "_lds.png"),
          width = 8, height = 3.5, dpi = 600)
   

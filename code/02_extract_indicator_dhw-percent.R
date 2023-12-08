@@ -43,7 +43,7 @@ extract_dhw_percent <- function(ncdf_i, data_reef){
 
 # 5. Map over the function ----
 
-data_dhw_percent <- future_map_dfr(ncdf_files[1:20], ~extract_dhw_percent(ncdf_i = ., data_reef = data_reef)) %>% 
+data_dhw_percent <- future_map_dfr(ncdf_files, ~extract_dhw_percent(ncdf_i = ., data_reef = data_reef)) %>% 
   rename(dhw = value) %>% 
   left_join(., tibble(territory = data_reef$TERRITORY1) %>%
               mutate(zone = row_number())) %>% 

@@ -119,7 +119,7 @@ map_eez <- function(territory, admin = FALSE){
     
   }
   
-  ggsave(filename = paste0("figs/territories_fig-1/", str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/territories_fig-2/", str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
          plot = plot_i, dpi = 600)
   
 }
