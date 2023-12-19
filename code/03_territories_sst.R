@@ -115,12 +115,18 @@ map(unique(data_sst$TERRITORY1), ~map_sst_year(territory_i = .))
 
 # 6.4 Create the function --
 
-map_sst_month <- function(territory_i){
+map_sst_month <- function(territory_i, color_decade){
   
   data_sst_i <- data_sst %>% 
     filter(TERRITORY1 == territory_i) %>% 
     mutate(daymonth = str_sub(date, 6, 10),
-           year = year(date))
+           year = year(date),
+           decade = case_when(year >= 1980 & year < 1990 ~ "1980s",
+                              year >= 1990 & year < 2000 ~ "1990s",
+                              year >= 2000 & year < 2010 ~ "2000s",
+                              year >= 2010 & year < 2020 ~ "2010s",
+                              year >= 2020 & year < 2030 ~ "2020s")) %>% 
+    arrange(decade)
   
   data_sst_i_mean <- data_sst_i %>% 
     group_by(daymonth) %>% 
@@ -128,29 +134,55 @@ map_sst_month <- function(territory_i){
     ungroup() %>% 
     mutate(year = "all")
   
-  ggplot() +
-    geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year),
-              color = "grey", alpha = 0.75, linewidth = 0.5) +
-    geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year),
-              color = "black", linewidth = 1) +
-    scale_color_identity() +
-    scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
-                                "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
-                     labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
-                                "Sep.", "Oct.", "Nov.", "Dec.")) +
-    labs(x = "Month", y = "SST (°C)") + 
-    theme(axis.text.x = element_text(size = 8)) +
-    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
-  
-  ggsave(filename = paste0("figs/territories_fig-4/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 6, height = 4, dpi = 600)
+  if(color_decade == TRUE){
+    
+    ggplot() +
+      geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year, color = decade),
+                alpha = 0.75, linewidth = 0.5) +
+      geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year),
+                color = "black", linewidth = 1) +
+      scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
+                                  "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
+                       labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
+                                  "Sep.", "Oct.", "Nov.", "Dec.")) +
+      labs(x = "Month", y = "SST (°C)") + 
+      theme(axis.text.x = element_text(size = 8),
+            legend.position = "top",
+            legend.direction = "horizontal",
+            legend.key = element_blank()) +
+      scale_color_manual(name = "Decade", values = c("#89c4f4", "#2c82c9", "#fabe58", "#ff9478", "#d24d57")) +
+      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+    
+    ggsave(filename = paste0("figs/territories_fig-4/",
+                             str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           width = 5.5, height = 4.5, dpi = 600)
+    
+  }else{
+    
+    ggplot() +
+      geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year),
+                color = "grey", alpha = 0.75, linewidth = 0.5) +
+      geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year),
+                color = "black", linewidth = 1) +
+      scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
+                                  "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
+                       labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
+                                  "Sep.", "Oct.", "Nov.", "Dec.")) +
+      labs(x = "Month", y = "SST (°C)") + 
+      theme(axis.text.x = element_text(size = 8)) +
+      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+    
+    ggsave(filename = paste0("figs/territories_fig-4/",
+                             str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           width = 6, height = 4, dpi = 600)
+    
+  }
   
 }
 
 # 6.5 Map over the function --
 
-map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = .))
+map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = ., color_decade = TRUE))
 
 # 6.6 SST anomaly --
 
