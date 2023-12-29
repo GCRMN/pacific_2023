@@ -3,6 +3,7 @@
 library(tidyverse) # Core tidyverse packages
 library(sf)
 sf_use_s2(FALSE)
+library(lwgeom)
 
 # 2. Load data ----
 

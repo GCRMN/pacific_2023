@@ -2,7 +2,6 @@
 
 library(terra)
 library(tidyverse) # Core tidyverse packages
-library(lubridate)
 library(sf)
 sf_use_s2(FALSE)
 library(future)

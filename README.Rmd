@@ -82,8 +82,8 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `data_descriptors.R` Get number of sites, surveys, datasets, first and last year of monitoring.
 * `graphical_par.R` Graphical parameters, including colors and fonts.
 * `taxonomic_levels.R` Produce plot of percentage of rows per taxonomic level.
-* `theme_graph.R` Main ggplot theme for the maps of the reports.
-* `theme_map.R` Main ggplot theme for the plots of the reports.
+* `theme_graph.R` Main ggplot theme for the plots of the reports.
+* `theme_map.R` Main ggplot theme for the maps of the reports.
 
 
 ## 3. Reproducibility parameters
