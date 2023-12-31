@@ -12,7 +12,7 @@ library(pdp)
 library(future)
 library(furrr)
 
-plan(multisession(workers = 2)) # Set parallelization with 6 cores
+plan(multisession(workers = 4)) # Set parallelization with 4 cores
 
 source("code/function/summarise_cover.R")
 
@@ -70,7 +70,7 @@ data_pred <- site_coords %>%
 
 load("data/12_weight-model-benthic-cover.RData")
 
-# 2.4 Summarize data and add predictors and weight ----
+# 2.4 Summarize data, add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
   filter(!(datasetID %in% c("0011", "0012", "0013", "0014", "0020"))) %>% 
@@ -88,7 +88,7 @@ data_benthic <- data_benthic %>%
 
 rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
    data_pred_land, data_pred_chla, data_pred_sst_mean, data_pred_sst_sd,
-   data_pred, data_weight, site_coords)
+   data_pred_gravity, data_pred, data_weight, site_coords)
 
 # 3. Create a function ---- 
 
@@ -129,12 +129,12 @@ model_steps <- function(data_benthic, n_bootstrap){
                                 tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 10)
+                                size = 30)
   
   # 5.2 Run the hyperparameters tuning ----
   
   tuned_results <- tune_grid(boosted_workflow,
-                             resamples = bootstraps(data_train, times = 5),
+                             resamples = bootstraps(data_train, times = 10),
                              grid = tune_grid)
   
   # 5.3 Get best set of parameters ----
@@ -256,6 +256,15 @@ data_results <- map(map_df(data_results, ~ as.data.frame(map(.x, ~ unname(nest(.
 
 save(data_results, file = "data/hard-coral_model-outputs.RData")
 
+
+
+
+
+
+
+
+
+
 # PDP ----
 
 ggplot() +
@@ -298,3 +307,28 @@ ggplot(data = data_results$result_pred_obs, aes(x = observed, y = predicted)) +
   facet_wrap(~territory, scales = "free") +
   labs(x = "Observed", y = "Predicted") +
   lims(x = c(0, 100), y = c(0, 100))
+
+# Variable importance ----
+
+data_imp_summary <- data_results$result_vip %>% 
+  group_by(predictor) %>% 
+  summarise(mean_imp = mean(importance),
+            sd_imp = sd(importance)) %>% 
+  ungroup() %>% 
+  mutate(predictor = fct_reorder(predictor, mean_imp))
+
+data_imp_raw <- left_join(data_results$result_vip, data_imp_summary) %>% 
+  mutate(predictor = fct_reorder(predictor, mean_imp))
+
+ggplot() +
+  geom_jitter(data = data_imp_raw, aes(x = predictor, y = importance),
+              alpha = 0.075, col = "#446CB3", width = 0.1) +
+  geom_linerange(data = data_imp_summary, aes(x = predictor, 
+                                              ymin = mean_imp - sd_imp,
+                                              ymax = mean_imp + sd_imp),
+                 col = "black", linewidth = 0.7) +
+  geom_point(data = data_imp_summary, aes(x = predictor, y = mean_imp),
+             fill = "#446CB3", shape = 21, size = 3.25, col = "black") +
+  coord_flip() +
+  labs(y = "Importance (%)", x = NULL) +
+  theme_bw()
