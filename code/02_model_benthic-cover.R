@@ -96,7 +96,7 @@ model_steps <- function(data_benthic, n_bootstrap){
   
   # 1. Split data ----
   
-  data_split <- initial_split(data_benthic, prop = 1/5)
+  data_split <- initial_split(data_benthic, prop = 3/4)
   data_train <- training(data_split)
   data_test <- testing(data_split)
   
@@ -129,12 +129,12 @@ model_steps <- function(data_benthic, n_bootstrap){
                                 tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 30)
+                                size = 5)
   
   # 5.2 Run the hyperparameters tuning ----
   
   tuned_results <- tune_grid(boosted_workflow,
-                             resamples = bootstraps(data_train, times = 10),
+                             resamples = bootstraps(data_train, times = 5),
                              grid = tune_grid)
   
   # 5.3 Get best set of parameters ----
@@ -152,7 +152,7 @@ model_steps <- function(data_benthic, n_bootstrap){
     
     # 2. Split data ----
     
-    data_split <- initial_split(data_benthic_i, prop = 1/4)
+    data_split <- initial_split(data_benthic_i, prop = 3/4)
     data_train <- training(data_split)
     data_test <- testing(data_split)
     
@@ -190,7 +190,7 @@ model_steps <- function(data_benthic, n_bootstrap){
       rename(predictor = 1, importance = 2) %>% 
       mutate(iteration = iteration, .before = 1)
     
-    # 6. Partial Dependance Plot (PDP) ----
+    # 6. Partial Dependence Plot (PDP) ----
     
     model_explain <- explain_tidymodels(model = final_fitted, 
                                         data = dplyr::select(data_train, -measurementValue, -weight), 
@@ -204,7 +204,12 @@ model_steps <- function(data_benthic, n_bootstrap){
                                           center = FALSE,
                                           type = "partial",
                                           groups = "territory",
-                                          variables = "year") %>% 
+                                          variables = "year",
+                                          # Replace default parameter "quantiles"
+                                          # (see https://rdrr.io/cran/ingredients/man/calculate_variable_split.html)
+                                          variable_splits_type = "uniform",
+                                          # Get one y value estimate per year
+                                          grid_points = max(data_train$year) - min(data_train$year)) %>% 
       .$agr_profiles %>% 
       as_tibble(.) %>% 
       select(-"_label_", -"_ids_") %>% 
@@ -217,7 +222,12 @@ model_steps <- function(data_benthic, n_bootstrap){
                                        N = NULL, 
                                        center = FALSE,
                                        type = "partial",
-                                       variables = "year") %>% 
+                                       variables = "year",
+                                       # Replace default parameter "quantiles"
+                                       # (see https://rdrr.io/cran/ingredients/man/calculate_variable_split.html)
+                                       variable_splits_type = "uniform",
+                                       # Get one y value estimate per year
+                                       grid_points = max(data_train$year) - min(data_train$year)) %>% 
       .$agr_profiles %>% 
       as_tibble(.) %>% 
       select(-"_label_", -"_ids_") %>% 
@@ -250,7 +260,7 @@ model_steps <- function(data_benthic, n_bootstrap){
   
 }
 
-data_results <- model_steps(data_benthic, n_bootstrap = 10)
+data_results <- model_steps(data_benthic, n_bootstrap = 2)
 
 data_results <- map(map_df(data_results, ~ as.data.frame(map(.x, ~ unname(nest(.))))), bind_rows)
 
@@ -267,9 +277,23 @@ save(data_results, file = "data/hard-coral_model-outputs.RData")
 
 # PDP ----
 
+# Pacific region --
+
+ggplot() +
+  geom_line(data = data_results$result_pdp_region,
+            aes(x = x, y = y_pred, group = iteration)) +
+  geom_rug(data = filter(data_results$result_pred_obs, iteration == 1), aes(x = year),
+           sides = "t", color = "darkgrey", length = unit(5, "points"), alpha = 0.5) +
+  theme_bw() +
+  labs(x = "Year", y = "Cover (%)")
+
+# Countries and territories --
+
 ggplot() +
   geom_line(data = data_results$result_pdp_territory,
             aes(x = x, y = y_pred, group = iteration)) +
+  geom_rug(data = filter(data_results$result_pred_obs, iteration == 1), aes(x = year),
+           sides = "t", color = "darkgrey", length = unit(5, "points"), alpha = 0.5) +
   lims(x = c(1987, 2023)) +
   facet_wrap(~territory, scales = "free") +
   lims(y = c(0, NA)) +
