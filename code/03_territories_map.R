@@ -185,6 +185,99 @@ map_eez <- function(territory){
   
 }
 
-# 5. Map over the function ----
+# 5. Map over the function (except PRIA) ----
 
-map(unique(data_eez$TERRITORY1), ~map_eez(territory = .))
+map(setdiff(unique(data_eez$TERRITORY1),
+            c("Palmyra Atoll", "Johnston Atoll",
+              "Wake Island", "Jarvis Island",
+              "Howland and Baker Islands")), # PRIA territories
+    ~map_eez(territory = .))
+
+# 6. Map for Pacific Remote Islands Area (PRIA) ----
+
+# 6.1 Filter --
+
+data_eez_i <- data_eez %>% 
+  filter(TERRITORY1 %in% c("Palmyra Atoll", "Johnston Atoll",
+                           "Wake Island", "Jarvis Island",
+                           "Howland and Baker Islands"))
+
+# 6.2 Create the bbox --
+
+x_min <- st_bbox(data_eez_i)["xmin"]
+x_max <- st_bbox(data_eez_i)["xmax"]
+y_min <- st_bbox(data_eez_i)["ymin"]
+y_max <- st_bbox(data_eez_i)["ymax"]
+
+percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
+percent_margin_b <- 20 # Margin in percentage for bottom of plot
+
+# 6.3 White polygon to put scale on --
+
+poly_scale <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                             x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                     lat = c(y_min - ((y_max - y_min)*percent_margin_b/100),
+                             y_min - ((y_max - y_min)*(percent_margin_b/1.5)/100))) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+# 6.4 Define plot limits with additional margins --
+
+data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                            x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                    lat = c(y_min - ((y_max - y_min)*percent_margin_b/100),
+                            y_max + ((y_max - y_min)*percent_margin_ltr/100))) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+# 6.5 Layer to mask external zone of eez_i --
+
+data_alpha <- data_eez_i %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  st_difference(data_bbox, .)
+
+# 6.6 Make the plot --
+
+plot_i <- ggplot() +
+  geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  scale_fill_identity() +
+  geom_sf(data = data_eez, color = "black", fill = NA) +
+  geom_sf(data = data_land, fill = "#363737", col = "grey") +
+  geom_sf(data = data_bbox, fill = "white", alpha = 0.5) +
+  geom_sf(data = data_eez_i, color = "black", fill = NA) +
+  geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+  geom_sf(data = poly_scale, fill = "white", col = "white") +
+  coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                    x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+           ylim = c(y_min - ((y_max - y_min)*percent_margin_b/100),
+                    y_max + ((y_max - y_min)*percent_margin_ltr/100)),
+           expand = FALSE) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "null"),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.background = element_blank()) +
+  annotation_scale(location = "br", width_hint = 0.25, text_family = font_choose_graph, 
+                   text_cex = 0.7, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
+                   pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
+
+# 6.7 Export the plot --
+
+ggsave(filename = paste0("figs/territories_fig-2/pria.png"),
+       plot = plot_i, dpi = 600)
