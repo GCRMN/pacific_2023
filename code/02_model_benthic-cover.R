@@ -14,8 +14,6 @@ library(furrr)
 
 plan(multisession(workers = 4)) # Set parallelization with 4 cores
 
-source("code/function/summarise_cover.R")
-
 # 2. Data preparation ----
 
 # 2.1 Load benthic cover data ----
@@ -78,8 +76,16 @@ data_benthic <- data_benthic %>%
                               subcategory == "Turf algae" ~ "Turf algae",
                               subcategory == "Coralline algae" ~ "Coralline algae",
                               TRUE ~ category)) %>% 
-  # Filter and summarize data
-  summarise_cover(., category_i = "Hard coral") %>% 
+  filter(category %in% c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae")) %>% 
+  # Sum of benthic cover per sampling unit and category
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # Remove useless variables
+  select(-higherGeography, -country, -locality, -habitat, -eventDate) %>% 
+  # Convert to factors
+  mutate_if(is.character, factor) %>% 
   # Add predictors
   left_join(., data_pred) %>% 
   # Add weight
@@ -90,7 +96,7 @@ rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
    data_pred_land, data_pred_chla, data_pred_sst_mean, data_pred_sst_sd,
    data_pred_gravity, data_pred, data_weight, site_coords)
 
-# 3. Create a function ---- 
+# 4. Create a function for model steps (pre-processing, tuning, outputs) ---- 
 
 model_steps <- function(data_benthic, n_bootstrap){
   
@@ -129,7 +135,7 @@ model_steps <- function(data_benthic, n_bootstrap){
                                 tree_depth(),
                                 learn_rate(),
                                 min_n(),
-                                size = 5)
+                                size = 20)
   
   # 5.2 Run the hyperparameters tuning ----
   
@@ -260,99 +266,40 @@ model_steps <- function(data_benthic, n_bootstrap){
   
 }
 
-data_results <- model_steps(data_benthic, n_bootstrap = 2)
+# 5. Run the model for each benthic category ----
 
-data_results <- map(map_df(data_results, ~ as.data.frame(map(.x, ~ unname(nest(.))))), bind_rows)
+# 5.1 Hard coral --
 
-save(data_results, file = "data/hard-coral_model-outputs.RData")
+data_benthic %>% 
+  filter(category == "Hard coral") %>% 
+  model_steps(., n_bootstrap = 50) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  save(., file = "data/16_model-outputs/model-outputs_hard-coral.RData")
 
+# 5.2 Macroalgae --
 
+data_benthic %>% 
+  filter(category == "Macroalgae") %>% 
+  model_steps(., n_bootstrap = 50) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  save(., file = "data/16_model-outputs/model-outputs_macroalgae.RData")
 
+# 5.3 Turf algae --
 
+data_benthic %>% 
+  filter(category == "Turf algae") %>% 
+  model_steps(., n_bootstrap = 50) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  save(., file = "data/16_model-outputs/model-outputs_turf-algae.RData")
 
+# 5.4 Coralline algae --
 
-
-
-
-
-# PDP ----
-
-# Pacific region --
-
-ggplot() +
-  geom_line(data = data_results$result_pdp_region,
-            aes(x = x, y = y_pred, group = iteration)) +
-  geom_rug(data = filter(data_results$result_pred_obs, iteration == 1), aes(x = year),
-           sides = "t", color = "darkgrey", length = unit(5, "points"), alpha = 0.5) +
-  theme_bw() +
-  labs(x = "Year", y = "Cover (%)")
-
-# Countries and territories --
-
-ggplot() +
-  geom_line(data = data_results$result_pdp_territory,
-            aes(x = x, y = y_pred, group = iteration)) +
-  geom_rug(data = filter(data_results$result_pred_obs, iteration == 1), aes(x = year),
-           sides = "t", color = "darkgrey", length = unit(5, "points"), alpha = 0.5) +
-  lims(x = c(1987, 2023)) +
-  facet_wrap(~territory, scales = "free") +
-  lims(y = c(0, NA)) +
-  theme_bw() +
-  labs(x = "Year", y = "Cover (%)")
-
-# Distribution of residuals ----
-
-ggplot(data = data_results$result_pred_obs, aes(x = residual)) + 
-  geom_histogram(aes(y = after_stat(count / sum(count))*100),
-                 fill = "#2c82c9", alpha = 0.5) +
-  geom_vline(xintercept = 0) +
-  theme_bw() +
-  facet_wrap(~territory, scales = "free") +
-  labs(x = "Residuals (obs. - pred.)", y = "Percentage of observations") +
-  lims(x = c(-100, 100))
-
-# Pred. vs Obs. ----
-
-data_abline <- data_results$result_pred_obs %>% 
-  select(observed, predicted, territory) %>% 
-  group_by(territory) %>% 
-  nest() %>% 
-  mutate(model = map(data, ~lm(predicted ~ observed, data = .)),
-         coefficients = map(model, coefficients),
-         intercept = map_dbl(coefficients, 1),
-         slope = map_dbl(coefficients, 2)) %>% 
-  select(territory, intercept, slope)
-
-ggplot(data = data_results$result_pred_obs, aes(x = observed, y = predicted)) +
-  geom_point(color = "#2c82c9", alpha = 0.5) +
-  geom_abline(slope = 1) +
-  geom_abline(data = data_abline, aes(intercept = intercept, slope = slope), col = "red") +
-  theme_bw() +
-  facet_wrap(~territory, scales = "free") +
-  labs(x = "Observed", y = "Predicted") +
-  lims(x = c(0, 100), y = c(0, 100))
-
-# Variable importance ----
-
-data_imp_summary <- data_results$result_vip %>% 
-  group_by(predictor) %>% 
-  summarise(mean_imp = mean(importance),
-            sd_imp = sd(importance)) %>% 
-  ungroup() %>% 
-  mutate(predictor = fct_reorder(predictor, mean_imp))
-
-data_imp_raw <- left_join(data_results$result_vip, data_imp_summary) %>% 
-  mutate(predictor = fct_reorder(predictor, mean_imp))
-
-ggplot() +
-  geom_jitter(data = data_imp_raw, aes(x = predictor, y = importance),
-              alpha = 0.075, col = "#446CB3", width = 0.1) +
-  geom_linerange(data = data_imp_summary, aes(x = predictor, 
-                                              ymin = mean_imp - sd_imp,
-                                              ymax = mean_imp + sd_imp),
-                 col = "black", linewidth = 0.7) +
-  geom_point(data = data_imp_summary, aes(x = predictor, y = mean_imp),
-             fill = "#446CB3", shape = 21, size = 3.25, col = "black") +
-  coord_flip() +
-  labs(y = "Importance (%)", x = NULL) +
-  theme_bw()
+data_benthic %>% 
+  filter(category == "Coralline algae") %>% 
+  model_steps(., n_bootstrap = 50) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  save(., file = "data/16_model-outputs/model-outputs_coralline-algae.RData")
