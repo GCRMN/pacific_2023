@@ -38,13 +38,9 @@ data_bathy <- map_dfr(list_shp, ~st_read(., quiet = TRUE)) %>%
   mutate(color = fct_reorder(fill_color, depth)) %>% 
   st_transform(crs = 4326) %>% 
   st_wrap_dateline() %>% 
-  st_make_valid()
+  st_make_valid() %>% 
+  select(depth, fill_color)
 
-# 5. Select bathymetry only for selected EEZ ----
-
-data_bathy <- st_intersection(data_bathy, data_eez) %>% 
-  select(TERRITORY1, depth, fill_color)
-
-# 6. Export the data ----
+# 5. Export the data ----
 
 save(data_bathy, file = "data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData") # RData

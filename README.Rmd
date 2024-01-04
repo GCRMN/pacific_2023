@@ -51,6 +51,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `02_extract_predictor_elevation.js` Extract mean land elevation within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_reef-extent.js` Extract total coral reef extent within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_land.js` Extract total land area within 10 km from each site as a predictor, using GEE.
+* `02_extract_predictor_gravity.R` Extract gravity as a predictor.
 
 #### B3. Models
 
@@ -72,7 +73,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `03_pacific_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for the Pacific region.
 * `03_pacific_sst.R` Produce figures of maximum DHW and DHW percent for the Pacific region.
 * `03_territories_cyclones.R` Produce figures and maps of cyclones that occurred on each EEZ.
-* `03_territories_map-bathy.R` Produce EEZ maps.
+* `03_territories_map.R` Produce maps for each EEZ.
 * `03_territories_map-sphere.R` Produce hemisphere maps for each EEZ.
 * `03_territories_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for each EEZ.
 * `03_territories_sst.R` Produce figures of SST, SST anomaly and DHW for each EEZ.
