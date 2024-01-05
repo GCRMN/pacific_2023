@@ -270,36 +270,40 @@ model_steps <- function(data_benthic, n_bootstrap){
 
 # 5.1 Hard coral --
 
-data_benthic %>% 
+data_results <- data_benthic %>% 
   filter(category == "Hard coral") %>% 
   model_steps(., n_bootstrap = 50) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows) %>% 
-  save(., file = "data/16_model-outputs/model-outputs_hard-coral.RData")
+  map(., bind_rows)
+
+save(data_results, file = "data/16_model-outputs/model-outputs_hard-coral.RData")
 
 # 5.2 Macroalgae --
 
-data_benthic %>% 
+data_results <- data_benthic %>% 
   filter(category == "Macroalgae") %>% 
   model_steps(., n_bootstrap = 50) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows) %>% 
-  save(., file = "data/16_model-outputs/model-outputs_macroalgae.RData")
+  map(., bind_rows)
+
+save(data_results, file = "data/16_model-outputs/model-outputs_macroalgae.RData")
 
 # 5.3 Turf algae --
 
-data_benthic %>% 
+data_results <- data_benthic %>% 
   filter(category == "Turf algae") %>% 
   model_steps(., n_bootstrap = 50) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows) %>% 
-  save(., file = "data/16_model-outputs/model-outputs_turf-algae.RData")
+  map(., bind_rows)
+
+save(data_results, file = "data/16_model-outputs/model-outputs_turf-algae.RData")
 
 # 5.4 Coralline algae --
 
-data_benthic %>% 
+data_results <- data_benthic %>% 
   filter(category == "Coralline algae") %>% 
   model_steps(., n_bootstrap = 50) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows) %>% 
-  save(., file = "data/16_model-outputs/model-outputs_coralline-algae.RData")
+  map(., bind_rows)
+
+save(data_results, file = "data/16_model-outputs/model-outputs_coralline-algae.RData")
