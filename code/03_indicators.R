@@ -108,7 +108,7 @@ data_table_1b <- data_table_1 %>%
   filter(territory != "Entire Pacific region") %>% 
   bind_rows(., data_table_1 %>% 
               filter(territory == "Entire Pacific region")) %>% 
-  openxlsx::write.xlsx(., file = "figs/01_table-1_indicators.xlsx")
+  openxlsx::write.xlsx(., file = "figs/01_part-1/table-1.xlsx")
 
 # 2.10 Remove useless objects ----
 
@@ -202,7 +202,7 @@ data_table_2 %>%
   filter(territory != "Entire Pacific region") %>% 
   bind_rows(., data_table_2 %>% 
               filter(territory == "Entire Pacific region")) %>% 
-  openxlsx::write.xlsx(., file = "figs/01_table-2_human-pop.xlsx")
+  openxlsx::write.xlsx(., file = "figs/01_part-1/table-2.xlsx")
 
 rm(data_population_5km, data_population_eez, data_table_2)
 

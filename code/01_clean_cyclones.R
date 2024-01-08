@@ -30,7 +30,7 @@ data_ts_points <- read.csv(textConnection(all_content), header = TRUE, stringsAs
   rename(ts_id = SID, name = NAME, time = ISO_TIME,
          lat = LAT, long = LON, storm_speed = STORM_SPEED, wind_speed = WIND_SPEED) %>% 
   mutate(long = ifelse(long > 180, long - 360, long)) %>% # Transform long greater than 180
-  filter(time > as.Date("1980-01-01")) %>% # Remove TS before 1980 due to high position uncertainty
+  filter(time > as.Date("1980-01-01") & time <= as.Date("2023-12-31")) %>% # Remove TS before 1980 due to high position uncertainty
   group_by(ts_id) %>% 
   mutate(max_windspeed = max(wind_speed, na.rm = TRUE)) %>% 
   filter(max_windspeed != -Inf) %>% 

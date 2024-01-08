@@ -6,7 +6,7 @@ library(tidyverse)
 
 # 2.1 List files to download ----
 
-list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2023-11-30"), by = "1 day")) %>% 
+list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2023-12-31"), by = "1 day")) %>% 
   mutate(year = year(date),
          date = str_remove_all(date, "-"),
          url = paste0("https://www.star.nesdis.noaa.gov/pub/sod/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/sst/",
@@ -33,7 +33,7 @@ for(i in 1:nrow(list_url)){
 
 # 3.1 List files to download ----
 
-list_url <- data.frame(date = seq(from = ymd("1985-03-25"), to = ymd("2023-11-30"), by = "1 day")) %>% 
+list_url <- data.frame(date = seq(from = ymd("1985-03-25"), to = ymd("2023-12-31"), by = "1 day")) %>% 
   mutate(year = year(date),
          date = str_remove_all(date, "-"),
          url = paste0("https://www.star.nesdis.noaa.gov/pub/sod/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/dhw/",

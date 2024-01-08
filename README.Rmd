@@ -65,7 +65,6 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `03_geographic-informations.R` Combine and export geographic information's.
 * `03_materials-and-methods.R` Produce figures for the Materials and Methods section of the report.
 * `03_pacific_cyclones.R` Produce figure and map of cyclones that occurred over the Pacific region.
-* `03_pacific_enso.R` Produce figure of ENSO.
 * `03_pacific_map.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
 * `03_pacific_map-dhw.R` Produce map of DHW for each year.
 * `03_pacific_population.R` Produce figure of human population change between 2000 and 2020.

@@ -179,7 +179,7 @@ map_eez <- function(territory){
   
   # 7. Export the plot ----
   
-  ggsave(filename = paste0("figs/territories_fig-2/",
+  ggsave(filename = paste0("figs/02_part-2/fig-2/",
                            str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
          plot = plot_i, dpi = 600)
   
@@ -279,5 +279,5 @@ plot_i <- ggplot() +
 
 # 6.7 Export the plot --
 
-ggsave(filename = paste0("figs/territories_fig-2/pria.png"),
+ggsave(filename = paste0("figs/02_part-2/fig-2/pria.png"),
        plot = plot_i, dpi = 600)

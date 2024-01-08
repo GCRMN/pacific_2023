@@ -129,7 +129,7 @@ ggplot() +
   # Cyclones
   geom_sf(data = data_cyclones %>% arrange(saffir), aes(color = saffir),
           alpha = 0.75, linewidth = 0.5, show.legend = "line") +
-  scale_color_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"),
+  scale_color_manual(values = scico(5, begin = 0.8, end = 0, palette = "lajolla"),
                      name = "Saffir-Simpson") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
@@ -144,6 +144,8 @@ ggplot() +
   theme(text = element_text(family = font_choose_map),
         panel.background = element_rect(fill = "#ebf5fd"),
         panel.grid = element_blank(),
+        legend.position = "top",
+        legend.direction = "horizontal",
         legend.key = element_rect(fill = NA),
         panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
         axis.title = element_blank(),
@@ -151,7 +153,7 @@ ggplot() +
 
 # 11. Save the plot ----
 
-ggsave(filename = "figs/01_pacific-cyclone.png", width = 10, height = 5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-6.png", width = 8, height = 5, dpi = 600)
 
 # 12. Transform data ----
 
@@ -171,12 +173,25 @@ data_cyclones <- data_cyclones %>%
 # 13. Make the plot ----
 
 ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill = saffir)) +
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"),
+  geom_bar(stat = "identity", width = 0.7) +
+  scale_fill_manual(values = scico(5, begin = 0.8, end = 0, palette = "lajolla"),
                      name = "Saffir-Simpson", breaks = 1:5) +
   theme_graph() +
-  labs(x = "Number of tropical storms", y = NULL)
+  theme(axis.ticks = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
+        legend.position = c(0.70, 0.30),
+        axis.line.x = element_line(linewidth = 0.4),
+        axis.ticks.x = element_line(linewidth = 0.4),
+        axis.text.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 200)) +
+  labs(x = "Number of cyclones", y = NULL)
   
 # 14. Save the plot ----
 
-ggsave(filename = "figs/01_pacific-cyclone-territories.png", width = 10, height = 8, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-7.png", width = 6, height = 8, dpi = 600)
