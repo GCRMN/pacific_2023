@@ -51,12 +51,23 @@ data_eez_disputed <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_202310
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
+data_eez <- bind_rows(data_eez, data_eez_disputed)
+
 # 6. Country boundaries ----
 
 data_countries <- read_sf("data/01_background-shp/01_ne/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
   st_transform(crs_selected)
 
-# 7. Create the tropics ----
+# 7. Bathymetry ----
+
+load("data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData")
+
+data_bathy <- data_bathy %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+# 8. Create the tropics ----
 
 data_tropics <- tibble(long = c(-180, 180, -180, 180, -180, 180), 
                        lat = c(0, 0, 23.43656, 23.43656, -23.43656, -23.43656), 
@@ -75,9 +86,9 @@ data_tropics_no_eez$var <- "true"
 
 data_tropics_no_eez <- st_difference(data_tropics, st_union(st_geometry(data_tropics_no_eez)))
 
-# 8. Create text annotation ----
+# 9. Create text annotation ----
 
-# 8.1 Tropics --
+# 9.1 Tropics --
 
 data_text_tropics <- tibble(long = c(-105, -104, -119, -128),
                             lat = c(-21.43, -25.43, 2, 25.43),
@@ -85,7 +96,7 @@ data_text_tropics <- tibble(long = c(-105, -104, -119, -128),
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 8.2 Pacific Ocean --
+# 9.2 Pacific Ocean --
 
 data_text_pacific <- tibble(long = c(-130),
                             lat = c(13),
@@ -93,7 +104,7 @@ data_text_pacific <- tibble(long = c(-130),
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 8.3 Australia --
+# 9.3 Australia --
 
 data_text_australia <- tibble(long = c(140),
                               lat = c(-25),
@@ -101,7 +112,7 @@ data_text_australia <- tibble(long = c(140),
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 8.4 Labels --
+# 9.4 Labels --
 
 data_text_labels <- data_eez %>%
   st_drop_geometry() %>% 
@@ -110,15 +121,35 @@ data_text_labels <- data_eez %>%
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
-# 9. Make the map ----
+# 10. Bbox for alpha on bathymetry ---
+
+data_alpha <- tibble(lat = c(-4000000, 4000000),
+                     lon = c(-3500000, 11000000)) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+# 11. Make the map ----
 
 plot_map <- ggplot() +
+  geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  scale_fill_identity() +
+  geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
   # Tropics
-  #geom_sf(data = data_tropics, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   geom_sf(data = data_tropics_no_eez, linetype = "dashed", color = "#363737", linewidth = 0.25) +
   # EEZ
-  geom_sf(data = data_eez_disputed, color = "#95a5a6", fill = "#e4e9ed") +
-  geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
+  geom_sf(data = data_eez, color = "#363737", fill = "#e4e9ed", alpha = 0.2) +
   # Background map
   geom_sf(data = data_map, fill = "#363737", col = "grey") +
   # Country boundaries
@@ -143,9 +174,9 @@ plot_map <- ggplot() +
         axis.title = element_blank(),
         axis.text.x.top = element_text())
 
-# 10. Create legend of EEZ names ----
+# 12. Create legend of EEZ names ----
 
-# 10.1 Transform data --
+# 12.1 Transform data --
 
 data_eez_text <- data_eez %>% 
   st_drop_geometry() %>% 
@@ -158,7 +189,7 @@ data_eez_text <- data_eez %>%
                            number %in% 11:20 ~ y_pos+10,
                            number %in% 21:30 ~ y_pos+20))
 
-# 10.2 Make the plot --
+# 12.2 Make the plot --
 
 plot_eez <- ggplot() +
   # Points
@@ -185,10 +216,10 @@ plot_eez <- ggplot() +
         panel.background = element_blank(),
         panel.grid = element_blank())
 
-# 11. Combine the plots ----
+# 13. Combine the plots ----
 
 plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 
-# 12. Save the plot ----
+# 14. Export the plot ----
 
-ggsave(filename = "figs/01_pacific-map.png", width = 8, height = 7.75, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 7.75, dpi = 600)
