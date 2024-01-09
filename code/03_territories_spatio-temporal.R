@@ -146,15 +146,13 @@ map_eez <- function(territory){
 
 map(unique(data_eez$TERRITORY1), ~map_eez(territory = .))
 
-# 5. Plots of number of surveys per year ----
+# 5. Plots of number of sites per interval class ----
 
-# 5.1 Create the function --
+## 5.1 Create the function ----
 
-map_survey_years <- function(territory_i){
+map_site_interval <- function(territory_i){
   
-  # 1. Plot of percentage of sites per interval_class ----
-  
-  plot_a <- data_benthic_sites %>% 
+  plot_i <- data_benthic_sites %>% 
     st_drop_geometry() %>% 
     filter(TERRITORY1 == territory_i) %>% 
     group_by(interval_class) %>% 
@@ -162,66 +160,73 @@ map_survey_years <- function(territory_i){
     ungroup() %>% 
     complete(interval_class, fill = list(n = 0)) %>% 
     mutate(percent = n*100/sum(n)) %>% 
-    ggplot(data = ., aes(x = interval_class, y = percent, fill = interval_class)) +
+    ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
+                         y = percent, fill = interval_class)) +
       geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
       scale_fill_manual(values = palette_5cols,
                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                         drop = FALSE, name = "Number of years with data") +
-      labs(x = "Duration", y = "Sites (%)", title = "A") +
-      lims(y = c(0, 100)) +
+      labs(x = NULL, y = "Sites (%)") +
+      coord_flip(clip = "off") +
       theme_graph() +
-      theme(plot.title = element_text(size = 15),
-            axis.text.x = element_text(size = 7))
-  
-  # 2. Plot of number of surveys per year ----
-  
-  plot_b <- data_benthic %>% 
-    filter(territory == territory_i) %>% 
-    select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
-    st_drop_geometry() %>% 
-    distinct() %>% 
-    group_by(year) %>% 
-    count() %>% 
-    ungroup() %>% 
-    complete(year, fill = list(n = 0)) %>% 
-    mutate(percent = n*100/sum(n)) %>% 
-    ggplot(data = ., aes(x = year, y = percent)) +
-      geom_bar(stat = "identity", show.legend = FALSE, width = 0.5, color = "#C9504B", fill = "#C9504B") +
-      labs(x = "Year", y = "Surveys (%)", title = "B") +
-      lims(x = c(1970, 2024)) +
-      theme_graph() +
-      theme(plot.title = element_text(size = 15),
-            axis.text.x = element_text(size = 7))
-  
-  # 3. Combine and export plots ----
-  
-  # 3.1 Portrait --
-  
-  plot_a + plot_b + plot_layout(ncol = 1)
-  
-  ggsave(filename = paste0("figs/territories_fig-8/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), "_prt.png"),
-         width = 4, height = 6, dpi = 600)
-  
-  # 3.2 Landscape --
-  
-  plot_a + plot_b + plot_layout(ncol = 2)
-  
-  ggsave(filename = paste0("figs/territories_fig-8/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), "_lds.png"),
-         width = 8, height = 3.5, dpi = 600)
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 100))
+
+  ggsave(filename = paste0("figs/02_part-2/fig-8/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 6, height = 4, dpi = 600)
   
 }
 
-# 5.2 Map over the function --
+## 5.2 Map over the function ----
 
-map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
+map(unique(data_benthic$territory), ~map_site_interval(territory_i = .))
 
-# 6. Extract descriptors ----
+# 6. Plots of number of surveys per year ----
+
+## 6.1 Transform the data ----
 
 load("data/04_data-benthic.RData")
 
-# 6.1 Add subterritories --
+data_surveys <- data_benthic %>% 
+  select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
+  st_drop_geometry() %>% 
+  distinct() %>% 
+  group_by(year, territory) %>% 
+  count() %>% 
+  ungroup() %>% 
+  complete(year, fill = list(n = 0)) %>% 
+  group_by(territory) %>% 
+  mutate(percent = n*100/sum(n)) %>% 
+  ungroup()
+
+## 6.2 Create the function ----
+
+map_survey_years <- function(territory_i){
+  
+  plot_i <- data_surveys %>% 
+    filter(territory == territory_i) %>% 
+    ggplot(data = ., aes(x = year, y = percent)) +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = "#C9504B") +
+    labs(x = "Year", y = "Surveys (%)") +
+    theme_graph() +
+    coord_cartesian(clip = "off") +
+    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-9/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         width = 6, height = 4, dpi = 600)
+  
+}
+
+## 6.3 Map over the function ----
+
+map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
+
+# 7. Extract descriptors ----
+
+load("data/04_data-benthic.RData")
+
+## 7.1 Add subterritories ----
 
 monitoring_descriptors <- data_benthic %>% 
   group_by(territory) %>% 
@@ -245,7 +250,7 @@ monitoring_descriptors <- data_benthic %>%
   arrange(territory, subterritory) %>% 
   relocate(subterritory, .after = territory)
 
-# 6.2 Add total --
+## 7.2 Add total ----
 
 monitoring_descriptors <- data_benthic %>% 
   data_descriptors() %>% 
@@ -253,7 +258,7 @@ monitoring_descriptors <- data_benthic %>%
   mutate(territory = "Entire Pacific region") %>% 
   bind_rows(monitoring_descriptors, .)
 
-# 6.3 Add total for two territories --
+## 7.3 Add total for two territories ----
 
 monitoring_descriptors <- data_benthic %>% 
   mutate(territory = case_when(territory %in% c("Line Group", "Phoenix Group", 
@@ -271,9 +276,9 @@ monitoring_descriptors <- data_benthic %>%
   arrange(territory, subterritory) %>% 
   arrange(., territory == "Entire Pacific region")
 
-# 6.4 Reformat the data and export the table ----
+## 7.4 Reformat the data and export the table ----
 
 monitoring_descriptors %>% 
   mutate(nb_sites = as.character(format(nb_sites, big.mark = ",", scientific = FALSE)),
          nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE))) %>% 
-  openxlsx::write.xlsx(., file = "figs/01_table-3_monitoring-descriptors.xlsx")
+  openxlsx::write.xlsx(., file = "figs/01_part-1/table-4.xlsx")

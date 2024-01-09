@@ -214,7 +214,7 @@ data_benthic %>%
 
 ## 4.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 4, dpi = 600)
 
 # 5. Plot of number of surveys per year ----
 
@@ -240,4 +240,4 @@ data_benthic %>%
 
 ## 5.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-10.png", width = 6, height = 5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-10.png", width = 6, height = 4, dpi = 600)

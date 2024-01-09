@@ -54,11 +54,11 @@ data_eez <- data_eez %>%
                                                     "Gilbert Islands" = "Kiribati",
                                                     "Line Group" = "Kiribati"))) %>% 
   # Pacific Remote Island Area
-  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Jarvis Island" = "Pacific Remote Island",
-                                                    "Wake Island" = "Pacific Remote Island",
-                                                    "Howland and Baker Islands" = "Pacific Remote Island",
-                                                    "Johnston Atoll" = "Pacific Remote Island",
-                                                    "Palmyra Atoll" = "Pacific Remote Island")))
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Jarvis Island" = "pria",
+                                                    "Wake Island" = "pria",
+                                                    "Howland and Baker Islands" = "pria",
+                                                    "Johnston Atoll" = "pria",
+                                                    "Palmyra Atoll" = "pria")))
 
 # 4.4 Create the function --
 
@@ -83,7 +83,7 @@ map_sphere <- function(territory_i){
     geom_sf(data = land_eez, fill = "#363737", col = "grey") +
     theme_minimal()
   
-  ggsave(filename = paste0("figs/territories_fig-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/02_part-2/fig-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 4, height = 4, dpi = 600)
   
 }
