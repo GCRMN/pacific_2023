@@ -33,16 +33,8 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
   scale_color_identity() +
   geom_vline(xintercept = 0) +
   labs(x = "Change in SST (°C) between 1980 and 2023", y = NULL) +
-  theme(axis.ticks = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        axis.line.x = element_line(linewidth = 0.4),
-        axis.ticks.x = element_line(linewidth = 0.4),
-        axis.text.y = element_markdown(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme_graph() +
+  theme(axis.text.y = element_markdown()) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(expand = c(0, 0), limits = c(-0.5, 1.5))
 
@@ -136,17 +128,7 @@ ggplot(data = data_enso, aes(x = date, y = soi, fill = color)) +
                                 ym("2010-01"), ym("2020-01"), ym("2030-01")),
                      labels = c("1980", "1990", "2000", "2010", "2020", "2030"),
                      expand = c(0, 0)) +
-  theme(axis.ticks = element_blank(),
-      panel.border = element_blank(),
-      panel.background = element_blank(),
-      panel.grid.minor.x = element_blank(),
-      panel.grid.minor.y = element_blank(),
-      axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
-      axis.line.x = element_line(linewidth = 0.4),
-      axis.ticks.x = element_line(linewidth = 0.4),
-      axis.text.y = element_markdown(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-      axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
-      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme_graph() +
   coord_cartesian(clip = "off")
 
 ## 5.3 Save the plot ----
@@ -170,16 +152,7 @@ data_sst <- data_sst %>%
 ggplot(data = data_sst, aes(x = sst, y = fct_reorder(TERRITORY1, mean))) +
   geom_violin(draw_quantiles = c(0.5), fill = "#446CB3", alpha = 0.5) +
   labs(x = "SST (°C)", y = NULL) +
-  theme(axis.ticks = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        axis.line.x = element_line(linewidth = 0.4),
-        axis.ticks.x = element_line(linewidth = 0.4),
-        axis.text.y = element_markdown(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme_graph() +
   coord_cartesian(clip = "off") +
   scale_x_continuous(expand = c(0, 0), limits = c(20, 32.5))
 

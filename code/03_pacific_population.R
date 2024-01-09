@@ -40,7 +40,8 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
   annotate(geom = "text", label = "Fiji", x = 2003, y = 3.8, 
            family = font_choose_graph, color = "white", hjust = 0) +
   theme_graph() + 
-  lims(y = c(0, 6))
+  lims(y = c(0, 6)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(2000, 2020))
 
 # 5. Export the plot ----
 

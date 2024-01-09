@@ -209,22 +209,12 @@ data_benthic %>%
                       drop = FALSE, name = "Number of years with data") +
     labs(x = NULL, y = "Sites (%)") +
     coord_flip(clip = "off") +
-    theme(axis.ticks = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(),
-          #panel.grid.minor.x = element_blank(),
-          #panel.grid.major.y = element_line(),
-          axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
-          axis.line.x = element_line(linewidth = 0.4),
-          axis.ticks.x = element_line(linewidth = 0.4),
-          axis.text.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-          axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
-          plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+    theme_graph() +
     scale_y_continuous(expand = c(0, 0), limits = c(0, 100))
 
 ## 4.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 4, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 5, dpi = 600)
 
 # 5. Plot of number of surveys per year ----
 
@@ -242,13 +232,12 @@ data_benthic %>%
   complete(year, fill = list(n = 0)) %>% 
   mutate(percent = n*100/sum(n)) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
-    geom_bar(stat = "identity", show.legend = FALSE, width = 0.5, color = "#C9504B", fill = "#C9504B") +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = "#C9504B") +
     labs(x = "Year", y = "Surveys (%)") +
-    lims(x = c(1970, 2024)) +
     theme_graph() +
-    theme(plot.title = element_text(size = 15),
-          axis.text.x = element_text(size = 7))
+    coord_cartesian(clip = "off") +
+    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
 
 ## 5.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 3.5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-10.png", width = 6, height = 5, dpi = 600)

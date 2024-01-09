@@ -10,6 +10,7 @@ library(patchwork)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_map.R")
+source("code/function/theme_graph.R")
 
 # 3. Map of cyclone distribution ----
 
@@ -173,8 +174,7 @@ plot_map <- ggplot() +
   # Cyclones
   geom_sf(data = data_cyclones %>% arrange(saffir), aes(color = saffir),
           alpha = 0.75, linewidth = 0.5, show.legend = "line") +
-  scale_color_manual(values = palette_5cols,
-                     name = "Saffir-Simpson") +
+  scale_color_manual(values = palette_5cols, name = "Saffir-Simpson") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
                color = "darkgrey", size = 2.5, family = font_choose_map) +
@@ -182,11 +182,11 @@ plot_map <- ggplot() +
                color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
                color = "#1e517b", fontface = "italic", size = 3, family = font_choose_map) +
- 
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
-  theme_map()
+  theme_map() +
+  guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(linewidth = 1)))
 
 ## 3.11 Save the plot ----
 
@@ -213,20 +213,10 @@ data_cyclones <- data_cyclones %>%
 
 ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill = saffir)) +
   geom_bar(stat = "identity", width = 0.7) +
-  scale_fill_manual(values = scico(5, begin = 0.8, end = 0, palette = "lajolla"),
+  scale_fill_manual(values = palette_5cols,
                      name = "Saffir-Simpson", breaks = 1:5) +
   theme_graph() +
-  theme(axis.ticks = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        axis.title.x = element_text(size = 12, margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        legend.position = c(0.70, 0.30),
-        axis.line.x = element_line(linewidth = 0.4),
-        axis.ticks.x = element_line(linewidth = 0.4),
-        axis.text.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-        axis.text.x = element_text(margin = margin(t = 7, r = 0, b = 0, l = 0)),
-        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme(legend.position = c(0.70, 0.30)) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 200)) +
   labs(x = "Number of cyclones", y = NULL)
