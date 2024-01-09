@@ -171,12 +171,7 @@ plot_map <- ggplot() +
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
-  theme(text = element_text(family = font_choose_map),
-        panel.background = element_rect(fill = "#ebf5fd"),
-        panel.grid = element_blank(),
-        panel.border = element_rect(fill = NA, color = "black", linewidth = 1),
-        axis.title = element_blank(),
-        axis.text.x.top = element_text())
+  theme_map()
 
 # 12. Create legend of EEZ names ----
 
