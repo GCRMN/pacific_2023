@@ -129,6 +129,10 @@ data_alpha <- tibble(lat = c(-4000000, 4000000),
   st_bbox() %>% 
   st_as_sfc()
 
+data_alpha <- data_eez %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  st_difference(data_alpha, .)
+
 # 11. Make the map ----
 
 plot_map <- ggplot() +
@@ -160,9 +164,9 @@ plot_map <- ggplot() +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
                color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
-               color = "#5c97bf", fontface = "italic", size = 3, family = font_choose_map) +
+               color = "#1e517b", fontface = "italic", size = 3, family = font_choose_map) +
   # Annotation (labels EEZ)
-  geom_sf(data = data_text_labels, size = 4, color = "#5c97bf") +
+  geom_sf(data = data_text_labels, size = 4, color = "#1e517b") +
   geom_sf_text(data = data_text_labels, aes(label = number), color = "white", size = 2) +
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
@@ -193,9 +197,9 @@ data_eez_text <- data_eez %>%
 
 plot_eez <- ggplot() +
   # Points
-  geom_point(data = tibble(x = 1, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
-  geom_point(data = tibble(x = 3, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
-  geom_point(data = tibble(x = 5, y = -1:-10), aes(x = x, y = y), size = 6, color = "#5c97bf") +
+  geom_point(data = tibble(x = 1, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
+  geom_point(data = tibble(x = 3, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
+  geom_point(data = tibble(x = 5, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
   # Text inside points
   geom_text(aes(x = 1, y = -1:-10, label = as.character(1:10)), 
             color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
