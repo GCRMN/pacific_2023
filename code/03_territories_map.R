@@ -8,7 +8,6 @@ library(ggspatial) # For annotation_scale function
 # 2. Source functions ----
 
 source("code/function/graphical_par.R")
-source("code/function/theme_graph.R")
 
 # 3. Define CRS ----
 
@@ -159,7 +158,7 @@ map_eez <- function(territory){
     geom_sf(data = data_land_supp, fill = "#363737", col = "grey") +
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     geom_sf(data = poly_scale, fill = "white", col = "white") +
-    geom_sf(data = data_place_i, fill = "#d64541", color = "white", shape = 23, size = 2) +
+    geom_sf(data = data_place_i, fill = palette_5cols[3], color = "white", shape = 23, size = 2) +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                       x_max + ((x_max - x_min)*percent_margin_ltr/100)),
              ylim = c(y_min - ((y_max - y_min)*percent_margin_b/100),
@@ -279,5 +278,4 @@ plot_i <- ggplot() +
 
 # 6.7 Export the plot --
 
-ggsave(filename = paste0("figs/02_part-2/fig-2/pria.png"),
-       plot = plot_i, dpi = 600)
+ggsave(filename = paste0("figs/02_part-2/fig-2/pria.png"), plot = plot_i, dpi = 600)
