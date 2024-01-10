@@ -232,7 +232,7 @@ data_benthic %>%
   complete(year, fill = list(n = 0)) %>% 
   mutate(percent = n*100/sum(n)) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
-    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = "#C9504B") +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
     labs(x = "Year", y = "Surveys (%)") +
     theme_graph() +
     coord_cartesian(clip = "off") +

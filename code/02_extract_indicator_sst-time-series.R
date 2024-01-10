@@ -2,12 +2,13 @@
 
 library(terra)
 library(tidyverse) # Core tidyverse packages
+library(lubridate)
 library(sf)
 sf_use_s2(FALSE)
 library(future)
 library(furrr)
 
-plan(multisession, workers = 2) # Set parallelization with 2 cores
+plan(multisession, workers = 4) # Set parallelization with 2 cores
 
 # 2. List of NetCDF4 files ----
 
@@ -15,9 +16,9 @@ ncdf_files <- list.files(path = "data/06_sst", pattern = "\\.nc$", full.names = 
 
 # 3. Check if files are missing ----
 
-real_files_list <- str_remove_all(str_split_fixed(ncdf_files, "_", n = 5)[,5], "\\.nc")
+real_files_list <- str_remove_all(str_split_fixed(ncdf_files, "_", n = 4)[,4], "\\.nc")
 
-theoric_files_list <- str_remove_all(seq(as.Date("1985-01-01"), as.Date("2020-12-31"), by = "days"), "-")
+theoric_files_list <- str_remove_all(seq(as.Date("1985-01-01"), as.Date("2023-12-31"), by = "days"), "-")
 
 setdiff(theoric_files_list, real_files_list)
 

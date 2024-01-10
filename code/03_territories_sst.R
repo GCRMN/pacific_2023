@@ -32,14 +32,14 @@ data_sst <- data_sst %>%
 
 # 5. Extract SST indicators ----
 
-# 5.1 Calculate long-term average SST ----
+## 5.1 Calculate long-term average SST ----
 
 data_sst <- data_sst %>% 
   group_by(TERRITORY1) %>% 
   mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
   ungroup()
 
-# 5.2 Create the function ----
+## 5.2 Create the function ----
 
 extract_coeff <- function(data){
   
@@ -54,7 +54,7 @@ extract_coeff <- function(data){
   
 }
 
-# 5.3 Map over the function ----
+## 5.3 Map over the function ----
 
 data_warming <- data_sst %>% 
   # Convert date as numeric
@@ -75,19 +75,19 @@ data_warming <- data_sst %>%
               select(TERRITORY1, mean_sst) %>% 
               distinct())
 
-# 5.4 Export the data ----
+## 5.4 Export the data ----
 
-write.csv2(data_warming, file = "figs/01_table-4_sst.csv", row.names = FALSE)
+write.csv2(data_warming, file = "figs/01_part-1/table-3.csv", row.names = FALSE)
 
-# 6. Make the plots of SST for each territory ----
+# 6. Make the plots of SST (year) for each territory ----
 
-# 6.1 Transform data --
+## 6.1 Transform data ----
 
 data_sst <- left_join(data_sst, data_warming) %>% 
   mutate(date_num = as.numeric(as_date(date)),
          sst_linear = slope*date_num+intercept)
 
-# 6.2 Create the function --
+## 6.2 Create the function ----
 
 map_sst_year <- function(territory_i){
   
@@ -97,72 +97,78 @@ map_sst_year <- function(territory_i){
            year = year(date))
 
   ggplot(data = data_sst_i, aes(x = date, y = sst)) +
-    geom_line(color = "black", linewidth = 0.25) +
-    geom_line(aes(x = date, y = sst_linear), color = "#446CB3", linewidth = 0.8) +
-    geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed", color = "#d64541", linewidth = 0.8) +
+    geom_line(color = "#2c3e50", linewidth = 0.25) +
+    geom_line(aes(x = date, y = sst_linear), color = palette_5cols[2], linewidth = 0.8) +
+    geom_hline(yintercept = unique(data_sst_i$mean_sst), linetype = "dashed",
+               color = palette_5cols[4], linewidth = 0.8) +
     labs(x = "Year", y = "SST (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
 
-  ggsave(filename = paste0("figs/territories_fig-3/",
+  ggsave(filename = paste0("figs/02_part-2/fig-3/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 6, height = 4, dpi = 600)
   
 }
 
-# 6.3 Map over the function --
+## 6.3 Map over the function ----
 
 map(unique(data_sst$TERRITORY1), ~map_sst_year(territory_i = .))
 
-# 6.4 Create the function --
+# 7. Make the plots of SST (month) for each territory ----
+
+## 7.1 Transform data ----
+
+data_sst_month <- data_sst %>% 
+  mutate(daymonth = str_sub(date, 6, 10),
+         year = year(date),
+         decade = case_when(year >= 1980 & year < 1990 ~ "1980s",
+                            year >= 1990 & year < 2000 ~ "1990s",
+                            year >= 2000 & year < 2010 ~ "2000s",
+                            year >= 2010 & year < 2020 ~ "2010s",
+                            year >= 2020 & year < 2030 ~ "2020s")) %>% 
+  arrange(decade)
+
+data_sst_month_mean <- data_sst_month %>% 
+  group_by(daymonth, TERRITORY1) %>% 
+  summarise(sst = mean(sst, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(year = "all")
+
+## 7.2 Create the function ----
 
 map_sst_month <- function(territory_i, color_decade){
-  
-  data_sst_i <- data_sst %>% 
-    filter(TERRITORY1 == territory_i) %>% 
-    mutate(daymonth = str_sub(date, 6, 10),
-           year = year(date),
-           decade = case_when(year >= 1980 & year < 1990 ~ "1980s",
-                              year >= 1990 & year < 2000 ~ "1990s",
-                              year >= 2000 & year < 2010 ~ "2000s",
-                              year >= 2010 & year < 2020 ~ "2010s",
-                              year >= 2020 & year < 2030 ~ "2020s")) %>% 
-    arrange(decade)
-  
-  data_sst_i_mean <- data_sst_i %>% 
-    group_by(daymonth) %>% 
-    summarise(sst = mean(sst, na.rm = TRUE)) %>% 
-    ungroup() %>% 
-    mutate(year = "all")
   
   if(color_decade == TRUE){
     
     ggplot() +
-      geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year, color = decade),
+      geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
+                aes(x = daymonth, y = sst, group = year, color = decade),
                 alpha = 0.75, linewidth = 0.5) +
-      geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year),
+      geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
+                aes(x = daymonth, y = sst, group = year),
                 color = "black", linewidth = 1) +
       scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
                                   "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
                        labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
                                   "Sep.", "Oct.", "Nov.", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
-      theme(axis.text.x = element_text(size = 8),
-            legend.position = "top",
-            legend.direction = "horizontal",
-            legend.key = element_blank()) +
-      scale_color_manual(name = "Decade", values = c("#89c4f4", "#2c82c9", "#fabe58", "#ff9478", "#d24d57")) +
+      theme(axis.text.x = element_text(size = 8)) +
+      scale_color_manual(name = "Decade", values = palette_5cols) +
+      guides(color = guide_legend(override.aes = list(linewidth = 1))) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
-    ggsave(filename = paste0("figs/territories_fig-4/",
+    ggsave(filename = paste0("figs/02_part-2/fig-4/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            width = 5.5, height = 4.5, dpi = 600)
     
   }else{
     
     ggplot() +
-      geom_line(data = data_sst_i, aes(x = daymonth, y = sst, group = year),
+      geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
+                aes(x = daymonth, y = sst, group = year),
                 color = "grey", alpha = 0.75, linewidth = 0.5) +
-      geom_line(data = data_sst_i_mean, aes(x = daymonth, y = sst, group = year),
+      geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
+                aes(x = daymonth, y = sst, group = year),
                 color = "black", linewidth = 1) +
       scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
                                   "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
@@ -172,7 +178,7 @@ map_sst_month <- function(territory_i, color_decade){
       theme(axis.text.x = element_text(size = 8)) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
-    ggsave(filename = paste0("figs/territories_fig-4/",
+    ggsave(filename = paste0("figs/02_part-2/fig-4/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            width = 6, height = 4, dpi = 600)
     
@@ -180,37 +186,43 @@ map_sst_month <- function(territory_i, color_decade){
   
 }
 
-# 6.5 Map over the function --
+## 7.3 Map over the function ----
 
 map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = ., color_decade = TRUE))
 
-# 6.6 SST anomaly --
+# 8. SST anomaly ----
 
 data_sst %>% 
   filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[1:15]) %>% 
   ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
     geom_line(color = "black", linewidth = 0.25) +
-    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.75) +
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-    facet_wrap(~TERRITORY1, scales = "free_y", ncol = 3)
+    facet_wrap(~TERRITORY1, scales = "free", ncol = 3) +
+    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+          strip.background = element_rect(color = NA, fill = NA),
+          strip.text = element_text(face = "bold", color = palette_5cols[4]))
 
-ggsave(filename = "figs/04_supplementary/01_sst-anomaly_a.png", width = 8, height = 10, dpi = 600)
+ggsave(filename = "figs/04_supp/fig-1_a.png", width = 8.5, height = 11.5, dpi = 600)
 
 data_sst %>% 
   filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[16:30]) %>% 
     ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
     geom_line(color = "black", linewidth = 0.25) +
-    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.75) +
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-    facet_wrap(~TERRITORY1, scales = "free_y", ncol = 3)
+    facet_wrap(~TERRITORY1, scales = "free", ncol = 3) +
+    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+          strip.background = element_rect(color = NA, fill = NA),
+          strip.text = element_text(face = "bold", color = palette_5cols[4]))
 
-ggsave(filename = "figs/04_supplementary/01_sst-anomaly_b.png", width = 8, height = 10, dpi = 600)
+ggsave(filename = "figs/04_supp/fig-1_b.png", width = 8.5, height = 11.5, dpi = 600)
 
-# 7. Make the plots of DHW for each territory ----
+# 9. Make the plots of DHW for each territory ----
 
-# 7.1 Create the function --
+## 9.1 Create the function ----
 
 map_dhw <- function(territory_i){
   
@@ -232,17 +244,17 @@ map_dhw <- function(territory_i){
     labs(x = "Year", y = "Percent of coral reefs") +
     theme(legend.position = "top")
 
-  ggsave(filename = paste0("figs/territories_fig-5/", 
+  ggsave(filename = paste0("figs/02_part-2/fig-5/", 
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 6, height = 4, dpi = 600)
 
 }
   
-# 7.2 Map over the function --
+# 9.2 Map over the function ----
 
 map(unique(data_dhw$territory), ~map_dhw(territory_i = .))
 
-# 7.3 Maximum DHW per date and EEZ (supplementary) ----
+# 10 Maximum DHW per date and EEZ ----
 
 data_dhw %>% 
   filter(territory %in% unique(data_dhw$territory)[1:15]) %>% 
@@ -252,7 +264,7 @@ data_dhw %>%
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
     facet_wrap(~territory, scales = "free_y", ncol = 3)
 
-ggsave(filename = "figs/04_supplementary/02_max-dhw_a.png", width = 8, height = 10, dpi = 600)
+ggsave(filename = "figs/04_supp/fig-2_a.png", width = 8, height = 10, dpi = 600)
 
 data_dhw %>% 
   filter(territory %in% unique(data_dhw$territory)[16:30]) %>% 
@@ -262,4 +274,4 @@ data_dhw %>%
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
   facet_wrap(~territory, scales = "free_y", ncol = 3)
 
-ggsave(filename = "figs/04_supplementary/02_max-dhw_b.png", width = 8, height = 10, dpi = 600)
+ggsave(filename = "figs/04_supp/fig-2_b.png", width = 8, height = 10, dpi = 600)

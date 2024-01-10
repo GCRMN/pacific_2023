@@ -22,7 +22,7 @@ data_warming <- read.csv2("figs/01_part-1/table-3.csv") %>%
   add_row(TERRITORY1 = "Global Ocean", warming_rate = (0.88/(2020-1900))*(2022-1980), sst_increase = 0.88) %>% 
   mutate(warming_rate = round(warming_rate, 3),
          TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1),
-         color = if_else(sst_increase > 0, "#d24d57", "#5c97bf")) %>% 
+         color = if_else(sst_increase > 0, palette_5cols[5], palette_5cols[3])) %>% 
   arrange(desc(sst_increase)) 
 
 ## 3.2 Make the plot ----
