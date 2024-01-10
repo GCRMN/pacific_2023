@@ -206,7 +206,7 @@ map_survey_years <- function(territory_i){
   plot_i <- data_surveys %>% 
     filter(territory == territory_i) %>% 
     ggplot(data = ., aes(x = year, y = percent)) +
-    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = "#C9504B") +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
     labs(x = "Year", y = "Surveys (%)") +
     theme_graph() +
     coord_cartesian(clip = "off") +
