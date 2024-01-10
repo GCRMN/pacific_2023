@@ -121,12 +121,20 @@ export_geoinf <- function(territory_i){
   data_i <- data_table_1 %>% 
     filter(territory == territory_i)
   
-  writeLines(c("\\begin{tabular}{>{\\bfseries}>{\\color{color1}}rl}",
-               paste0("Maritime area & ", data_i[1, "maritime_area"], " km\\textsuperscript{2} \\\\"),
-               paste0("Land area & ", data_i[1, "land_area"], " km\\textsuperscript{2} \\\\"),
-               paste0("Reef area & ", data_i[1, "reef_area_abs"], " km\\textsuperscript{2} \\\\"),
-               paste0("Mean elevation & ", data_i[1, "mean_elevation"], " m \\\\")),
-             paste0("figs/03_geo-inf/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+  writeLines(c("\\begin{center}",
+               "\\begin{tabular}{|>{\\raggedleft\\arraybackslash}m{3.75cm}|m{2.75cm}|}",
+               "\\hline",
+               "\\rowcolor{colortable1}",
+               paste0("Maritime area & ", data_i[1, "maritime_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+               "\\rowcolor{colortable2}",
+               paste0("Land area & ", data_i[1, "land_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+               "\\rowcolor{colortable1}",
+               paste0("Reef area & ", data_i[1, "reef_area_abs"], " km\\textsuperscript{2} \\\\ \\hline"),
+               "\\rowcolor{colortable2}",
+               paste0("Mean elevation & ", data_i[1, "mean_elevation"], " m \\\\ \\hline"),
+               "\\end{tabular}",
+               "\\end{center}"),
+             paste0("figs/02_part-2/tbl-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
   
 }
 
