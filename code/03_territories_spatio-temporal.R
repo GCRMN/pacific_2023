@@ -278,7 +278,43 @@ monitoring_descriptors <- data_benthic %>%
 
 ## 7.4 Reformat the data and export the table ----
 
-monitoring_descriptors %>% 
+monitoring_descriptors <- monitoring_descriptors %>% 
   mutate(nb_sites = as.character(format(nb_sites, big.mark = ",", scientific = FALSE)),
-         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE))) %>% 
-  openxlsx::write.xlsx(., file = "figs/01_part-1/table-4.xlsx")
+         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE)))
+
+## 7.5 Export the table ----
+
+openxlsx::write.xlsx(monitoring_descriptors, file = "figs/01_part-1/table-4.xlsx")
+
+## 7.6 Export table for each territory ----
+
+### 7.6.1 Create the function ----
+
+map_tex <- function(territory_i){
+  
+  data_i <- monitoring_descriptors %>% 
+    filter(territory == territory_i)
+  
+  writeLines(c("\\begin{center}",
+               "\\begin{tabular}{|>{\\raggedleft\\arraybackslash}m{3.75cm}|m{2.75cm}|}",
+               "\\hline",
+               "\\rowcolor{colortable1}",
+               paste0("Sites & ", data_i[1, "nb_sites"], " \\\\ \\hline"),
+               "\\rowcolor{colortable2}",
+               paste0("Surveys & ", data_i[1, "nb_surveys"], " \\\\ \\hline"),
+               "\\rowcolor{colortable1}",
+               paste0("Datasets & ", data_i[1, "nb_datasets"], " \\\\ \\hline"),
+               "\\rowcolor{colortable2}",
+               paste0("First year & ", data_i[1, "first_year"], " \\\\ \\hline"),
+               "\\rowcolor{colortable1}",
+               paste0("Last year & ", data_i[1, "last_year"], " \\\\ \\hline"),
+               "\\end{tabular}",
+               "\\end{center}"),
+             paste0("figs/02_part-2/tbl-2/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+  
+}
+
+### 7.6.2 Map over the function ----
+
+map(setdiff(unique(monitoring_descriptors$territory), "Entire Pacific region"),
+    ~map_tex(territory_i = .))

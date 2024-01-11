@@ -116,7 +116,7 @@ rm(data_reefs, data_reef_area, data_maritime_area, data_land, data_elevation)
 
 # 2.11 Create a function to produce geographic information output (for LaTeX report) ----
 
-export_geoinf <- function(territory_i){
+map_tex <- function(territory_i){
   
   data_i <- data_table_1 %>% 
     filter(territory == territory_i)
@@ -140,7 +140,8 @@ export_geoinf <- function(territory_i){
 
 # 2.12 Map over the function ----
 
-map(unique(data_table_1$territory), ~export_geoinf(territory_i = .))
+map(setdiff(unique(data_table_1$territory), "Entire Pacific region"),
+    ~map_tex(territory_i = .))
 
 # 3. Table 2 - Human population ----
 
