@@ -3,8 +3,6 @@
 library(tidyverse)
 library(sf)
 sf_use_s2(FALSE)
-library(pdftools)
-library(docxtractr)
 
 # 2. Table 1 - Geographic information ----
 
@@ -220,6 +218,59 @@ openxlsx::write.xlsx(data_table_2, file = "figs/01_part-1/table-2.xlsx")
 
 ### 3.6.2 In .tex format ----
 
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|r|l|l|}",
+             "\\hline",
+             "\\rowcolor{colortable3}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Country/Territory}} & \\textcolor{white}{Pop. 2020} & \\textcolor{white}{Rel. change}  & \\textcolor{white}{Percent.} \\\\ \\hline",
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[1, "territory"], "} &", data_table_2[1, "pop_5km_2020"], "&",
+                    data_table_2[1, "pop_5km_change"], "&", data_table_2[1, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[2, "territory"], "} &", data_table_2[2, "pop_5km_2020"], "&",
+                    data_table_2[2, "pop_5km_change"], "&", data_table_2[2, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[3, "territory"], "} &", data_table_2[3, "pop_5km_2020"], "&",
+                    data_table_2[3, "pop_5km_change"], "&", data_table_2[3, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[4, "territory"], "} &", data_table_2[4, "pop_5km_2020"], "&",
+                    data_table_2[4, "pop_5km_change"], "&", data_table_2[4, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[5, "territory"], "} &", data_table_2[5, "pop_5km_2020"], "&",
+                    data_table_2[5, "pop_5km_change"], "&", data_table_2[5, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[6, "territory"], "} &", data_table_2[6, "pop_5km_2020"], "&",
+                    data_table_2[6, "pop_5km_change"], "&", data_table_2[6, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[7, "territory"], "} &", data_table_2[7, "pop_5km_2020"], "&",
+                    data_table_2[7, "pop_5km_change"], "&", data_table_2[7, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[8, "territory"], "} &", data_table_2[8, "pop_5km_2020"], "&",
+                    data_table_2[8, "pop_5km_change"], "&", data_table_2[8, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{1}{|l}{} & ", data_table_2[9, "subterritory"], " &", data_table_2[9, "pop_5km_2020"], "&",
+                    data_table_2[9, "pop_5km_change"], "&", data_table_2[9, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{1}{|l}{} & ", data_table_2[10, "subterritory"], " &", data_table_2[10, "pop_5km_2020"], "&",
+                    data_table_2[10, "pop_5km_change"], "&", data_table_2[10, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{1}{|l}{} & ", data_table_2[11, "subterritory"], " &", data_table_2[11, "pop_5km_2020"], "&",
+                    data_table_2[11, "pop_5km_change"], "&", data_table_2[11, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[12, "territory"], "} &", data_table_2[12, "pop_5km_2020"], "&",
+                    data_table_2[12, "pop_5km_change"], "&", data_table_2[12, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[13, "territory"], "} &", data_table_2[13, "pop_5km_2020"], "&",
+                    data_table_2[13, "pop_5km_change"], "&", data_table_2[13, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable2}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[14, "territory"], "} &", data_table_2[14, "pop_5km_2020"], "&",
+                    data_table_2[14, "pop_5km_change"], "&", data_table_2[14, "pop_percent"]," \\\\ \\hline"),
+             "\\rowcolor{colortable1}",
+             paste0("\\multicolumn{2}{|l|}{", data_table_2[15, "territory"], "} &", data_table_2[15, "pop_5km_2020"], "&",
+                    data_table_2[15, "pop_5km_change"], "&", data_table_2[15, "pop_percent"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/01_part-1/table-2.tex"))
 
 ## 3.7 Remove useless objects ----
 
