@@ -174,6 +174,7 @@ map_sst_anom <- function(territory_i){
     ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
       geom_line(color = "black", linewidth = 0.3) +
       geom_ribbon(aes(ymin = 0, ymax = sst_anom_mean, fill = color)) +
+      geom_hline(yintercept = 0, color = "black", linewidth = 0.3) +
       scale_fill_identity() +
       labs(x = "Year", y = "SST anomaly (°C)") +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))

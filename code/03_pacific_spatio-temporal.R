@@ -193,7 +193,7 @@ ggsave(filename = "figs/01_part-1/fig-8.png", width = 8, height = 5, dpi = 600)
 
 # 4. Plot of percentage of sites per interval_class ----
 
-# 4.1 Make the plot ----
+## 4.1 Make the plot ----
 
 data_benthic %>% 
   st_drop_geometry() %>% 
@@ -218,7 +218,7 @@ ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 4, dpi = 600)
 
 # 5. Plot of number of surveys per year ----
 
-# 5.1 Make the plot ----
+## 5.1 Make the plot ----
 
 load("data/04_data-benthic.RData")
 
@@ -232,12 +232,30 @@ data_benthic %>%
   complete(year, fill = list(n = 0)) %>% 
   mutate(percent = n*100/sum(n)) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
-    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 1,
+             color = palette_5cols[5], fill = palette_5cols[4]) +
     labs(x = "Year", y = "Surveys (%)") +
-    theme_graph() +
     coord_cartesian(clip = "off") +
     scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
 
 ## 5.2 Save the plot ----
 
 ggsave(filename = "figs/01_part-1/fig-10.png", width = 6, height = 4, dpi = 600)
+
+# 6. Plot of number of surveys per year ----
+
+## 6.1 Make the plot ----
+
+data_benthic %>% 
+  select(territory, decimalLatitude, decimalLongitude, eventDate, year, verbatimDepth) %>% 
+  st_drop_geometry() %>% 
+  drop_na(verbatimDepth) %>% 
+  distinct() %>% 
+  ggplot(data = ., aes(x = verbatimDepth)) +
+  geom_histogram(binwidth = 1, aes(y = stat(width*density*100)),
+                 color = palette_5cols[5], fill = palette_5cols[4]) +
+  labs(x = "Depth (m)", y = "Surveys (%)")
+
+## 6.2 Save the plot ----
+
+ggsave(filename = "figs/01_part-1/fig-11.png", width = 6, height = 4, dpi = 600)
