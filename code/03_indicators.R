@@ -219,7 +219,7 @@ openxlsx::write.xlsx(data_table_2, file = "figs/01_part-1/table-2.xlsx")
 ### 3.6.2 In .tex format ----
 
 writeLines(c("\\begin{center}",
-             "\\begin{tabular}{|ll|r|l|l|}",
+             "\\begin{tabular}{|ll|r|r|r|}",
              "\\hline",
              "\\rowcolor{colortable3}",
              "\\multicolumn{2}{|l|}{\\textcolor{white}{Country/Territory}} & \\textcolor{white}{Pop. 2020} & \\textcolor{white}{Rel. change}  & \\textcolor{white}{Percent.} \\\\ \\hline",

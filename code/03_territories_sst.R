@@ -79,7 +79,7 @@ data_warming <- data_sst %>%
 
 write.csv2(data_warming, file = "figs/01_part-1/table-3.csv", row.names = FALSE)
 
-# 6. Make the plots of SST (year) for each territory ----
+# 6. SST (year) for each territory ----
 
 ## 6.1 Transform data ----
 
@@ -114,7 +114,7 @@ map_sst_year <- function(territory_i){
 
 map(unique(data_sst$TERRITORY1), ~map_sst_year(territory_i = .))
 
-# 7. Make the plots of SST (month) for each territory ----
+# 7. SST (month) for each territory ----
 
 ## 7.1 Transform data ----
 
@@ -190,79 +190,85 @@ map_sst_month <- function(territory_i, color_decade){
 
 map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = ., color_decade = TRUE))
 
-# 8. SST anomaly ----
+# 8. SST anomaly for each territory ----
 
-data_sst %>% 
-  filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[1:15]) %>% 
-  ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
-    geom_line(color = "black", linewidth = 0.25) +
-    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.75) +
-    labs(x = "Year", y = "SST anomaly (°C)") +
-    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-    facet_wrap(~TERRITORY1, scales = "free", ncol = 3) +
-    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-          strip.background = element_rect(color = NA, fill = NA),
-          strip.text = element_text(face = "bold", color = palette_5cols[4]))
+## 8.1 Create the function ----
 
-ggsave(filename = "figs/04_supp/fig-1_a.png", width = 8.5, height = 11.5, dpi = 600)
-
-data_sst %>% 
-  filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[16:30]) %>% 
-    ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
-    geom_line(color = "black", linewidth = 0.25) +
-    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.75) +
-    labs(x = "Year", y = "SST anomaly (°C)") +
-    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-    facet_wrap(~TERRITORY1, scales = "free", ncol = 3) +
-    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-          strip.background = element_rect(color = NA, fill = NA),
-          strip.text = element_text(face = "bold", color = palette_5cols[4]))
-
-ggsave(filename = "figs/04_supp/fig-1_b.png", width = 8.5, height = 11.5, dpi = 600)
-
-# 9. Make the plots of DHW for each territory ----
-
-## 9.1 Create the function ----
-
-map_dhw <- function(territory_i){
+map_sst_anom <- function(territory_i){
   
-  data_dhw_percent %>% 
-    filter(territory == territory_i) %>% 
-    filter(dhw_type != "DHW = 0") %>% 
-    mutate(year = year(date)) %>% 
-    group_by(year, dhw_type) %>% 
-    filter(freq == max(freq)) %>% 
-    ungroup() %>% 
-    select(-date) %>% 
-    distinct() %>% 
-    ggplot(data = ., aes(x = year, y = freq, fill = dhw_type)) +
-    geom_bar(stat = "identity") +
-    lims(y = c(0, 100)) +
-    scale_fill_manual(breaks = c("0 < DHW < 4", "4 <= DHW < 8", "DHW >= 8"), 
-                      labels = c("Possible bleaching", "Bleaching likely", "Mortality likely"),
-                      values = c("#5c97bf", "#fbc093", "#c44d56"), name = NULL) +
-    labs(x = "Year", y = "Percent of coral reefs") +
-    theme(legend.position = "top")
-
-  ggsave(filename = paste0("figs/02_part-2/fig-5/", 
+  ggplot(data = data_sst %>% filter(TERRITORY1 == territory_i), aes(x = date, y = sst_anom_mean)) +
+    geom_hline(yintercept = 0, linetype = "solid", linewidth = 0.25, color = "black") +
+    geom_line(color = palette_5cols[5], linewidth = 0.3) +
+    labs(x = "Year", y = "SST anomaly (°C)") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-5/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 6, height = 4, dpi = 600)
-
-}
   
-# 9.2 Map over the function ----
+}
 
-map(unique(data_dhw$territory), ~map_dhw(territory_i = .))
+## 8.2 Map over the function ----
 
-# 10 Maximum DHW per date and EEZ ----
+map(unique(data_sst$TERRITORY1), ~map_sst_anom(territory_i = .))
+
+# 9. DHW (percent) for each territory ----
+
+data_dhw_percent <- data_dhw_percent %>% 
+  filter(dhw_type != "DHW = 0") %>% 
+  mutate(year = year(date)) %>% 
+  group_by(year, dhw_type) %>% 
+  filter(freq == max(freq)) %>% 
+  ungroup() %>% 
+  select(-date) %>% 
+  distinct()
+
+data_dhw_percent %>% 
+  filter(territory %in% unique(data_dhw$territory)[1:15]) %>% 
+  ggplot(data = ., aes(x = year, y = freq, fill = dhw_type)) +
+  geom_bar(stat = "identity") +
+  lims(y = c(0, 100)) +
+  scale_fill_manual(breaks = c("0 < DHW < 4", "4 <= DHW < 8", "DHW >= 8"), 
+                    labels = c("Possible bleaching", "Bleaching likely", "Mortality likely"),
+                    values = c("#5c97bf", "#fbc093", "#c44d56"), name = NULL) +
+  labs(x = "Year", y = "Percent of coral reefs") +
+  theme(legend.position = "top") +
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold"))
+
+ggsave(filename = "figs/04_supp/fig-1_a.png", width = 8, height = 11, dpi = 600)
+
+data_dhw_percent %>% 
+  filter(territory %in% unique(data_dhw$territory)[16:30]) %>% 
+  ggplot(data = ., aes(x = year, y = freq, fill = dhw_type)) +
+  geom_bar(stat = "identity") +
+  lims(y = c(0, 100)) +
+  scale_fill_manual(breaks = c("0 < DHW < 4", "4 <= DHW < 8", "DHW >= 8"), 
+                    labels = c("Possible bleaching", "Bleaching likely", "Mortality likely"),
+                    values = c("#5c97bf", "#fbc093", "#c44d56"), name = NULL) +
+  labs(x = "Year", y = "Percent of coral reefs") +
+  theme(legend.position = "top") +
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold"))
+
+ggsave(filename = "figs/04_supp/fig-1_b.png", width = 8, height = 11, dpi = 600)
+
+# 10. DHW (maximum) for each territory ----
 
 data_dhw %>% 
   filter(territory %in% unique(data_dhw$territory)[1:15]) %>% 
   ggplot(data = ., aes(x = date, y = dhw)) +
-    geom_line(color = "black", linewidth = 0.25) +
-    labs(x = "Year", y = "Maximum DHW (°C-weeks)") +
-    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-    facet_wrap(~territory, scales = "free_y", ncol = 3)
+  geom_line(color = "black", linewidth = 0.25) +
+  labs(x = "Year", y = "Maximum DHW (°C-weeks)") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold", color = palette_5cols[4]))
 
 ggsave(filename = "figs/04_supp/fig-2_a.png", width = 8, height = 10, dpi = 600)
 
@@ -272,6 +278,9 @@ data_dhw %>%
   geom_line(color = "black", linewidth = 0.25) +
   labs(x = "Year", y = "Maximum DHW (°C-weeks)") +
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
-  facet_wrap(~territory, scales = "free_y", ncol = 3)
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold", color = palette_5cols[4]))
 
 ggsave(filename = "figs/04_supp/fig-2_b.png", width = 8, height = 10, dpi = 600)
