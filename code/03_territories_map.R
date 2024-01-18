@@ -154,8 +154,8 @@ map_eez <- function(territory){
     scale_fill_identity() +
     geom_sf(data = data_eez, color = "black", fill = NA) +
     geom_sf(data = data_eez_supp, color = "black", fill = NA) +
-    geom_sf(data = data_land, fill = "#363737", col = "grey") +
-    geom_sf(data = data_land_supp, fill = "#363737", col = "grey") +
+    geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
+    geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     geom_sf(data = poly_scale, fill = "white", col = "white") +
     geom_sf(data = data_place_i, fill = palette_5cols[3], color = "white", shape = 23, size = 2) +
@@ -254,7 +254,7 @@ plot_i <- ggplot() +
   geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
   scale_fill_identity() +
   geom_sf(data = data_eez, color = "black", fill = NA) +
-  geom_sf(data = data_land, fill = "#363737", col = "grey") +
+  geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
   geom_sf(data = data_bbox, fill = "white", alpha = 0.5) +
   geom_sf(data = data_eez_i, color = "black", fill = NA) +
   geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +

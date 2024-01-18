@@ -155,12 +155,12 @@ plot_map <- ggplot() +
   # EEZ
   geom_sf(data = data_eez, color = "#363737", fill = "#e4e9ed", alpha = 0.2) +
   # Background map
-  geom_sf(data = data_map, fill = "#363737", col = "grey") +
+  geom_sf(data = data_map, fill = "grey", col = "darkgrey") +
   # Country boundaries
-  geom_sf(data = data_countries, fill = "#363737", col = "grey") +
+  geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "darkgrey", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 2.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
                color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 

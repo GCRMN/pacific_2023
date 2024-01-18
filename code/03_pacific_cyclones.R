@@ -168,16 +168,20 @@ plot_map <- ggplot() +
   # EEZ
   geom_sf(data = data_eez, color = "#363737", fill = "#e4e9ed", alpha = 0.2) +
   # Background map
-  geom_sf(data = data_map, fill = "#363737", col = "grey") +
+  geom_sf(data = data_map, fill = "grey", col = "darkgrey") +
   # Country boundaries
-  geom_sf(data = data_countries, fill = "#363737", col = "grey") +
+  geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
   # Cyclones
   geom_sf(data = data_cyclones %>% arrange(saffir), aes(color = saffir),
           alpha = 0.75, linewidth = 0.5, show.legend = "line") +
-  scale_color_manual(values = palette_5cols, name = "Saffir-Simpson") +
+  scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
+                     labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
+                     values = c(palette_5cols[2:5], "black"),
+                     name = "Saffir-Simpson category",
+                     drop = FALSE) +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "darkgrey", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 2.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
                color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
@@ -192,7 +196,7 @@ plot_map <- ggplot() +
 
 ggsave(filename = "figs/01_part-1/fig-6.png", width = 8, height = 5, dpi = 600)
 
-# 4. Comparison of cyclones occurence ----
+# 4. Comparison of cyclones occurrence ----
 
 ## 4.1 Transform data ----
 
@@ -213,10 +217,15 @@ data_cyclones <- data_cyclones %>%
 
 ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill = saffir)) +
   geom_bar(stat = "identity", width = 0.7) +
-  scale_fill_manual(values = palette_5cols,
-                     name = "Saffir-Simpson", breaks = 1:5) +
+  scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
+                     labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
+                     values = c(palette_5cols[2:5], "black"),
+                     name = "Saffir-Simpson category",
+                     drop = FALSE) +
   theme_graph() +
-  theme(legend.position = c(0.70, 0.30)) +
+  theme(legend.position = c(0.60, 0.25),
+        legend.direction = "vertical",
+        legend.background = element_blank()) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 200)) +
   labs(x = "Number of cyclones", y = NULL)

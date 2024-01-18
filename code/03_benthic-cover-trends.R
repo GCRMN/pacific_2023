@@ -94,7 +94,7 @@ plot_list <- map(unique(data_pdp$category), ~plot_pdp_category(category_i = ., d
 
 plot_i <- wrap_plots(plot_list[[2]], plot_list[[1]], plot_list[[3]], plot_list[[4]], ncol = 1)
 
-ggsave(filename = paste0("figs/01_part-1/fig-11.png"), plot = plot_i, height = 12, width = 4, dpi = 600)  
+ggsave(filename = paste0("figs/01_part-1/fig-12.png"), plot = plot_i, height = 12, width = 4, dpi = 600)  
 
 ## 4.2 For countries and territories ----
 

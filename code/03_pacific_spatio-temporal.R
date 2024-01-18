@@ -166,9 +166,9 @@ ggplot() +
   # EEZ
   geom_sf(data = data_eez, color = "#363737", fill = "#e4e9ed", alpha = 0.2) +
   # Background map
-  geom_sf(data = data_map, fill = "#363737", col = "grey") +
+  geom_sf(data = data_map, fill = "grey", col = "darkgrey") +
   # Country boundaries
-  geom_sf(data = data_countries, fill = "#363737", col = "grey") +
+  geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
   # Benthic data
   geom_sf(data = data_benthic %>% arrange(interval_class), aes(color = interval_class)) +
   scale_color_manual(values = palette_5cols,
@@ -176,7 +176,7 @@ ggplot() +
                      drop = FALSE, name = "Number of years with data") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "darkgrey", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 2.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
                color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
@@ -236,6 +236,7 @@ data_benthic %>%
              color = palette_5cols[5], fill = palette_5cols[4]) +
     labs(x = "Year", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
+    theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
 
 ## 5.2 Save the plot ----
@@ -252,9 +253,11 @@ data_benthic %>%
   drop_na(verbatimDepth) %>% 
   distinct() %>% 
   ggplot(data = ., aes(x = verbatimDepth)) +
-  geom_histogram(binwidth = 1, aes(y = stat(width*density*100)),
+  geom_histogram(binwidth = 1, aes(y = after_stat(width * density * 100)),
                  color = palette_5cols[5], fill = palette_5cols[4]) +
-  labs(x = "Depth (m)", y = "Surveys (%)")
+  labs(x = "Depth (m)", y = "Surveys (%)") +
+  coord_cartesian(clip = "off") +
+  theme_graph()
 
 ## 6.2 Save the plot ----
 
