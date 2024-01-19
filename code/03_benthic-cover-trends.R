@@ -141,28 +141,28 @@ plot_pdp_territory <- function(territory_i){
     
     plot_i <- wrap_plots(plot_list[[2]], plot_list[[1]], plot_list[[3]], plot_list[[4]], ncol = 1)
     
-    ggsave(filename = paste0("figs/02_part-2/fig-10/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 12, width = 4, dpi = 600)
     
   }else if(length(unique(data_pdp_i$category)) == 3){
     
     plot_i <- wrap_plots(plot_list[[2]], plot_list[[1]], plot_list[[3]], ncol = 1)
     
-    ggsave(filename = paste0("figs/02_part-2/fig-10/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 9, width = 4, dpi = 600)
     
   }else if(length(unique(data_pdp_i$category)) == 2){
     
     plot_i <- wrap_plots(plot_list[[1]], plot_list[[2]], ncol = 1)
     
-    ggsave(filename = paste0("figs/02_part-2/fig-10/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 4, dpi = 600)
     
   }else if(length(unique(data_pdp_i$category)) == 1){
     
     plot_i <- wrap_plots(plot_list[[1]], ncol = 1)
     
-    ggsave(filename = paste0("figs/02_part-2/fig-10/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 3, width = 4, dpi = 600)
     
   }
@@ -345,3 +345,39 @@ variable_importance <- function(category_i){
 ## 8.2 Map over the function ----
 
 map(unique(data_results$result_vip$category), ~variable_importance(category_i = .))
+
+# 9. Comparison of benthic trends between territories ----
+
+## 9.1 Create the function ----
+
+plot_pdp_category <- function(category_i){
+  
+  plot_i <- data_results$result_pdp_territory %>% 
+    group_by(x, category, territory) %>% 
+    summarise(y_pred_min = min(y_pred),
+              y_pred_max = max(y_pred),
+              y_pred_mean = mean(y_pred)) %>%
+    ungroup() %>% 
+    mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
+                             category == "Coralline algae" ~ palette_5cols[3],
+                             category == "Macroalgae" ~ palette_5cols[4],
+                             category == "Turf algae" ~ palette_5cols[5])) %>% 
+    filter(category == category_i) %>% 
+    ggplot(data = .) +
+    geom_ribbon(aes(ymin = y_pred_min, ymax = y_pred_max, x = x, fill = color), alpha = 0.35) +
+    geom_line(aes(x = x, y = y_pred_mean, color = color)) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    facet_wrap(~territory) +
+    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+    labs(x = "Year", y = "Cover (%)")
+  
+  ggsave(filename = paste0("figs/05_additional/03_results/01_pdp_",
+                           str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
+         plot = plot_i, height = 12, width = 20, dpi = 600)
+
+}
+
+## 9.2 Map over the function ----
+
+map(unique(data_results$result_pdp_territory$category), ~plot_pdp_category(category_i = .))
