@@ -3,13 +3,11 @@
 library(tidyverse) # Core tidyverse packages
 library(patchwork)
 library(ggtext)
-library(scico)
 
 # 2. Source functions ----
 
 source("code/function/graphical_par.R")
-source("code/function/theme_graph.R")
-theme_set(theme_graph())
+theme_set(theme_bw())
 
 # 3. Load gcrmndb_benthos data ----
 
@@ -18,13 +16,13 @@ load("data/04_data-benthic.RData")
 # 4. Transform data ----
 
 data_benthic_cat <- data_benthic %>% 
+  filter(!(datasetID %in% c("0011", "0012", "0013", "0014", "0020"))) %>% 
   mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
                               subcategory == "Coralline algae" ~ "Coralline algae",
                               subcategory == "Turf algae" ~ "Turf algae",
                               subcategory == "Cyanobacteria" ~ "Cyanobacteria",
                               TRUE ~ category)) %>% 
   filter(category %in% c("Hard coral", "Macroalgae", "Coralline algae", "Turf algae", "Cyanobacteria", "Abiotic")) %>% 
-  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
   group_by(datasetID, higherGeography, country, territory, locality, habitat,
            parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
            year, month, day, category) %>% 
@@ -58,7 +56,8 @@ plot_a + plot_b + plot_layout(nrow = 2)
 
 # 4. Export the plot
 
-ggsave("figs/data_explo/01_overall.png")
+ggsave("figs/05_additional/01_data-explo/01_overall.png",
+       dpi = 600, height = 8, width = 14)
 
 ## 5.2 Comparison plots ----
 
@@ -72,7 +71,8 @@ ggplot(data = data_benthic_cat, aes(x = measurementValue, fill = category)) +
   labs(x = "Benthic cover (%)", y = "Density") +
   facet_grid(category~datasetID, scales = "free_y")
 
-ggsave("figs/data_explo/02_comparison_density-dataset.png", height = 15, width = 35)
+ggsave("figs/05_additional/01_data-explo/02_comparison_density-dataset.png",
+       dpi = 600, height = 15, width = 40)
 
 # 1.2 Per territory 
 
@@ -82,7 +82,8 @@ ggplot(data = data_benthic_cat, aes(x = measurementValue, fill = category)) +
   labs(x = "Benthic cover (%)", y = "Density") +
   facet_grid(category~territory, scales = "free_y")
 
-ggsave("figs/data_explo/02_comparison_density-territory.png", height = 15, width = 35)
+ggsave("figs/05_additional/01_data-explo/02_comparison_density-territory.png",
+       dpi = 600, height = 15, width = 40)
 
 # 2. Temporal
 
@@ -94,7 +95,8 @@ ggplot(data = data_benthic_cat, aes(x = year, y = measurementValue, col = catego
   labs(y = "Benthic cover (%)", x = "Year") +
   facet_grid(category~datasetID)
 
-ggsave("figs/data_explo/02_comparison_temporal-datasetid.png", height = 15, width = 35)
+ggsave("figs/05_additional/01_data-explo/02_comparison_temporal-dataset.png",
+       dpi = 600, height = 15, width = 35)
 
 # 2.2 Per territory
 
@@ -104,7 +106,8 @@ ggplot(data = data_benthic_cat, aes(x = year, y = measurementValue, col = catego
   labs(y = "Benthic cover (%)", x = "Year") +
   facet_grid(category~territory)
 
-ggsave("figs/data_explo/02_comparison_temporal-territory.png", height = 15, width = 35)
+ggsave("figs/05_additional/01_data-explo/02_comparison_temporal-territory.png",
+       dpi = 600, height = 15, width = 35)
 
 ## 5.3 Individual plots ----
 
@@ -135,7 +138,8 @@ data_explo <- function(data, i, type){
                       theme = theme(plot.title = element_text(hjust = 0.5))) +
       plot_layout(ncol = 1)
     
-    ggsave(paste0("figs/data_explo/03_temporal-dataset_", i, ".png"), height = 6, width = 10)
+    ggsave(paste0("figs/05_additional/01_data-explo/03_temporal-dataset_", i, ".png"),
+           dpi = 600, height = 6, width = 10)
     
   }else if(type == "territory"){
     
@@ -160,9 +164,9 @@ data_explo <- function(data, i, type){
                       theme = theme(plot.title = element_text(hjust = 0.5))) +
       plot_layout(ncol = 1)
     
-    ggsave(paste0("figs/data_explo/03_temporal-territory_",
+    ggsave(paste0("figs/05_additional/01_data-explo/04_temporal-territory_",
                   str_replace_all(str_to_lower(i), " ", "-"), ".png"), 
-           height = 6, width = 10)
+           dpi = 600, height = 6, width = 10)
     
   }else{
     
@@ -174,11 +178,13 @@ data_explo <- function(data, i, type){
 
 # 2. Map over the function for territories 
 
-map(unique(data_benthic_cat$territory), ~data_explo(data = data_benthic_cat, i = ., type = "territory"))
+map(unique(data_benthic_cat$territory), 
+    ~data_explo(data = data_benthic_cat, i = ., type = "territory"))
 
 # 3. Map over the function for datasetID 
 
-map(unique(data_benthic_cat$datasetID), ~data_explo(data = data_benthic_cat, i = ., type = "dataset"))
+map(unique(data_benthic_cat$datasetID), 
+    ~data_explo(data = data_benthic_cat, i = ., type = "dataset"))
 
 # 6. Benthic categories ----
 
@@ -214,7 +220,6 @@ taxonomic_levels <- function(data){
     labs(x = NULL, y = "Percentage of rows")
   
 }
-
 
 # 6.1.1 For the entire dataset
 
@@ -295,7 +300,7 @@ plot_a <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"))
+  scale_fill_manual(values = palette_5cols)
 
 # 6.2.3 Plot for percentage of territories
 
@@ -337,7 +342,7 @@ plot_b <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"))
+  scale_fill_manual(values = palette_5cols)
 
 # 6.2.4 Plot for percentage of surveys
 
@@ -379,7 +384,7 @@ plot_c <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = scico(5, begin = 0.3, end = 1, palette = "lajolla"))
+  scale_fill_manual(values = palette_5cols)
 
 # 6.2.5 Combine plots 
 
@@ -390,4 +395,4 @@ plot_a + plot_b + theme(axis.text.y = element_blank(),
 
 # 6.2.6 Export the plot
 
-ggsave("figs/data_explo/04_taxonomic-frequency.png", height = 6, width = 12)
+ggsave("figs/05_additional/01_data-explo/05_taxonomic-frequency.png", dpi = 600, height = 6, width = 12)
