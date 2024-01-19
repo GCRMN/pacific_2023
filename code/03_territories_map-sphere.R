@@ -77,7 +77,6 @@ map_sphere <- function(territory_i){
   ggplot() +
     geom_sf(data = b, fill = "#363737", col = "grey") +
     geom_sf(data = i, fill = "#ebf5fd") +
-    #geom_sf(data = data_graticules, col = "white") +
     geom_sf(data = data_eez, color = "#5c97bf", fill = "#bbd9eb", alpha = 0.75) +
     geom_sf(data = data_eez_i, color = palette_5cols[4], fill = palette_5cols[3], alpha = 0.75) +
     geom_sf(data = land_eez, fill = "#363737", col = "grey") +

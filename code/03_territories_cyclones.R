@@ -7,201 +7,218 @@ library(ggrepel)
 library(glue)
 library(scales)
 library(lubridate)
-library(scico)
 
 # 2. Source functions ----
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 
-# 3. Load data ----
+# 3. Define CRS ----
+
+# 3.1 Change CRS --
+
+crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+# 3.2 Define the offset --
+
+correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
+
+# 3.3 Define a long and slim polygon that overlaps the meridian line --
+
+correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
+                                                c(0 - correction_offset, 90),
+                                                c(0 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+# 4. Load data ----
+
+# 4.1 EEZ --
 
 load("data/01_background-shp/03_eez/data_eez.RData")
+
+data_eez <- data_eez %>% 
+  st_transform(crs = crs_selected)
+
+data_eez_supp_a <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(TERRITORY1 == "Australia") %>% 
+  st_transform(crs = 4326) %>% 
+  nngeo::st_remove_holes(.) %>% 
+  st_cast(., "POLYGON") %>% 
+  mutate(row = 1:8) %>% 
+  filter(row == 1)
+
+data_eez_supp <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(TERRITORY1 %in% c("Indonesia", "Japan", "Philippines") | 
+           GEONAME == "Overlapping claim Matthew and Hunter Islands: France / Vanuatu") %>% 
+  st_transform(crs = 4326) %>% 
+  nngeo::st_remove_holes(.) %>% 
+  bind_rows(., data_eez_supp_a) %>% 
+  st_transform(crs = crs_selected) 
+
+# 4.2 Land --
+
 load("data/01_background-shp/02_princeton/data_land.RData")
+
+data_land <- data_land %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+list_shp <- list.files(path = "data/01_background-shp/04_princeton_additional",
+                       pattern = ".shp$", full.names = TRUE, recursive = TRUE)
+
+data_land_supp <- map_dfr(list_shp, ~st_read(.)) %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+rm(list_shp, data_eez_supp_a)
+
+# 4.3 Bathymetry --
+
 load("data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData")
+
+data_bathy <- data_bathy %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+# 4.4 Cyclones ----
+
 load("data/05_cyclones/02_cyclones_extracted.RData")
 load("data/05_cyclones/01_cyclones_lines.RData")
 load("data/05_cyclones/01_cyclones_points.RData")
 
-# 4. Map of cyclones trajectories ----
+data_cyclones <- data_cyclones %>% 
+  group_by(saffir) %>% 
+  mutate(max_saffir = max(saffir)) %>% 
+  ungroup() %>% 
+  filter(max_saffir >= 1) %>% 
+  mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1989-12-31") ~ "1980 - 1989",
+                                time > as_date("1990-01-01") & time <= as_date("1999-12-31") ~ "1990 - 1999",
+                                time > as_date("2000-01-01") & time <= as_date("2009-12-31") ~ "2000 - 2009",
+                                time > as_date("2010-01-01") & time <= as_date("2019-12-31") ~ "2010 - 2019",
+                                time > as_date("2020-01-01") & time <= as_date("2023-12-31") ~ "2020 - 2023"),
+         time_range = as.factor(time_range),
+         time_range = fct_expand(time_range, "1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2019", "2020 - 2023"),
+         time_range = fct_relevel(time_range, c("1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2019", "2020 - 2023")),
+         name = str_to_sentence(name),
+         max_saffir = as.factor(max_saffir)) %>% 
+  # Add cyclone position by wind_speed
+  arrange(territory, desc(wind_speed)) %>% 
+  group_by(territory) %>% 
+  mutate(position = row_number())
 
-## 4.1 Create the function ----
+# 4.5 Create the function ----
 
-map_cyclone <- function(territory_i){
+map_eez <- function(territory_i){
   
-  if(territory_i %in% c("Fiji", "Wallis and Futuna", "Hawaii", "Tuvalu", "Gilbert Islands")){
-    
-    data_eez_i <- data_eez %>% 
-      filter(TERRITORY1 == territory_i) %>% 
-      st_transform(., crs = 3460)
-    
-    data_land_i <- data_land %>% 
-      filter(TERRITORY1 == territory_i) %>% 
-      st_transform(., crs = 3460)
-    
-    data_bathy_i <- data_bathy %>% 
-      filter(TERRITORY1 == territory_i) %>% 
-      st_transform(., crs = 3460)
-    
-    data_cyclones_i <- data_cyclones %>% 
-      filter(territory == territory_i) %>% 
-      group_by(saffir) %>% 
-      mutate(max_saffir = max(saffir)) %>% 
-      ungroup() %>% 
-      filter(max_saffir >= 1)
-    
-    if (nrow(data_cyclones_i) == 0) {
-      return(NULL)
-    }
-    
-    data_cyclones_i <- data_cyclones_i %>%  
-      mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1989-12-31") ~ "1980 - 1989",
-                                    time > as_date("1990-01-01") & time <= as_date("1999-12-31") ~ "1990 - 1999",
-                                    time > as_date("2000-01-01") & time <= as_date("2009-12-31") ~ "2000 - 2009",
-                                    time > as_date("2010-01-01") & time <= as_date("2023-12-31") ~ "2010 - 2023"),
-             time_range = as.factor(time_range),
-             time_range = fct_expand(time_range, "1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023"),
-             time_range = fct_relevel(time_range, c("1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023")),
-             name = str_to_sentence(name)) %>% 
-      bind_cols(., color = sample(scico(nrow(.), begin = 0.3, end = 1, palette = "lajolla")))
-    
-    data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
-      st_as_sf() %>% 
-      st_transform(., crs = 3460) %>% 
-      st_intersection(., data_eez_i %>% st_transform(crs = 3460))
-    
-    data_ts_points_i <- left_join(data_cyclones_i, data_ts_points) %>% 
-      st_as_sf() %>% 
-      st_transform(., crs = 3460) %>% 
-      st_intersection(., data_eez_i %>% st_transform(crs = 3460))
-    
-    plot_a <- ggplot() +
-      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
-      scale_fill_identity() +
-      geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
-      geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
-      geom_sf(data = data_ts_lines_i, aes(col = color), show.legend = FALSE) +
-      geom_sf(data = data_ts_points_i, aes(col = color), show.legend = FALSE, size = 0.75) +
-      geom_sf_label(data = data_ts_lines_i, aes(col = color, label = name), show.legend = FALSE,
-                    size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.4, "lines")) +
-      scale_color_identity() +
-      facet_wrap(~time_range, ncol = 2, drop = FALSE) +
-      theme_minimal() +
-      theme(axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            strip.text.x = element_text(size = 12, family = font_choose_graph, face = "bold")) +
-      labs(x = NULL, y = NULL)
-    
-    ggsave(filename = paste0("figs/territories_fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_a, height = 10, width = 6, dpi = 600)
-    
-    plot_b <- ggplot(data = data_cyclones_i, aes(x = time, y = wind_speed)) +
-      geom_point(aes(fill = color), color = "white", shape = 21, size = 4, show.legend = FALSE) +
-      geom_label_repel(aes(label = name, color = color), fill = "white", alpha = 0.9,
-                       show.legend = FALSE, label.r = unit(0.4, "lines")) +
-      scale_y_continuous(breaks = c(0, 50 ,100, 150, 200, 250, 300), limits = c(0, 300)) +
-      coord_cartesian(ylim = c(14.25, 310)) +
-      scale_fill_identity() +
-      scale_color_identity() +
-      lims(x = c(ymd("1975-01-01"), ymd("2025-01-01"))) +
-      labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
-      theme_graph()
-    
-    ggsave(filename = paste0("figs/territories_fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_b, height = 5, width = 8, dpi = 600)
-    
-    }else{
+  # 1. Filter ----
   
-    data_eez_i <- data_eez %>% 
-      filter(TERRITORY1 == territory_i)
-    
-    data_land_i <- data_land %>% 
-      filter(TERRITORY1 == territory_i)
-    
-    data_bathy_i <- data_bathy %>% 
-      filter(TERRITORY1 == territory_i)
-    
-    data_cyclones_i <- data_cyclones %>% 
-      filter(territory == territory_i) %>% 
-      group_by(saffir) %>% 
-      mutate(max_saffir = max(saffir)) %>% 
-      ungroup() %>% 
-      filter(max_saffir >= 1)
-    
-    if (nrow(data_cyclones_i) == 0) {
-      return(NULL)
-    }
-    
-    data_cyclones_i <- data_cyclones_i %>%  
-      mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1989-12-31") ~ "1980 - 1989",
-                                    time > as_date("1990-01-01") & time <= as_date("1999-12-31") ~ "1990 - 1999",
-                                    time > as_date("2000-01-01") & time <= as_date("2009-12-31") ~ "2000 - 2009",
-                                    time > as_date("2010-01-01") & time <= as_date("2023-12-31") ~ "2010 - 2023"),
-             time_range = as.factor(time_range),
-             time_range = fct_expand(time_range, "1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023"),
-             time_range = fct_relevel(time_range, c("1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023")),
-             name = str_to_sentence(name)) %>% 
-      bind_cols(., color = sample(scico(nrow(.), begin = 0.3, end = 1, palette = "lajolla")))
-             
-    data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
-      st_as_sf() %>% 
-      st_intersection(., data_eez_i %>% st_transform(crs = 4326))
-    
-    data_ts_points_i <- left_join(data_cyclones_i, data_ts_points) %>% 
-      st_as_sf() %>% 
-      st_intersection(., data_eez_i %>% st_transform(crs = 4326))
+  data_eez_i <- data_eez %>% 
+    filter(TERRITORY1 == territory_i)
+  
+  data_cyclones_i <- data_cyclones %>% 
+    filter(territory == territory_i)
+  
+  data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
+    st_as_sf() %>% 
+    st_transform(crs = crs_selected)
+  
+  data_ts_points_i <- left_join(data_cyclones_i, data_ts_points) %>% 
+    st_as_sf() %>% 
+    st_transform(crs = crs_selected)
+  
+  data_label_i <- st_intersection(data_ts_lines_i, data_eez_i)
+  
+  # 2. Create the bbox ----
+  
+  x_min <- st_bbox(data_eez_i)["xmin"]
+  x_max <- st_bbox(data_eez_i)["xmax"]
+  y_min <- st_bbox(data_eez_i)["ymin"]
+  y_max <- st_bbox(data_eez_i)["ymax"]
+  
+  percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
 
-    plot_a <- ggplot() +
-      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
-      scale_fill_identity() +
-      geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
-      geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
-      geom_sf(data = data_ts_lines_i, aes(col = color), show.legend = FALSE) +
-      geom_sf(data = data_ts_points_i, aes(col = color), show.legend = FALSE, size = 0.75) +
-      geom_sf_label(data = data_ts_lines_i, aes(col = color, label = name), show.legend = FALSE,
-                   size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.3, "lines")) +
-      scale_color_identity() +
-      facet_wrap(~time_range, ncol = 2, drop = FALSE) +
-      theme_minimal() +
-      theme(axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            strip.text.x = element_text(size = 12, family = font_choose_graph, face = "bold")) +
-      labs(x = NULL, y = NULL)
-    
-    ggsave(filename = paste0("figs/territories_fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_a, height = 10, width = 6, dpi = 600)
-    
-    }
-    
+  data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                              x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                      lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                              y_max + ((y_max - y_min)*percent_margin_ltr/100))) %>% 
+    st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+    st_bbox() %>% 
+    st_as_sfc()
+  
+  # 3. Layer to mask external zone of eez_i ----
+  
+  data_alpha <- st_difference(data_bbox, data_eez_i)
+  
+  # 4. Make the plot ----
+  
+  plot_i <- ggplot() +
+    geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    scale_fill_identity() +
+    geom_sf(data = data_eez, color = "black", fill = NA) +
+    geom_sf(data = data_eez_supp, color = "black", fill = NA) +
+    geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
+    geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
+    geom_sf(data = data_ts_lines_i, aes(col = max_saffir)) +
+    geom_sf(data = data_ts_points_i, aes(col = max_saffir), size = 0.75, show.legend = FALSE) +
+    scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
+                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
+                       values = c(palette_5cols[2:5], "black"),
+                       name = "Saffir-Simpson category",
+                       drop = FALSE) +
+    geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+    geom_sf_label(data = data_label_i, aes(col = max_saffir, label = name), show.legend = FALSE,
+                  size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.4, "lines")) +
+    facet_wrap(~time_range, ncol = 2, drop = FALSE) +
+    coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                      x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+             ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                      y_max + ((y_max - y_min)*percent_margin_ltr/100)),
+             expand = FALSE) +
+    theme_minimal() +
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          plot.margin = unit(c(0, 0, 0, 0), "null"),
+          panel.background = element_blank(),
+          panel.border = element_blank(),
+          plot.background = element_blank(),
+          legend.position = "top",
+          legend.direction = "horizontal") +
+    guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+  
+  # 5. Export the plot ----
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-6/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         plot = plot_i, dpi = 600)
+  
 }
 
-## 4.2 Map over the function ----
+# 5. Map over the function (except PRIA) ----
 
-map(unique(data_cyclones$territory), ~map_cyclone(territory_i = .))
+map(setdiff(unique(data_eez$TERRITORY1),
+            c("Palmyra Atoll", "Johnston Atoll",
+              "Wake Island", "Jarvis Island",
+              "Howland and Baker Islands")), # PRIA territories
+    ~map_eez(territory = .))
 
 # 5. Plots of cyclone maximum wind speed over time ----
 
@@ -214,16 +231,12 @@ data_cyclones <- data_cyclones %>%
   mutate(max_saffir = max(saffir)) %>% 
   ungroup() %>% 
   filter(max_saffir >= 1) %>% 
-  mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1989-12-31") ~ "1980 - 1989",
-                                time > as_date("1990-01-01") & time <= as_date("1999-12-31") ~ "1990 - 1999",
-                                time > as_date("2000-01-01") & time <= as_date("2009-12-31") ~ "2000 - 2009",
-                                time > as_date("2010-01-01") & time <= as_date("2019-12-31") ~ "2010 - 2020",
-                                time > as_date("2020-01-01") & time <= as_date("2023-12-31") ~ "2020 - 2023"),
-         time_range = as.factor(time_range),
-         time_range = fct_expand(time_range, "1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023"),
-         time_range = fct_relevel(time_range, c("1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2023")),
-         name = str_to_sentence(name),
-         max_saffir = as.factor(max_saffir))
+  mutate(name = str_to_sentence(name),
+         max_saffir = as.factor(max_saffir)) %>% 
+  # Add cyclone position by wind_speed
+  arrange(territory, desc(wind_speed)) %>% 
+  group_by(territory) %>% 
+  mutate(position = row_number())
 
 ## 5.2 Create the function ----
 
@@ -238,7 +251,8 @@ map_cyclone_plot <- function(territory_i){
   
   plot_i <- ggplot(data = data_cyclones_i, aes(x = time, y = wind_speed)) +
     geom_point(aes(fill = max_saffir), color = "white", shape = 21, size = 4.5) +
-    geom_label_repel(aes(label = name, color = max_saffir), fill = "white", alpha = 0.9,
+    geom_label_repel(data = data_cyclones_i %>% filter(position %in% 1:15), # Label only the first 15 cyclones
+                     aes(label = name, color = max_saffir), fill = "white", alpha = 0.9,
                      label.r = unit(0.4, "lines"), show.legend = FALSE) +
     scale_y_continuous(breaks = c(0, 50 ,100, 150, 200, 250, 300), limits = c(0, 300)) +
     scale_x_date(expand = c(0, 0), limits = c(ymd("1980-01-01"), ymd("2030-01-01"))) +
@@ -259,8 +273,8 @@ map_cyclone_plot <- function(territory_i){
   
   # 3. Save the plot
   
-  ggsave(filename = paste0("figs/02_part-2/fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         plot = plot_i, height = 5, width = 10, dpi = 600)
+  ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         plot = plot_i, height = 4, width = 8, dpi = 600)
   
 }
 

@@ -1,7 +1,6 @@
-# 1. Load packages ----
+# 1. Required packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(patchwork)
 library(sf)
 sf_use_s2(FALSE)
 
@@ -11,15 +10,82 @@ source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 source("code/function/data_descriptors.R")
 
-# 3. Load data ----
+# 3. Map of spatio-temporal distribution of monitoring sites ----
+
+## 3.1 Change CRS ----
+
+### 3.1.1 Define CRS ----
+
+crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+### 3.1.2 Define the offset ----
+
+correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
+
+### 3.3 Define a long and slim polygon that overlaps the meridian line ----
+
+correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
+                                                c(0 - correction_offset, 90),
+                                                c(0 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, -90),
+                                                c(-0.0001 - correction_offset, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+## 3.2 Load data ----
+
+### 3.2.1 EEZ ----
 
 load("data/01_background-shp/03_eez/data_eez.RData")
+
+data_eez <- data_eez %>% 
+  st_transform(crs = crs_selected)
+
+data_eez_supp_a <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(TERRITORY1 == "Australia") %>% 
+  st_transform(crs = 4326) %>% 
+  nngeo::st_remove_holes(.) %>% 
+  st_cast(., "POLYGON") %>% 
+  mutate(row = 1:8) %>% 
+  filter(row == 1)
+
+data_eez_supp <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(TERRITORY1 %in% c("Indonesia", "Japan", "Philippines") | 
+           GEONAME == "Overlapping claim Matthew and Hunter Islands: France / Vanuatu") %>% 
+  st_transform(crs = 4326) %>% 
+  nngeo::st_remove_holes(.) %>% 
+  bind_rows(., data_eez_supp_a) %>% 
+  st_transform(crs = crs_selected) 
+
+### 3.2.2 Land ----
+
 load("data/01_background-shp/02_princeton/data_land.RData")
+
+data_land <- data_land %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+list_shp <- list.files(path = "data/01_background-shp/04_princeton_additional",
+                       pattern = ".shp$", full.names = TRUE, recursive = TRUE)
+
+data_land_supp <- map_dfr(list_shp, ~st_read(.)) %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
+
+rm(list_shp, data_eez_supp_a)
+
+### 3.2.3 Bathymetry ----
+
 load("data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData")
 
-# 4. Map of spatio-temporal distribution of monitoring sites ----
+data_bathy <- data_bathy %>% 
+  st_transform(crs = 4326) %>% 
+  st_difference(correction_polygon) %>% 
+  st_transform(crs_selected)
 
-# 4.1 Transform benthic data --
+### 3.2.4 Benthic data ----
 
 load("data/04_data-benthic.RData")
 
@@ -34,152 +100,255 @@ data_benthic_sites <- data_benthic %>%
                               labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
          interval_class = as.factor(interval_class)) %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
-  st_transform(crs = crs_selected) %>% 
-  rename(TERRITORY1 = territory)
+  st_transform(crs = crs_selected)
 
-# 4.2 Create the function --
+## 3.3 Create the function ----
 
-map_eez <- function(territory){
+map_eez <- function(territory_i){
   
-  if(territory %in% c("Fiji", "Wallis and Futuna", "Hawaii", "Tuvalu", "Gilbert Islands")){
-    
-    data_eez_i <- data_eez %>% 
-      filter(TERRITORY1 == territory) %>% 
-      st_transform(., crs = 3460)
-    
-    data_land_i <- data_land %>% 
-      filter(TERRITORY1 == territory) %>% 
-      st_transform(., crs = 3460)
-    
-    data_bathy_i <- data_bathy %>% 
-      filter(TERRITORY1 == territory) %>% 
-      st_transform(., crs = 3460)
-    
-    data_benthic_sites_i <- data_benthic_sites %>% 
-      filter(TERRITORY1 == territory) %>% 
-      st_transform(., crs = 3460)
-    
-    ggplot() +
-      # Bathymetry
-      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
-      scale_fill_identity() +
-      # EEZ borders
-      geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
-      # Lands
-      geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
-      # Benthic data
-      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class), aes(color = interval_class)) +
-      scale_color_manual(values = palette_5cols,
-                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                         drop = FALSE, name = "Number of years with data") +
-      theme_minimal() +
-      theme(axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            text = element_text(family = font_choose_map)) +
-      guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
-    
-  }else{
-    
-    data_eez_i <- data_eez %>% 
-      filter(TERRITORY1 == territory)
-    
-    data_land_i <- data_land %>% 
-      filter(TERRITORY1 == territory)
-    
-    data_bathy_i <- data_bathy %>% 
-      filter(TERRITORY1 == territory)
-    
-    data_benthic_sites_i <- data_benthic_sites %>% 
-      filter(TERRITORY1 == territory)
-    
-    ggplot() +
-      # Bathymetry
-      geom_sf(data = data_bathy_i %>% filter(depth == 0), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 200), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 1000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 2000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 3000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 4000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 5000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 6000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 7000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 8000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 9000), aes(fill = fill_color), color = NA) +
-      geom_sf(data = data_bathy_i %>% filter(depth == 10000), aes(fill = fill_color), color = NA) +
-      scale_fill_identity() +
-      # EEZ borders
-      geom_sf(data = data_eez_i, color = "black", alpha = 0.75) +
-      # Lands
-      geom_sf(data = data_land_i, fill = "#363737", col = "grey") +
-      # Benthic data
-      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class), aes(color = interval_class)) +
-      scale_color_manual(values = palette_5cols,
-                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                         drop = FALSE, name = "Number of years with data") +
-      theme_minimal() +
-      theme(axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            text = element_text(family = font_choose_map)) +
-      guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
-    
-  }
+  # 1. Filter ----
   
-  ggsave(filename = paste0("figs/territories_fig-9/",
-                           str_replace_all(str_to_lower(territory), " ", "-"), ".png"), dpi = 600)
+  data_eez_i <- data_eez %>% 
+    filter(TERRITORY1 == territory_i)
+
+  data_benthic_sites_i <- data_benthic_sites %>% 
+    filter(territory == territory_i) %>%
+    arrange(interval_class)
+  
+  # 2. Create the bbox ----
+  
+  x_min <- st_bbox(data_eez_i)["xmin"]
+  x_max <- st_bbox(data_eez_i)["xmax"]
+  y_min <- st_bbox(data_eez_i)["ymin"]
+  y_max <- st_bbox(data_eez_i)["ymax"]
+  
+  percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
+  
+  data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                              x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                      lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                              y_max + ((y_max - y_min)*percent_margin_ltr/100))) %>% 
+    st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+    st_bbox() %>% 
+    st_as_sfc()
+  
+  # 5. Layer to mask external zone of eez_i ----
+  
+  data_alpha <- st_difference(data_bbox, data_eez_i)
+  
+  # 6. Make the plot ----
+  
+  plot_i <- ggplot() +
+    geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+    scale_fill_identity() +
+    geom_sf(data = data_eez, color = "black", fill = NA) +
+    geom_sf(data = data_eez_supp, color = "black", fill = NA) +
+    geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
+    geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
+    geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+    geom_sf(data = data_benthic_sites_i, aes(color = interval_class), size = 1)  +
+    scale_color_manual(values = palette_5cols,
+                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                       drop = FALSE, name = "Number of years with data") +
+    coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                      x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+             ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                      y_max + ((y_max - y_min)*percent_margin_ltr/100)),
+             expand = FALSE) +
+    theme_minimal() +
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          plot.margin = unit(c(0, 0, 0, 0), "null"),
+          panel.background = element_blank(),
+          panel.border = element_blank(),
+          plot.background = element_blank(),
+          legend.position = "top",
+          legend.direction = "horizontal") +
+    guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+  
+  # 7. Export the plot ----
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-7/",
+                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+         plot = plot_i, dpi = 600)
   
 }
 
-# 4.3 Map over the function --
+## 3.4 Map over the function (except PRIA) ----
 
-map(unique(data_eez$TERRITORY1), ~map_eez(territory = .))
+map(setdiff(unique(data_eez$TERRITORY1),
+            c("Palmyra Atoll", "Johnston Atoll",
+              "Wake Island", "Jarvis Island",
+              "Howland and Baker Islands")), # PRIA territories
+    ~map_eez(territory_i = .))
+
+## 3.5 Map for Pacific Remote Islands Area (PRIA) ----
+
+### 3.5.1 Filter ----
+
+data_eez_i <- data_eez %>% 
+  filter(TERRITORY1 %in% c("Palmyra Atoll", "Johnston Atoll",
+                           "Wake Island", "Jarvis Island",
+                           "Howland and Baker Islands"))
+
+data_benthic_sites_i <- data_benthic_sites %>% 
+  filter(territory %in% c("Palmyra Atoll", "Johnston Atoll",
+                           "Wake Island", "Jarvis Island",
+                           "Howland and Baker Islands")) %>% 
+  arrange(interval_class)
+
+### 3.5.2 Create the bbox ----
+
+x_min <- st_bbox(data_eez_i)["xmin"]
+x_max <- st_bbox(data_eez_i)["xmax"]
+y_min <- st_bbox(data_eez_i)["ymin"]
+y_max <- st_bbox(data_eez_i)["ymax"]
+
+percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
+
+### 3.5.3 White polygon to put scale on ----
+
+poly_scale <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                             x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                     lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                             y_min - ((y_max - y_min)*(percent_margin_ltr/1.5)/100))) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+### 3.5.4 Define plot limits with additional margins ----
+
+data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                            x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                    lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                            y_max + ((y_max - y_min)*percent_margin_ltr/100))) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+### 3.5.5 Layer to mask external zone of eez_i ----
+
+data_alpha <- data_eez_i %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  st_difference(data_bbox, .)
+
+### 3.5.6 Make the plot ----
+
+plot_i <- ggplot() +
+  geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  scale_fill_identity() +
+  geom_sf(data = data_eez, color = "black", fill = NA) +
+  geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
+  geom_sf(data = data_bbox, fill = "white", alpha = 0.5) +
+  geom_sf(data = data_eez_i, color = "black", fill = NA) +
+  geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+  geom_sf(data = data_benthic_sites_i, aes(color = interval_class), size = 1)  +
+  scale_color_manual(values = palette_5cols,
+                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                     drop = FALSE, name = "Number of years with data") +
+  coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                    x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+           ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                    y_max + ((y_max - y_min)*percent_margin_ltr/100)),
+           expand = FALSE) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "null"),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.background = element_blank(),
+        legend.position = "top",
+        legend.direction = "horizontal") +
+  guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+
+### 3.5.7 Export the plot ----
+
+ggsave(filename = paste0("figs/02_part-2/fig-7/pria.png"), plot = plot_i, dpi = 600)
 
 # 5. Plots of number of sites per interval class ----
 
-## 5.1 Create the function ----
+## 5.1 Plot a ----
 
-map_site_interval <- function(territory_i){
-  
-  plot_i <- data_benthic_sites %>% 
-    st_drop_geometry() %>% 
-    filter(TERRITORY1 == territory_i) %>% 
-    group_by(interval_class) %>% 
-    count() %>% 
-    ungroup() %>% 
-    complete(interval_class, fill = list(n = 0)) %>% 
-    mutate(percent = n*100/sum(n)) %>% 
-    ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
-                         y = percent, fill = interval_class)) +
-      geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
-      scale_fill_manual(values = palette_5cols,
-                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                        drop = FALSE, name = "Number of years with data") +
-      labs(x = NULL, y = "Sites (%)") +
-      coord_flip(clip = "off") +
-      theme_graph() +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, 100))
+data_benthic_sites %>% 
+  st_drop_geometry() %>% 
+  group_by(interval_class, territory) %>% 
+  count() %>% 
+  ungroup() %>% 
+  complete(interval_class, territory, fill = list(n = 0)) %>% 
+  group_by(territory) %>% 
+  mutate(percent = n*100/sum(n)) %>% 
+  ungroup() %>% 
+  filter(territory %in% unique(data_benthic_sites$territory)[1:15]) %>%  
+  ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
+                       y = percent, fill = interval_class)) +
+  geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
+  scale_fill_manual(values = palette_5cols,
+                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                    drop = FALSE, name = "Number of years with data") +
+  labs(x = NULL, y = "Sites (%)") +
+  coord_flip(clip = "off") +
+  theme_graph() +
+  facet_wrap(~territory, ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold"))
 
-  ggsave(filename = paste0("figs/02_part-2/fig-8/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 6, height = 4, dpi = 600)
-  
-}
+ggsave(filename = "figs/04_supp/fig-3_a.png", width = 8.5, height = 12, dpi = 600)
 
-## 5.2 Map over the function ----
+## 5.2 Plot b ----
 
-map(unique(data_benthic$territory), ~map_site_interval(territory_i = .))
+data_benthic_sites %>% 
+  st_drop_geometry() %>% 
+  group_by(interval_class, territory) %>% 
+  count() %>% 
+  ungroup() %>% 
+  complete(interval_class, territory, fill = list(n = 0)) %>% 
+  group_by(territory) %>% 
+  mutate(percent = n*100/sum(n)) %>% 
+  ungroup() %>% 
+  filter(territory %in% unique(data_benthic_sites$territory)[16:30]) %>%  
+  ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
+                       y = percent, fill = interval_class)) +
+  geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
+  scale_fill_manual(values = palette_5cols,
+                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                    drop = FALSE, name = "Number of years with data") +
+  labs(x = NULL, y = "Sites (%)") +
+  coord_flip(clip = "off") +
+  theme_graph() +
+  facet_wrap(~territory, ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold"))
+
+ggsave(filename = "figs/04_supp/fig-3_b.png", width = 8.5, height = 12, dpi = 600)
 
 # 6. Plots of number of surveys per year ----
 
@@ -199,28 +368,39 @@ data_surveys <- data_benthic %>%
   mutate(percent = n*100/sum(n)) %>% 
   ungroup()
 
-## 6.2 Create the function ----
+## 6.2 Plot a ----
 
-map_survey_years <- function(territory_i){
-  
-  plot_i <- data_surveys %>% 
-    filter(territory == territory_i) %>% 
-    ggplot(data = ., aes(x = year, y = percent)) +
-    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
-    labs(x = "Year", y = "Surveys (%)") +
-    theme_graph() +
-    coord_cartesian(clip = "off") +
-    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
-  
-  ggsave(filename = paste0("figs/02_part-2/fig-9/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 6, height = 4, dpi = 600)
-  
-}
+data_surveys %>% 
+  filter(territory %in% unique(data_surveys$territory)[1:15]) %>%  
+  ggplot(data = ., aes(x = year, y = percent)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
+  labs(x = "Year", y = "Surveys (%)") +
+  theme_graph() +
+  coord_cartesian(clip = "off") +
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold")) +
+  scale_x_continuous(limits = c(1985, 2025))
 
-## 6.3 Map over the function ----
+ggsave(filename = "figs/04_supp/fig-2_a.png", width = 8.5, height = 12, dpi = 600)
 
-map(unique(data_benthic$territory), ~map_survey_years(territory_i = .))
+## 6.3 Plot b ----
+
+data_surveys %>% 
+  filter(territory %in% unique(data_surveys$territory)[16:30]) %>%  
+  ggplot(data = ., aes(x = year, y = percent)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
+  labs(x = "Year", y = "Surveys (%)") +
+  theme_graph() +
+  coord_cartesian(clip = "off") +
+  facet_wrap(~territory, scales = "free_y", ncol = 3) +
+  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+        strip.background = element_rect(color = NA, fill = NA),
+        strip.text = element_text(face = "bold")) +
+  scale_x_continuous(limits = c(1985, 2025))
+
+ggsave(filename = "figs/04_supp/fig-2_b.png", width = 8.5, height = 12, dpi = 600)
 
 # 7. Extract descriptors ----
 
