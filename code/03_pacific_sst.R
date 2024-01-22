@@ -4,6 +4,7 @@ library(tidyverse)
 library(glue)
 library(ggtext)
 library(patchwork)
+library(RcppRoll)
 
 # 2. Source functions ----
 
@@ -105,13 +106,18 @@ data_enso <- read_table("data/enso_soi.txt", skip = 87) %>%
                                           "NOV" = "11",
                                           "DEC"= "12")),
          date = ym(paste(year, month, sep = "-")),
-         color = if_else(soi < 0, palette_5cols[3], palette_5cols[5]))
+         # 6 months moving average
+         soi_roll = roll_mean(x = soi, n = 6, align = "center", fill = NA))
 
 ## 5.2 Make the plot ----
 
-ggplot(data = data_enso, aes(x = date, y = soi, fill = color)) +
-  geom_bar(stat = "identity", width = 30) +
-  scale_fill_identity() +
+ggplot() +
+  geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
+  geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
+              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_5cols[5], alpha = 0.9) +
+  geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll > 0, 0, soi_roll)),
+              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_5cols[3], alpha = 0.9) +
+  geom_line(data = data_enso, aes(x = date, y = soi_roll), size = 0.3) +
   labs(x = "Year", y = "Southern Oscillation Index") +
   # Annotation
   annotate(geom = "rect", xmin = ym("1987-06"), xmax = ym("1992-08"),
@@ -128,7 +134,6 @@ ggplot(data = data_enso, aes(x = date, y = soi, fill = color)) +
                                 ym("2010-01"), ym("2020-01"), ym("2030-01")),
                      labels = c("1980", "1990", "2000", "2010", "2020", "2030"),
                      expand = c(0, 0)) +
-  theme_graph() +
   coord_cartesian(clip = "off")
 
 ## 5.3 Save the plot ----
