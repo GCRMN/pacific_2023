@@ -47,6 +47,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 #### B2. Predictors
 
+* `02_extract_predictor_chla.js` Extract chlorophyll _a_ as a predictor, using GEE.
 * `02_extract_predictor_population.js` Extract total human population within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_elevation.js` Extract mean land elevation within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_reef-extent.js` Extract total coral reef extent within 10 km from each site as a predictor, using GEE.
@@ -57,12 +58,12 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 * `02_model_data-exploration.Rmd` Data exploration for benthic cover.
 * `02_model_benthic-data_grid.R` Create weights for the benthic model based on coral reef extent.
-* `02_model_benthic-cover.R` Machine learning model to estimate temporal trends of hard coral and algae cover. 
+* `02_model_benthic-cover.R` Machine learning model to estimate temporal trends of benthic categories. 
 
 ### C. Figures and tables (`03_`)
 
 * `03_benthic-cover-trends.Rmd` Produce figures of hard coral and algae cover trends.
-* `03_geographic-informations.R` Combine and export geographic information's.
+* `03_indicators.R` Combine and export indicators' values.
 * `03_materials-and-methods.R` Produce figures for the Materials and Methods section of the report.
 * `03_pacific_cyclones.R` Produce figure and map of cyclones that occurred over the Pacific region.
 * `03_pacific_map.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
@@ -83,7 +84,6 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `graphical_par.R` Graphical parameters, including colors and fonts.
 * `theme_graph.R` Main ggplot theme for the plots of the reports.
 * `theme_map.R` Main ggplot theme for the maps of the reports.
-
 
 ## 3. Reproducibility parameters
 
