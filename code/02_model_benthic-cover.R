@@ -51,6 +51,12 @@ data_pred_sst_sd <- read.csv("data/14_predictors/pred_sst_sd.csv") %>%
   rename(pred_sst_sd = first) %>% 
   mutate(pred_sst_sd = pred_sst_sd/100)
 
+data_pred_sst_skew <- read.csv("data/14_predictors/pred_sst_skew.csv") %>% 
+  rename(pred_sst_skewness = first)
+
+data_pred_sst_kurtosis <- read.csv("data/14_predictors/pred_sst_kurtosis.csv") %>% 
+  rename(pred_sst_kurtosis = first)
+
 data_pred_gravity <- read.csv("data/14_predictors/pred_gravity.csv")
 
 data_pred <- site_coords %>% 
@@ -61,6 +67,8 @@ data_pred <- site_coords %>%
   left_join(., data_pred_chla) %>% 
   left_join(., data_pred_sst_mean) %>% 
   left_join(., data_pred_sst_sd) %>% 
+  left_join(., data_pred_sst_skew) %>% 
+  left_join(., data_pred_sst_kurtosis) %>% 
   left_join(., data_pred_gravity) %>% 
   select(-site_id)
 
@@ -68,10 +76,25 @@ data_pred <- site_coords %>%
 
 load("data/12_weight-model-benthic-cover.RData")
 
-# 2.4 Summarize data, add predictors and weight ----
+# 2.4 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
+
+data_benthic_ncrmp <- data_benthic %>% 
+  filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category, subcategory) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, category, subcategory) %>% 
+  summarise(measurementValue = mean(measurementValue)) %>% 
+  ungroup() %>% 
+  filter(measurementValue <= 100)
+
+# 2.5 Summarize data, add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
-  filter(!(datasetID %in% c("0011", "0012", "0013", "0014", "0020"))) %>% 
+  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
+  bind_rows(., data_benthic_ncrmp) %>% 
   mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
                               subcategory == "Turf algae" ~ "Turf algae",
                               subcategory == "Coralline algae" ~ "Coralline algae",
@@ -94,7 +117,8 @@ data_benthic <- data_benthic %>%
 
 rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
    data_pred_land, data_pred_chla, data_pred_sst_mean, data_pred_sst_sd,
-   data_pred_gravity, data_pred, data_weight, site_coords)
+   data_pred_gravity, data_pred, data_weight, site_coords, data_benthic_ncrmp,
+   data_pred_sst_skew, data_pred_sst_kurtosis)
 
 # 4. Create a function for model steps (pre-processing, tuning, outputs) ---- 
 

@@ -13,7 +13,7 @@ data_benthic <- synthetic_data %>%
   # Filter GCRMN region
   filter(higherGeography == "Pacific" & territory != "Australia") %>% 
   # Remove useless datasets
-  filter(datasetID != "0009")
+  filter(!(datasetID %in% c("0009", "0020")))
 
 # 4. Save the data ----
 

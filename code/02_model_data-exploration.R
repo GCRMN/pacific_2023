@@ -15,8 +15,24 @@ load("data/04_data-benthic.RData")
 
 # 4. Transform data ----
 
+## 4.1 NCRMP ----
+
+data_benthic_ncrmp <- data_benthic %>% 
+  filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category, subcategory) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, category, subcategory) %>% 
+  summarise(measurementValue = mean(measurementValue)) %>% 
+  ungroup()
+
+## 4.2 Modify data ----
+
 data_benthic_cat <- data_benthic %>% 
-  filter(!(datasetID %in% c("0011", "0012", "0013", "0014", "0020"))) %>% 
+  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
+  bind_rows(., data_benthic_ncrmp) %>% 
   mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
                               subcategory == "Coralline algae" ~ "Coralline algae",
                               subcategory == "Turf algae" ~ "Turf algae",
@@ -28,7 +44,8 @@ data_benthic_cat <- data_benthic %>%
            year, month, day, category) %>% 
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup() %>%
-  mutate(category = as_factor(category))
+  mutate(category = as_factor(category)) %>% 
+  filter(measurementValue <= 100)
 
 # 5. 'measurementValue' density and temporal ----
 
