@@ -1,6 +1,7 @@
 # 1. Required packages ----
 
 library(tidyverse) # Core tidyverse packages
+library(ggnewscale)
 library(sf)
 sf_use_s2(FALSE)
 
@@ -157,10 +158,11 @@ map_eez <- function(territory_i){
     geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
-    geom_sf(data = data_benthic_sites_i, aes(color = interval_class), size = 1)  +
-    scale_color_manual(values = palette_5cols,
-                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                       drop = FALSE, name = "Number of years with data") +
+    new_scale_fill() +
+    geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5)  +
+    scale_fill_manual(values = palette_5cols,
+                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                      drop = FALSE, name = "Number of years with data") +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                       x_max + ((x_max - x_min)*percent_margin_ltr/100)),
              ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
@@ -177,7 +179,7 @@ map_eez <- function(territory_i){
           plot.background = element_blank(),
           legend.position = "top",
           legend.direction = "horizontal") +
-    guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+    guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
   
   # 7. Export the plot ----
   
@@ -266,10 +268,11 @@ plot_i <- ggplot() +
   geom_sf(data = data_bbox, fill = "white", alpha = 0.5) +
   geom_sf(data = data_eez_i, color = "black", fill = NA) +
   geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
-  geom_sf(data = data_benthic_sites_i, aes(color = interval_class), size = 1)  +
-  scale_color_manual(values = palette_5cols,
-                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                     drop = FALSE, name = "Number of years with data") +
+  new_scale_fill() +
+  geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5)  +
+  scale_fill_manual(values = palette_5cols,
+                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                    drop = FALSE, name = "Number of years with data") +
   coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                     x_max + ((x_max - x_min)*percent_margin_ltr/100)),
            ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
@@ -286,7 +289,7 @@ plot_i <- ggplot() +
         plot.background = element_blank(),
         legend.position = "top",
         legend.direction = "horizontal") +
-  guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+  guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
 
 ### 3.5.7 Export the plot ----
 
