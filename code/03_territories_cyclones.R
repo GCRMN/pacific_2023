@@ -97,20 +97,24 @@ data_cyclones <- data_cyclones %>%
   mutate(max_saffir = max(saffir)) %>% 
   ungroup() %>% 
   filter(max_saffir >= 1) %>% 
-  mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1989-12-31") ~ "1980 - 1989",
-                                time > as_date("1990-01-01") & time <= as_date("1999-12-31") ~ "1990 - 1999",
-                                time > as_date("2000-01-01") & time <= as_date("2009-12-31") ~ "2000 - 2009",
-                                time > as_date("2010-01-01") & time <= as_date("2019-12-31") ~ "2010 - 2019",
+  mutate(time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1987-12-31") ~ "1980 - 1987",
+                                time > as_date("1988-01-01") & time <= as_date("1995-12-31") ~ "1988 - 1995",
+                                time > as_date("1996-01-01") & time <= as_date("2003-12-31") ~ "1996 - 2003",
+                                time > as_date("2004-01-01") & time <= as_date("2011-12-31") ~ "2004 - 2011",
+                                time > as_date("2012-01-01") & time <= as_date("2019-12-31") ~ "2012 - 2019",
                                 time > as_date("2020-01-01") & time <= as_date("2023-12-31") ~ "2020 - 2023"),
          time_range = as.factor(time_range),
-         time_range = fct_expand(time_range, "1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2019", "2020 - 2023"),
-         time_range = fct_relevel(time_range, c("1980 - 1989", "1990 - 1999", "2000 - 2009", "2010 - 2019", "2020 - 2023")),
+         time_range = fct_expand(time_range, "1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
+                                 "2012 - 2019", "2020 - 2023"),
+         time_range = fct_relevel(time_range, c("1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
+                                                "2012 - 2019", "2020 - 2023")),
          name = str_to_sentence(name),
          max_saffir = as.factor(max_saffir)) %>% 
   # Add cyclone position by wind_speed
   arrange(territory, desc(wind_speed)) %>% 
   group_by(territory) %>% 
-  mutate(position = row_number())
+  mutate(position = row_number()) %>% 
+  ungroup()
 
 # 4.5 Create the function ----
 
@@ -128,9 +132,19 @@ map_eez <- function(territory_i){
     st_as_sf() %>% 
     st_transform(crs = crs_selected)
   
-  data_ts_points_i <- left_join(data_cyclones_i, data_ts_points) %>% 
-    st_as_sf() %>% 
-    st_transform(crs = crs_selected)
+  data_ts_points_i <- data_ts_points %>% 
+    filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
+    mutate(name = str_to_sentence(name)) %>% 
+    left_join(., data_cyclones_i %>% select(ts_id, name, max_saffir, max_windspeed, time_range, position)) %>% 
+    st_transform(crs = crs_selected) %>% 
+    mutate(saffir = case_when(wind_speed < 119 ~ 0,
+                              wind_speed >= 119 & wind_speed <= 153 ~ 1,
+                              wind_speed > 153 & wind_speed <= 177 ~ 2,
+                              wind_speed > 177 & wind_speed <= 210 ~ 3,
+                              wind_speed > 210 & wind_speed <= 251 ~ 4,
+                              wind_speed > 251 ~ 5),
+           saffir = as.factor(saffir),
+           saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"))
   
   data_label_i <- st_intersection(data_ts_lines_i, data_eez_i)
   
@@ -175,16 +189,14 @@ map_eez <- function(territory_i){
     geom_sf(data = data_eez_supp, color = "black", fill = NA) +
     geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
-    geom_sf(data = data_ts_lines_i, aes(col = max_saffir)) +
-    geom_sf(data = data_ts_points_i, aes(col = max_saffir), size = 0.75, show.legend = FALSE) +
-    scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
-                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                       values = c(palette_5cols[2:5], "black"),
+    geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+    geom_sf(data = data_ts_lines_i, col = "grey", size = 0.25) +
+    geom_sf(data = data_ts_points_i, aes(col = saffir), size = 1) +
+    scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
+                       labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
+                       values = c(palette_5cols[1:5], "black"),
                        name = "Saffir-Simpson category",
                        drop = FALSE) +
-    geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
-    geom_sf_label(data = data_label_i, aes(col = max_saffir, label = name), show.legend = FALSE,
-                  size = 1.75, label.size = 0, alpha = 0.85, label.r = unit(0.4, "lines")) +
     facet_wrap(~time_range, ncol = 2, drop = FALSE) +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                       x_max + ((x_max - x_min)*percent_margin_ltr/100)),
@@ -201,8 +213,10 @@ map_eez <- function(territory_i){
           panel.border = element_blank(),
           plot.background = element_blank(),
           legend.position = "top",
+          legend.key = element_blank(),
           legend.direction = "horizontal") +
-    guides(color = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4)))
+    guides(color = guide_legend(title.position = "top", title.hjust = 0.5,
+                                override.aes = list(size = 4)))
   
   # 5. Export the plot ----
   
@@ -211,6 +225,7 @@ map_eez <- function(territory_i){
          plot = plot_i, dpi = 600)
   
 }
+
 
 # 5. Map over the function (except PRIA) ----
 

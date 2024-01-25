@@ -11,16 +11,17 @@ library(vip)
 library(pdp)
 library(future)
 library(furrr)
+library(GGally)
 
 plan(multisession(workers = 4)) # Set parallelization with 4 cores
 
 # 2. Data preparation ----
 
-# 2.1 Load benthic cover data ----
+## 2.1 Load benthic cover data ----
 
 load("data/04_data-benthic.RData")
 
-# 2.2 Load and combine predictors ----
+## 2.2 Load and combine predictors ----
 
 site_coords <- st_read("data/15_benthic-site-coords/benthic-site-coords.shp") %>% 
   mutate(decimalLongitude = st_coordinates(.)[,"X"],
@@ -72,11 +73,26 @@ data_pred <- site_coords %>%
   left_join(., data_pred_gravity) %>% 
   select(-site_id)
 
-# 2.3 Load weights ----
+## 2.3 Number of NA per predictor ----
+
+data_pred %>% 
+  select(-decimalLatitude, -decimalLongitude) %>% 
+  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
+  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
+  mutate(n = nrow(data_pred),
+         percent = (na*100)/n)
+
+## 2.4 Correlation between predictors ----
+
+plot_cor_pred <- ggpairs(data_pred)
+
+ggsave("figs/05_additional/01_data-explo/06_correlation-predictors.png", plot = plot_cor_pred, height = 16, width = 16)
+
+## 2.5 Load weights ----
 
 load("data/12_weight-model-benthic-cover.RData")
 
-# 2.4 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
+## 2.6 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
 
 data_benthic_ncrmp <- data_benthic %>% 
   filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
@@ -90,7 +106,7 @@ data_benthic_ncrmp <- data_benthic %>%
   ungroup() %>% 
   filter(measurementValue <= 100)
 
-# 2.5 Summarize data, add predictors and weight ----
+## 2.7 Summarize data, add predictors and weight ----
 
 data_benthic <- data_benthic %>% 
   filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
@@ -118,9 +134,9 @@ data_benthic <- data_benthic %>%
 rm(data_pred_elevation, data_pred_population, data_pred_reef_extent,
    data_pred_land, data_pred_chla, data_pred_sst_mean, data_pred_sst_sd,
    data_pred_gravity, data_pred, data_weight, site_coords, data_benthic_ncrmp,
-   data_pred_sst_skew, data_pred_sst_kurtosis)
+   data_pred_sst_skew, data_pred_sst_kurtosis, plot_cor_pred)
 
-# 4. Create a function for model steps (pre-processing, tuning, outputs) ---- 
+# 3. Create a function for model steps (pre-processing, tuning, outputs) ---- 
 
 model_steps <- function(data_benthic, n_bootstrap){
   
@@ -290,9 +306,9 @@ model_steps <- function(data_benthic, n_bootstrap){
   
 }
 
-# 5. Run the model for each benthic category ----
+# 4. Run the model for each benthic category ----
 
-# 5.1 Hard coral --
+## 4.1 Hard coral ----
 
 data_results <- data_benthic %>% 
   filter(category == "Hard coral") %>% 
@@ -302,7 +318,7 @@ data_results <- data_benthic %>%
 
 save(data_results, file = "data/16_model-outputs/model-outputs_hard-coral.RData")
 
-# 5.2 Macroalgae --
+## 4.2 Macroalgae ----
 
 data_results <- data_benthic %>% 
   filter(category == "Macroalgae") %>% 
@@ -312,7 +328,7 @@ data_results <- data_benthic %>%
 
 save(data_results, file = "data/16_model-outputs/model-outputs_macroalgae.RData")
 
-# 5.3 Turf algae --
+## 4.3 Turf algae ----
 
 data_results <- data_benthic %>% 
   filter(category == "Turf algae") %>% 
@@ -322,7 +338,7 @@ data_results <- data_benthic %>%
 
 save(data_results, file = "data/16_model-outputs/model-outputs_turf-algae.RData")
 
-# 5.4 Coralline algae --
+## 4.4 Coralline algae ----
 
 data_results <- data_benthic %>% 
   filter(category == "Coralline algae") %>% 
