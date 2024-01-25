@@ -132,11 +132,15 @@ map_eez <- function(territory){
     st_bbox() %>% 
     st_as_sfc()
   
-  # 5. Layer to mask external zone of eez_i ----
+  # 5. Black border around the map ----
+  
+  data_bbox_border <- st_difference(data_bbox, poly_scale)
+
+  # 6. Layer to mask external zone of eez_i ----
   
   data_alpha <- st_difference(data_bbox, data_eez_i)
   
-  # 6. Make the plot ----
+  # 7. Make the plot ----
   
   plot_i <- ggplot() +
     geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
@@ -156,8 +160,10 @@ map_eez <- function(territory){
     geom_sf(data = data_eez_supp, color = "black", fill = NA) +
     geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
-    geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     geom_sf(data = poly_scale, fill = "white", col = "white") +
+    geom_sf(data = data_alpha, fill = "white", color = "black", alpha = 0.5) +
+    geom_sf(data = poly_scale, fill = "white", col = "white") +
+    geom_sf(data = data_bbox_border, fill = NA, color = "black") +
     geom_sf(data = data_place_i, fill = palette_5cols[3], color = "white", shape = 23, size = 2) +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                       x_max + ((x_max - x_min)*percent_margin_ltr/100)),
@@ -176,7 +182,7 @@ map_eez <- function(territory){
                      text_cex = 0.7, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
                      pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
   
-  # 7. Export the plot ----
+  # 8. Export the plot ----
   
   ggsave(filename = paste0("figs/02_part-2/fig-2/",
                            str_replace_all(str_to_lower(territory), " ", "-"), ".png"),
@@ -194,14 +200,14 @@ map(setdiff(unique(data_eez$TERRITORY1),
 
 # 6. Map for Pacific Remote Islands Area (PRIA) ----
 
-# 6.1 Filter --
+## 6.1 Filter --
 
 data_eez_i <- data_eez %>% 
   filter(TERRITORY1 %in% c("Palmyra Atoll", "Johnston Atoll",
                            "Wake Island", "Jarvis Island",
                            "Howland and Baker Islands"))
 
-# 6.2 Create the bbox --
+## 6.2 Create the bbox --
 
 x_min <- st_bbox(data_eez_i)["xmin"]
 x_max <- st_bbox(data_eez_i)["xmax"]
@@ -211,7 +217,7 @@ y_max <- st_bbox(data_eez_i)["ymax"]
 percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
 percent_margin_b <- 20 # Margin in percentage for bottom of plot
 
-# 6.3 White polygon to put scale on --
+## 6.3 White polygon to put scale on --
 
 poly_scale <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                              x_max + ((x_max - x_min)*percent_margin_ltr/100)),
@@ -221,7 +227,7 @@ poly_scale <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
   st_bbox() %>% 
   st_as_sfc()
 
-# 6.4 Define plot limits with additional margins --
+## 6.4 Define plot limits with additional margins --
 
 data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                             x_max + ((x_max - x_min)*percent_margin_ltr/100)),
@@ -231,13 +237,18 @@ data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
   st_bbox() %>% 
   st_as_sfc()
 
-# 6.5 Layer to mask external zone of eez_i --
+
+## 6.5 Black border around the map ----
+
+data_bbox_border <- st_difference(data_bbox, poly_scale)
+
+## 6.6 Layer to mask external zone of eez_i ----
 
 data_alpha <- data_eez_i %>% 
   summarise(geometry = st_union(geometry)) %>% 
   st_difference(data_bbox, .)
 
-# 6.6 Make the plot --
+## 6.7 Make the plot ----
 
 plot_i <- ggplot() +
   geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
@@ -257,8 +268,10 @@ plot_i <- ggplot() +
   geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
   geom_sf(data = data_bbox, fill = "white", alpha = 0.5) +
   geom_sf(data = data_eez_i, color = "black", fill = NA) +
-  geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
   geom_sf(data = poly_scale, fill = "white", col = "white") +
+  geom_sf(data = data_alpha, fill = "white", color = "black", alpha = 0.5) +
+  geom_sf(data = poly_scale, fill = "white", col = "white") +
+  geom_sf(data = data_bbox_border, fill = NA, color = "black") +
   coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                     x_max + ((x_max - x_min)*percent_margin_ltr/100)),
            ylim = c(y_min - ((y_max - y_min)*percent_margin_b/100),
@@ -276,6 +289,6 @@ plot_i <- ggplot() +
                    text_cex = 0.7, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
                    pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
 
-# 6.7 Export the plot --
+## 6.7 Export the plot --
 
 ggsave(filename = paste0("figs/02_part-2/fig-2/pria.png"), plot = plot_i, dpi = 600)
