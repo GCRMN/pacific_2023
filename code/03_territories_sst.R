@@ -167,17 +167,20 @@ map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = ., color_decade = 
 
 map_sst_anom <- function(territory_i){
   
-  data_sst %>% 
+  data_i <- data_sst %>% 
     filter(TERRITORY1 == territory_i) %>% 
-    drop_na(sst_anom_mean) %>% 
-    mutate(color = if_else(sst_anom_mean > 0, palette_5cols[5], palette_5cols[3])) %>% 
-    ggplot(data = ., aes(x = date, y = sst_anom_mean)) +
-      geom_line(color = "black", linewidth = 0.3) +
-      geom_ribbon(aes(ymin = 0, ymax = sst_anom_mean, fill = color)) +
-      geom_hline(yintercept = 0, color = "black", linewidth = 0.3) +
-      scale_fill_identity() +
-      labs(x = "Year", y = "SST anomaly (°C)") +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+    drop_na(sst_anom_mean)
+  
+  ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
+    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0, 0, sst_anom_mean)),
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_5cols[5], alpha = 0.9) +
+    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0, 0, sst_anom_mean)),
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_5cols[3], alpha = 0.9) +
+    geom_line(color = "black", linewidth = 0.3) +
+    geom_hline(yintercept = 0, color = "black") +
+    scale_fill_identity() +
+    labs(x = "Year", y = "SST anomaly (°C)") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
   ggsave(filename = paste0("figs/02_part-2/fig-4/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
