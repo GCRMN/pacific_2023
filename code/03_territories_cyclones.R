@@ -7,6 +7,7 @@ library(ggrepel)
 library(glue)
 library(scales)
 library(lubridate)
+library(ggsflabel)
 
 # 2. Source functions ----
 
@@ -128,7 +129,12 @@ map_eez <- function(territory_i){
     filter(TERRITORY1 == territory_i)
   
   data_cyclones_i <- data_cyclones %>% 
-    filter(territory == territory_i)
+    filter(territory == territory_i) %>% 
+    # Add cyclone position by wind_speed
+    arrange(time_range, desc(wind_speed)) %>% 
+    group_by(time_range) %>% 
+    mutate(position = row_number()) %>% 
+    ungroup()
   
   data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
     st_as_sf() %>% 
@@ -137,7 +143,7 @@ map_eez <- function(territory_i){
   data_ts_points_i <- data_ts_points %>% 
     filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
     mutate(name = str_to_sentence(name)) %>% 
-    left_join(., data_cyclones_i %>% select(ts_id, name, time_range)) %>% 
+    left_join(., data_cyclones_i %>% select(ts_id, name, time_range, position)) %>% 
     st_transform(crs = crs_selected) %>% 
     mutate(saffir = case_when(wind_speed < 119 ~ 0,
                               wind_speed >= 119 & wind_speed <= 153 ~ 1,
@@ -171,7 +177,11 @@ map_eez <- function(territory_i){
   
   data_alpha <- st_difference(data_bbox, data_eez_i)
   
-  # 4. Make the plot ----
+  # 4. Select labels ----
+  
+  data_label_i <- st_intersection(data_ts_lines_i, data_bbox)
+  
+  # 5. Make the plot ----
   
   plot_i <- ggplot() +
     geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
@@ -187,13 +197,16 @@ map_eez <- function(territory_i){
     geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
     geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
     scale_fill_identity() +
-    geom_sf(data = data_eez, color = "black", fill = NA) +
-    geom_sf(data = data_eez_supp, color = "black", fill = NA) +
+    geom_sf(data = data_eez, color = "white", fill = NA) +
+    geom_sf(data = data_eez_supp, color = "white", fill = NA) +
     geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
-    geom_sf(data = data_ts_lines_i, col = "grey", size = 0.25) +
-    geom_sf(data = data_ts_points_i, aes(col = saffir), size = 1) +
+    geom_sf(data = data_ts_lines_i %>% filter(position <= 3), col = "#6c7a89", size = 0.25) +
+    geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
+    geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
+    geom_sf_label_repel(data = data_label_i %>% filter(position <= 3), aes(label = name),
+                  alpha = 0.75, size = 2.5, label.size  = NA) +
     scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                        labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                        values = c(palette_5cols[1:5], "black"),
@@ -219,19 +232,19 @@ map_eez <- function(territory_i){
     guides(color = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1,
                                 override.aes = list(size = 4)))
   
-  if(territory_i %in% c("Fiji", "Samoa", "Cook Islands", "French Polynesia")){
+  if(territory_i %in% c("Federated States of Micronesia", "Hawaii", "Tokelau", "Solomon Islands")){
     
     plot_i <- plot_i +
-      facet_wrap(~time_range, ncol = 3, drop = FALSE)      
+      facet_wrap(~time_range, ncol = 2, drop = FALSE)      
     
   }else{
     
     plot_i <- plot_i +
-      facet_wrap(~time_range, ncol = 2, drop = FALSE)
+      facet_wrap(~time_range, ncol = 3, drop = FALSE)
     
   }
   
-  # 5. Export the plot ----
+  # 6. Export the plot ----
   
   ggsave(filename = paste0("figs/02_part-2/fig-6/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
@@ -257,16 +270,12 @@ data_eez_i <- data_eez %>%
 
 data_cyclones_i <- data_cyclones %>% 
   filter(territory %in% c("Palmyra Atoll", "Johnston Atoll", "Wake Island", "Jarvis Island",
-                          "Howland and Baker Islands"))
-
-data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
-  st_as_sf() %>% 
-  st_transform(crs = crs_selected)
-
+                          "Howland and Baker Islands")) %>% 
+  select(ts_id) %>% 
+  distinct()
+  
 data_ts_points_i <- data_ts_points %>% 
-  filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
-  mutate(name = str_to_sentence(name)) %>% 
-  left_join(., data_cyclones_i %>% select(ts_id, name, time_range)) %>% 
+  filter(ts_id %in% data_cyclones_i$ts_id) %>% 
   st_transform(crs = crs_selected) %>% 
   mutate(saffir = case_when(wind_speed < 119 ~ 0,
                             wind_speed >= 119 & wind_speed <= 153 ~ 1,
@@ -275,7 +284,30 @@ data_ts_points_i <- data_ts_points %>%
                             wind_speed > 210 & wind_speed <= 251 ~ 4,
                             wind_speed > 251 ~ 5),
          saffir = as.factor(saffir),
-         saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"))
+         saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"),
+         time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1987-12-31") ~ "1980 - 1987",
+                                time > as_date("1988-01-01") & time <= as_date("1995-12-31") ~ "1988 - 1995",
+                                time > as_date("1996-01-01") & time <= as_date("2003-12-31") ~ "1996 - 2003",
+                                time > as_date("2004-01-01") & time <= as_date("2011-12-31") ~ "2004 - 2011",
+                                time > as_date("2012-01-01") & time <= as_date("2019-12-31") ~ "2012 - 2019",
+                                time > as_date("2020-01-01") & time <= as_date("2023-12-31") ~ "2020 - 2023"),
+         time_range = as.factor(time_range),
+         time_range = fct_expand(time_range, "1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
+                                 "2012 - 2019", "2020 - 2023"),
+         time_range = fct_relevel(time_range, c("1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
+                                                "2012 - 2019", "2020 - 2023")),
+         name = str_to_sentence(name)) %>% 
+  # Add cyclone position by wind_speed
+  arrange(time_range, desc(wind_speed)) %>% 
+  group_by(time_range) %>% 
+  mutate(position = row_number()) %>% 
+  ungroup()
+
+data_ts_lines_i <- data_ts_lines %>% 
+  filter(ts_id %in% data_cyclones_i$ts_id) %>% 
+  left_join(., data_ts_points_i %>% select(ts_id, position) %>% distinct() %>% st_drop_geometry()) %>% 
+  st_as_sf() %>% 
+  st_transform(crs = crs_selected)
 
 data_label_i <- st_intersection(data_ts_lines_i, data_eez_i)
 
@@ -318,13 +350,16 @@ plot_i <- ggplot() +
   geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
   geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
   scale_fill_identity() +
-  geom_sf(data = data_eez, color = "black", fill = NA) +
-  geom_sf(data = data_eez_supp, color = "black", fill = NA) +
+  geom_sf(data = data_eez, color = "white", fill = NA) +
+  geom_sf(data = data_eez_supp, color = "white", fill = NA) +
   geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
   geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
   geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
-  geom_sf(data = data_ts_lines_i, col = "grey", size = 0.25) +
-  geom_sf(data = data_ts_points_i, aes(col = saffir), size = 1) +
+  geom_sf(data = data_ts_lines_i %>% filter(position <= 3), col = "#6c7a89", size = 0.25) +
+  geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
+  geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
+  geom_sf_label_repel(data = data_label_i %>% filter(position <= 3), aes(label = name),
+                      alpha = 0.75, size = 2.5, label.size  = NA) +
   scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                      labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                      values = c(palette_5cols[1:5], "black"),
