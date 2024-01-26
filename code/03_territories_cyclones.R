@@ -13,17 +13,19 @@ library(lubridate)
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 
-# 3. Define CRS ----
+# 3. Map of spatio-temporal distribution of monitoring sites ----
 
-# 3.1 Change CRS --
+## 3.1 Change CRS ----
+
+### 3.1.1 Define CRS ----
 
 crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 
-# 3.2 Define the offset --
+### 3.1.2 Define the offset ----
 
 correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
 
-# 3.3 Define a long and slim polygon that overlaps the meridian line --
+### 3.3 Define a long and slim polygon that overlaps the meridian line ----
 
 correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
                                                 c(0 - correction_offset, 90),
@@ -33,9 +35,9 @@ correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 9
   st_sfc() %>%
   st_set_crs(4326)
 
-# 4. Load data ----
+## 3.2 Load data ----
 
-# 4.1 EEZ --
+### 3.2.1 EEZ ----
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
@@ -58,7 +60,7 @@ data_eez_supp <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/e
   bind_rows(., data_eez_supp_a) %>% 
   st_transform(crs = crs_selected) 
 
-# 4.2 Land --
+### 3.2.2 Land ----
 
 load("data/01_background-shp/02_princeton/data_land.RData")
 
@@ -77,7 +79,7 @@ data_land_supp <- map_dfr(list_shp, ~st_read(.)) %>%
 
 rm(list_shp, data_eez_supp_a)
 
-# 4.3 Bathymetry --
+### 3.2.3 Bathymetry ----
 
 load("data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData")
 
@@ -86,7 +88,7 @@ data_bathy <- data_bathy %>%
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
-# 4.4 Cyclones ----
+### 3.2.4 Cyclones ----
 
 load("data/05_cyclones/02_cyclones_extracted.RData")
 load("data/05_cyclones/01_cyclones_lines.RData")
@@ -116,7 +118,7 @@ data_cyclones <- data_cyclones %>%
   mutate(position = row_number()) %>% 
   ungroup()
 
-# 4.5 Create the function ----
+## 3.3 Create the function ----
 
 map_eez <- function(territory_i){
   
@@ -135,7 +137,7 @@ map_eez <- function(territory_i){
   data_ts_points_i <- data_ts_points %>% 
     filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
     mutate(name = str_to_sentence(name)) %>% 
-    left_join(., data_cyclones_i %>% select(ts_id, name, max_saffir, max_windspeed, time_range, position)) %>% 
+    left_join(., data_cyclones_i %>% select(ts_id, name, time_range)) %>% 
     st_transform(crs = crs_selected) %>% 
     mutate(saffir = case_when(wind_speed < 119 ~ 0,
                               wind_speed >= 119 & wind_speed <= 153 ~ 1,
@@ -197,7 +199,6 @@ map_eez <- function(territory_i){
                        values = c(palette_5cols[1:5], "black"),
                        name = "Saffir-Simpson category",
                        drop = FALSE) +
-    facet_wrap(~time_range, ncol = 2, drop = FALSE) +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                       x_max + ((x_max - x_min)*percent_margin_ltr/100)),
              ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
@@ -215,8 +216,20 @@ map_eez <- function(territory_i){
           legend.position = "top",
           legend.key = element_blank(),
           legend.direction = "horizontal") +
-    guides(color = guide_legend(title.position = "top", title.hjust = 0.5,
+    guides(color = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1,
                                 override.aes = list(size = 4)))
+  
+  if(territory_i %in% c("Fiji", "Samoa", "Cook Islands", "French Polynesia")){
+    
+    plot_i <- plot_i +
+      facet_wrap(~time_range, ncol = 3, drop = FALSE)      
+    
+  }else{
+    
+    plot_i <- plot_i +
+      facet_wrap(~time_range, ncol = 2, drop = FALSE)
+    
+  }
   
   # 5. Export the plot ----
   
@@ -226,8 +239,7 @@ map_eez <- function(territory_i){
   
 }
 
-
-# 5. Map over the function (except PRIA) ----
+## 3.4 Map over the function (except PRIA) ----
 
 map(setdiff(unique(data_eez$TERRITORY1),
             c("Palmyra Atoll", "Johnston Atoll",
@@ -235,9 +247,117 @@ map(setdiff(unique(data_eez$TERRITORY1),
               "Howland and Baker Islands")), # PRIA territories
     ~map_eez(territory = .))
 
-# 5. Plots of cyclone maximum wind speed over time ----
+## 3.5 Map for Pacific Remote Islands Area (PRIA) ----
 
-## 5.1 Create the function ----
+### 3.5.1 Filter ----
+
+data_eez_i <- data_eez %>% 
+  filter(TERRITORY1 %in% c("Palmyra Atoll", "Johnston Atoll", "Wake Island", "Jarvis Island",
+                           "Howland and Baker Islands"))
+
+data_cyclones_i <- data_cyclones %>% 
+  filter(territory %in% c("Palmyra Atoll", "Johnston Atoll", "Wake Island", "Jarvis Island",
+                          "Howland and Baker Islands"))
+
+data_ts_lines_i <- left_join(data_cyclones_i, data_ts_lines) %>% 
+  st_as_sf() %>% 
+  st_transform(crs = crs_selected)
+
+data_ts_points_i <- data_ts_points %>% 
+  filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
+  mutate(name = str_to_sentence(name)) %>% 
+  left_join(., data_cyclones_i %>% select(ts_id, name, time_range)) %>% 
+  st_transform(crs = crs_selected) %>% 
+  mutate(saffir = case_when(wind_speed < 119 ~ 0,
+                            wind_speed >= 119 & wind_speed <= 153 ~ 1,
+                            wind_speed > 153 & wind_speed <= 177 ~ 2,
+                            wind_speed > 177 & wind_speed <= 210 ~ 3,
+                            wind_speed > 210 & wind_speed <= 251 ~ 4,
+                            wind_speed > 251 ~ 5),
+         saffir = as.factor(saffir),
+         saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"))
+
+data_label_i <- st_intersection(data_ts_lines_i, data_eez_i)
+
+### 3.5.2 Create the bbox ----
+
+x_min <- st_bbox(data_eez_i)["xmin"]
+x_max <- st_bbox(data_eez_i)["xmax"]
+y_min <- st_bbox(data_eez_i)["ymin"]
+y_max <- st_bbox(data_eez_i)["ymax"]
+
+percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
+
+data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                            x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+                    lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                            y_max + ((y_max - y_min)*percent_margin_ltr/100))) %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
+  st_bbox() %>% 
+  st_as_sfc()
+
+### 3.5.3 Layer to mask external zone of eez_i ----
+
+data_alpha <- data_eez_i %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  st_difference(data_bbox, .)
+
+### 3.5.4 Make the plot ----
+
+plot_i <- ggplot() +
+  geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 2000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 3000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 4000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 5000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 6000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 7000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 8000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 9000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  geom_sf(data = data_bathy %>% filter(depth == 10000), aes(fill = fill_color), color = NA, alpha = 0.2) +
+  scale_fill_identity() +
+  geom_sf(data = data_eez, color = "black", fill = NA) +
+  geom_sf(data = data_eez_supp, color = "black", fill = NA) +
+  geom_sf(data = data_land, fill = "grey", col = "darkgrey") +
+  geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
+  geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
+  geom_sf(data = data_ts_lines_i, col = "grey", size = 0.25) +
+  geom_sf(data = data_ts_points_i, aes(col = saffir), size = 1) +
+  scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
+                     labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
+                     values = c(palette_5cols[1:5], "black"),
+                     name = "Saffir-Simpson category",
+                     drop = FALSE) +
+  coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
+                    x_max + ((x_max - x_min)*percent_margin_ltr/100)),
+           ylim = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
+                    y_max + ((y_max - y_min)*percent_margin_ltr/100)),
+           expand = FALSE) +
+  theme_minimal() +
+  facet_wrap(~time_range, ncol = 2, drop = FALSE) +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "null"),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.background = element_blank(),
+        legend.position = "top",
+        legend.key = element_blank(),
+        legend.direction = "horizontal") +
+  guides(color = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1,
+                              override.aes = list(size = 4)))
+
+### 3.5.5 Export the plot ----
+
+ggsave(filename = "figs/02_part-2/fig-6/pria.png", plot = plot_i, dpi = 600)
+
+# 4. Plots of cyclone maximum wind speed over time ----
+
+## 4.1 Create the function ----
 
 load("data/05_cyclones/02_cyclones_extracted.RData")
 
@@ -253,7 +373,7 @@ data_cyclones <- data_cyclones %>%
   group_by(territory) %>% 
   mutate(position = row_number())
 
-## 5.2 Create the function ----
+## 4.2 Create the function ----
 
 map_cyclone_plot <- function(territory_i){
   
@@ -293,13 +413,13 @@ map_cyclone_plot <- function(territory_i){
   
 }
 
-## 5.3 Map over the function ----
+## 4.3 Map over the function ----
 
 map(unique(data_cyclones$territory), ~map_cyclone_plot(territory_i = .))
 
-# 6. Extract indicators of tropical storms per territory ----
+# 5. Extract indicators of tropical storms per territory ----
 
-## 6.1 Number of tropical storms ----
+## 5.1 Number of tropical storms ----
 
 data_cyclone_a <- data_cyclones %>% 
   filter(saffir >= 1) %>% 
@@ -307,7 +427,7 @@ data_cyclone_a <- data_cyclones %>%
   summarise(n_ts = n_distinct(ts_id)) %>% 
   ungroup()
 
-## 6.2 Number of tropical storms with wind > 100 km.h ----
+## 5.2 Number of tropical storms with wind > 100 km.h ----
 
 data_cyclone_b <- data_cyclones %>% 
   filter(saffir >= 1 & wind_speed >= 100) %>% 
@@ -315,7 +435,7 @@ data_cyclone_b <- data_cyclones %>%
   summarise(n_ts_100 = n_distinct(ts_id)) %>% 
   ungroup()
 
-## 6.3 Tropical storm with the highest wind speed ----
+## 5.3 Tropical storm with the highest wind speed ----
 
 data_cyclone_summary <- data_cyclones %>% 
   group_by(territory) %>% 
