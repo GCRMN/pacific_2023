@@ -271,11 +271,23 @@ data_eez_i <- data_eez %>%
 data_cyclones_i <- data_cyclones %>% 
   filter(territory %in% c("Palmyra Atoll", "Johnston Atoll", "Wake Island", "Jarvis Island",
                           "Howland and Baker Islands")) %>% 
-  select(ts_id) %>% 
-  distinct()
-  
+  select(-territory) %>% 
+  arrange(time_range, desc(wind_speed)) %>% 
+  group_by(time_range) %>% 
+  mutate(position = row_number()) %>% 
+  ungroup() %>% 
+  group_by(ts_id, time_range) %>% 
+  filter(!(position != min(position))) %>% 
+  ungroup()
+
+data_ts_lines_i <- left_join(data_cyclones_i %>% select(ts_id, name, time_range, position), data_ts_lines) %>% 
+  st_as_sf() %>% 
+  st_transform(crs = crs_selected)
+
 data_ts_points_i <- data_ts_points %>% 
-  filter(ts_id %in% data_cyclones_i$ts_id) %>% 
+  filter(ts_id %in% unique(data_cyclones_i$ts_id)) %>% 
+  mutate(name = str_to_sentence(name)) %>% 
+  left_join(., data_cyclones_i %>% select(ts_id, name, time_range, position)) %>% 
   st_transform(crs = crs_selected) %>% 
   mutate(saffir = case_when(wind_speed < 119 ~ 0,
                             wind_speed >= 119 & wind_speed <= 153 ~ 1,
@@ -284,32 +296,7 @@ data_ts_points_i <- data_ts_points %>%
                             wind_speed > 210 & wind_speed <= 251 ~ 4,
                             wind_speed > 251 ~ 5),
          saffir = as.factor(saffir),
-         saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"),
-         time_range = case_when(time > as_date("1980-01-01") & time <= as_date("1987-12-31") ~ "1980 - 1987",
-                                time > as_date("1988-01-01") & time <= as_date("1995-12-31") ~ "1988 - 1995",
-                                time > as_date("1996-01-01") & time <= as_date("2003-12-31") ~ "1996 - 2003",
-                                time > as_date("2004-01-01") & time <= as_date("2011-12-31") ~ "2004 - 2011",
-                                time > as_date("2012-01-01") & time <= as_date("2019-12-31") ~ "2012 - 2019",
-                                time > as_date("2020-01-01") & time <= as_date("2023-12-31") ~ "2020 - 2023"),
-         time_range = as.factor(time_range),
-         time_range = fct_expand(time_range, "1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
-                                 "2012 - 2019", "2020 - 2023"),
-         time_range = fct_relevel(time_range, c("1980 - 1987", "1988 - 1995", "1996 - 2003", "2004 - 2011",
-                                                "2012 - 2019", "2020 - 2023")),
-         name = str_to_sentence(name)) %>% 
-  # Add cyclone position by wind_speed
-  arrange(time_range, desc(wind_speed)) %>% 
-  group_by(time_range) %>% 
-  mutate(position = row_number()) %>% 
-  ungroup()
-
-data_ts_lines_i <- data_ts_lines %>% 
-  filter(ts_id %in% data_cyclones_i$ts_id) %>% 
-  left_join(., data_ts_points_i %>% select(ts_id, position) %>% distinct() %>% st_drop_geometry()) %>% 
-  st_as_sf() %>% 
-  st_transform(crs = crs_selected)
-
-data_label_i <- st_intersection(data_ts_lines_i, data_eez_i)
+         saffir = fct_expand(saffir, "0", "1", "2", "3", "4", "5"))
 
 ### 3.5.2 Create the bbox ----
 
@@ -334,7 +321,11 @@ data_alpha <- data_eez_i %>%
   summarise(geometry = st_union(geometry)) %>% 
   st_difference(data_bbox, .)
 
-### 3.5.4 Make the plot ----
+### 3.5.4 Select labels ----
+
+data_label_i <- st_intersection(data_ts_lines_i %>% filter(position <= 3), data_bbox)
+
+### 3.5.5 Make the plot ----
 
 plot_i <- ggplot() +
   geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
@@ -358,7 +349,7 @@ plot_i <- ggplot() +
   geom_sf(data = data_ts_lines_i %>% filter(position <= 3), col = "#6c7a89", size = 0.25) +
   geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
   geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
-  geom_sf_label_repel(data = data_label_i %>% filter(position <= 3), aes(label = name),
+  geom_sf_label_repel(data = data_label_i, aes(label = name),
                       alpha = 0.75, size = 2.5, label.size  = NA) +
   scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                      labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
@@ -386,7 +377,7 @@ plot_i <- ggplot() +
   guides(color = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1,
                               override.aes = list(size = 4)))
 
-### 3.5.5 Export the plot ----
+### 3.5.6 Export the plot ----
 
 ggsave(filename = "figs/02_part-2/fig-6/pria.png", plot = plot_i, dpi = 600)
 
