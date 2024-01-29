@@ -126,38 +126,66 @@
 
 \thispagestyle{empty}
 
-\href{https://gcrmn.net/}{Global Coral Reef Monitoring Network} (GCRMN)
+\vspace*{2cm}
+	
+\textbf{GCRMN} \textcolor{colormain}{Global Coral Reef Monitoring Network}
 
-\href{https://icriforum.org/}{International Coral Reef Initiative} (ICRI)
+\href{www.gcrmn.net}{www.gcrmn.net}
+	
+\vspace{0.5cm}
 
-\vspace{5cm}
+\textbf{ICRI} \textcolor{colormain}{International Coral Reef Initiative}
 
-\textcolor{colortable3}{Cite this report as:}
-
-Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the Pacific.\\Global Coral Reef Monitoring Network and International Coral Reef Initiative.
-
-\vspace{3cm}
-
-\textcolor{colortable3}{Photo credits:}
-
-\hspace{0.5cm} \textbf{Front cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
-
-\hspace{0.5cm} \textbf{Pages 25 and 26}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
-
-\hspace{0.5cm} \textbf{Pages 77 and 78}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
-
-\hspace{0.5cm} \textbf{Back cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+\href{www.icriforum.org}{www.icriforum.org}
 
 \vspace{5cm}
+
+\textcolor{colortable3}{\textbf{Photograph credits}}
+
+{\footnotesize
+\textbf{Front cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+
+\textbf{Pages 25 and 26}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+
+\textbf{Pages 77 and 78}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+
+\textbf{Back cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+}
+
+\vspace{1cm}
+
+\textcolor{colortable3}{\textbf{Disclaimer}}
 
 \begin{flushleft}
-	{\footnotesize
-		
-		Document created with \LaTeX
-			
-		Compiled with MiKTeX-pdfTeX version 2.9.7338}
+{\footnotesize The content of this report is solely the opinions of the authors, contributors and editors and do not constitute a statement of policy, decision, or position on behalf of the participating organizations, including those represented on the cover.}
 \end{flushleft}
-	
+
+\vspace{1cm}
+
+\textcolor{colortable3}{\textbf{Citation}}
+
+{\footnotesize
+	Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the Pacific. Global Coral Reef Monitoring Network and International Coral Reef Initiative. doi.
+}
+
+\vspace{1cm}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt] at ($(current page.south west)+(3.5cm,4cm)$){\includegraphics[width=2cm]{../../figs/00_misc/01_logo/by-nc-sa.png}};
+\end{tikzpicture}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% ACKOWLEDGMENTS, ACRONYMS, DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\THEMEA{Contents}
+
+\newpage
+
+\THEMEA{Ackowledgments}
+
 \newpage
 
 \THEMEA{Acronyms}
@@ -165,9 +193,61 @@ Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the 
 \begin{tabular}{>{\bfseries}>{\color{colortable3}}r>{\itshape}l}
 	AIMS  & Australian Institute of Marine Science          \\
 	GCRMN & Global Coral Reef Monitoring Network            \\
-	ENSO & El Niño Southern Oscillation
+	NOAA  & National Oceanic and Atmospheric Administration \\
+	ENSO  & El Niño Southern Oscillation
 \end{tabular}
 
+\newpage
+
+\THEMEA{Definitions}
+
+\begin{tabular}{>{\bfseries}>{\color{colortable3}}rl}
+	Site  & A unique combination of latitude and longitude          \\
+	Survey & A unique combination of latitude and longitude at a given date (or year)           
+\end{tabular}
+
+\clearpage
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% FOREWORD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[circle,minimum size=4cm,inner sep=0pt, fill=white] at ($(current page.north)+(5cm,-5.725cm)$) {\textcolor{white}{\textbf{}}};
+	\node[circle,minimum size=3.5cm,inner sep=0pt, fill=Couleur3] at ($(current page.north)+(5cm,-5.75cm)$) {\textcolor{white}{\textbf{}}};
+	\node[fill,text centered, minimum width=5.4cm, minimum height=1.2cm, fill=colortable3, inner sep=0pt, opacity=0.9] at ($(current page.north)+(-4cm,-5.12cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{FOREWORD}}};
+\end{tikzpicture}
+
+\clearpage
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% EXECUTIVE SUMMARY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{5.25cm}
+
+\thispagestyle{empty}
+
+\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+
+\begin{tikzpicture}[remember picture,overlay]
+	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+\end{tikzpicture}
+
+{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Executive Summary}}
+
+\vspace{7.5cm}
+
+\begin{flushright}
+	\textbf{Coral reefs in American Samoa}
+	
+	Credit: Shaun Wolfe
+\end{flushright}
+
+\clearpage
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,6 +261,16 @@ Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the 
 	\label{part1:fig1}
 \end{figure}
 
+blalala
+
+\newpage
+
+\begin{table}[]
+	\caption{Human population in countries and territories}
+	\input{../../figs/01_part-1/table-2.tex}
+	\label{french-polynesia_tbl-1}
+\end{table}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -192,13 +282,12 @@ Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the 
 
 \tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{../../figs/00_misc/03_cover/part-2_left.png}};
 
-\vspace{0.5cm}
-
-{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{\textbf{PART 2}}}
-
-\vspace{0.5cm}
-
-{\fontsize{30pt}{40pt}\selectfont \textcolor{white}{Syntheses for countries and territories}}
+\begin{tikzpicture}[remember picture,overlay]
+	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(5cm,-5cm)$) rectangle ($(current page.north west)+(7cm,-7cm)$) ;
+	\node at ($(current page.north west)+(6cm,-4.25cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{PART}}};
+	\node at ($(current page.north west)+(6cm,-6cm)$) {{\fontsize{50pt}{40pt}\selectfont \textcolor{white}{\textit{2}}}};
+	\node at ($(current page.north west)+(6cm,-8cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{Syntheses for countries and territories}}};
+\end{tikzpicture}
 
 \clearpage
 \newpage
@@ -208,16 +297,11 @@ Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the 
 \tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{../../figs/00_misc/03_cover/part-2_right.png}};
 
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=white, fill=colortable1, fill opacity=0.8, draw opacity=0.8] ($(current page.north west)+(3cm,-5cm)$) rectangle ($(current page.south east)+(-3cm,15cm)$) ;
+	\filldraw[color=white, fill=white, opacity=1] ($(current page.north west)+(10cm,0cm)$) rectangle ($(current page.south east)+(0cm,0cm)$) ;
+	\node[text width=8cm] at ($(current page.north west)+(15cm,-5cm)$) {With minor omissions, each national report contains eight main sections, which have been formatted as follows:};
+	\node[circle,minimum size=0.75cm,inner sep=0pt, fill=colortable3] at ($(current page.north west)+(12cm,-8cm)$) {\textcolor{white}{\textbf{1}}};
+	
 \end{tikzpicture}
-
-\vspace{6cm}
-
-\hspace{5cm} \textbf{1)} Introduction Blabalalalalala
-
-\hspace{5cm} \textbf{2)} Disturbance regime Blabalalalalala
-
-\hspace{5cm} \textbf{3)} Benthic cover trends Blabalalalalala
 
 \clearpage
 \newpage
@@ -346,7 +430,7 @@ The impacts of some of these cyclones on coral reefs have been described in the 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=10cm]{02_part-2/fig-6/french-polynesia}
+	\includegraphics[width=\textwidth]{02_part-2/fig-6/french-polynesia}
 	\caption[Maximum sustained wind speed of cyclones within 100 km of a coral reef between 1980 and 2023 over the territory of French Polynesia.]{Maximum sustained wind speed of cyclones within 100 km of a coral reef between 1980 and 2023 over the territory of French Polynesia. Colors correspond to the cyclone category on the Saffir-Simpson scale. The values of sustained wind speed are extracted from the nearest tropical storms position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (i.e. 119 km/h).}
 	\label{chapter1:fig6}
 \end{figure}
@@ -407,11 +491,32 @@ The impacts of some of these cyclones on coral reefs have been described in the 
 
 \newpage
 
-\begin{table}[]
-		\caption{Human population in countries and territories}
-		\input{../../figs/01_part-1/table-2.tex}
-		\label{french-polynesia_tbl-1}
-\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% MATERIALS AND METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{5.25cm}
+
+\thispagestyle{empty}
+
+\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+
+\begin{tikzpicture}[remember picture,overlay]
+	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+\end{tikzpicture}
+
+{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Materials and Methods}}
+
+\clearpage
+\newpage
+
+\THEMEA{Background maps}
+
+Blalab
+
+\THEMEA{Indicators}
+
+\THEMEB{Maritime area}
 
 \newpage
 
@@ -438,5 +543,62 @@ Jérémy & Wicquart                       &                                    & &
 	\end{center}
 \label{authors-contribution}
 \end{table}
+
+\clearpage
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% ANNEXES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{5.25cm}
+
+\thispagestyle{empty}
+
+\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+
+\begin{tikzpicture}[remember picture,overlay]
+	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+\end{tikzpicture}
+
+{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Annexes}}
+
+\vspace{7.5cm}
+
+\begin{flushright}
+	\textbf{Coral reefs in American Samoa}
+	
+	Credit: Shaun Wolfe
+\end{flushright}
+
+\clearpage
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% BIBLIOGRAPHY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{5.25cm}
+
+\thispagestyle{empty}
+
+\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+
+\begin{tikzpicture}[remember picture,overlay]
+	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+\end{tikzpicture}
+
+{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Bibliography}}
+
+\vspace{7.5cm}
+
+\begin{flushright}
+	\textbf{Coral reefs in American Samoa}
+	
+	Credit: Shaun Wolfe
+\end{flushright}
+
+\clearpage
+\newpage
 
 \end{document}
