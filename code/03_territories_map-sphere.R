@@ -15,6 +15,14 @@ source("code/function/graphical_par.R")
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
+data_eez_supp <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
+  filter(GEONAME == "Overlapping claim Matthew and Hunter Islands: France / Vanuatu") %>% 
+  st_transform(crs = 4326) %>% 
+  nngeo::st_remove_holes(.) %>% 
+  st_transform(crs = "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs")
+
+data_eez <- bind_rows(data_eez, data_eez_supp)
+
 # 4. Create the hemisphere individual maps ----
 
 # 4.1 Load and transform data --
@@ -24,8 +32,6 @@ co <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp")
 oc <- s2_difference(g, s2_union_agg(co)) # oceans
 b <- s2_buffer_cells(as_s2_geography("POINT(-175 0)"), 9800000) # visible half
 i <- s2_intersection(b, oc) # visible ocean
-
-load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 4.2 Transform CRS --
 
@@ -89,4 +95,4 @@ map_sphere <- function(territory_i){
 
 # 4.5 Map over the function --
 
-map(unique(data_eez$TERRITORY1), ~map_sphere(territory_i = .))
+map(setdiff(unique(data_eez$TERRITORY1), "Matthew and Hunter Islands"), ~map_sphere(territory_i = .))
