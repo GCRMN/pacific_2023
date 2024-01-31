@@ -11,26 +11,28 @@ source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 theme_set(theme_graph())
 
+path_models <- "data/16_model-outputs/2024-01-29/model-outputs_"
+
 # 3. Load and combine data ----
 
 # 3.1 Load data --
 
-load(file = "data/16_model-outputs/model-outputs_hard-coral.RData")
+load(file = paste0(path_models, "hard-coral.RData"))
 
 data_coral <- data_results %>% 
   map(., ~ .x %>% mutate(category = "Hard coral"))
 
-load(file = "data/16_model-outputs/model-outputs_macroalgae.RData")
+load(file = paste0(path_models, "macroalgae.RData"))
 
 data_macroalgae <- data_results %>% 
   map(., ~ .x %>% mutate(category = "Macroalgae"))
 
-load(file = "data/16_model-outputs/model-outputs_turf-algae.RData")
+load(file = paste0(path_models, "turf-algae.RData"))
 
 data_turf <- data_results %>% 
   map(., ~ .x %>% mutate(category = "Turf algae"))
 
-load(file = "data/16_model-outputs/model-outputs_coralline-algae.RData")
+load(file = paste0(path_models, "coralline-algae.RData"))
 
 data_coralline <- data_results %>% 
   map(., ~ .x %>% mutate(category = "Coralline algae"))
@@ -214,85 +216,159 @@ rm(testing_training, hyperparams, model_perf, model_metrics)
 
 ## 6.1 Create the function ----
 
-distri_residuals <- function(category_i){
+distri_residuals <- function(category_i, territory = TRUE){
   
   data_i <- data_results$result_pred_obs %>% 
     mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
                              category == "Coralline algae" ~ palette_5cols[3],
                              category == "Macroalgae" ~ palette_5cols[4],
-                             category == "Turf algae" ~ palette_5cols[5])) %>% 
-    filter(iteration == 1 & category == category_i)
+                             category == "Turf algae" ~ palette_5cols[5]))
   
-  plot_i <- ggplot(data = data_i, aes(x = residual, fill = color)) + 
-    geom_histogram(aes(y = after_stat(count / sum(count))*100),
-                   alpha = 0.5) +
-    geom_vline(xintercept = 0) +
-    scale_fill_identity() +
-    theme_graph() +
-    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-          strip.background = element_rect(color = NA, fill = NA),
-          axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
-          strip.text = element_text(face = "bold", color = unique(data_i$color))) +
-    facet_wrap(~territory, scales = "free", ncol = 3) +
-    labs(x = "Residuals (obs. - pred.)", y = "Percentage of observations") +
-    lims(x = c(-100, 100))
-  
-  ggsave(filename = paste0("figs/05_additional/02_model/01_distri-residuals_",
-                           str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
-         plot = plot_i, width = 8.5, height = 11.5, dpi = 600)  
+  if(territory == TRUE){
+    
+    data_i <- data_i %>% 
+      filter(iteration == 1 & category == category_i)
+      
+    plot_i <- ggplot(data = data_i, aes(x = residual, fill = color)) + 
+      geom_histogram(aes(y = after_stat(count / sum(count))*100),
+                     alpha = 0.5) +
+      geom_vline(xintercept = 0) +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+            strip.background = element_rect(color = NA, fill = NA),
+            axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+            strip.text = element_text(face = "bold", color = unique(data_i$color))) +
+      facet_wrap(~territory, scales = "free", ncol = 3) +
+      labs(x = "Residuals (obs. - pred.)", y = "Percentage of observations") +
+      lims(x = c(-100, 100))
+    
+    ggsave(filename = paste0("figs/05_additional/02_model/01_distri-residuals_",
+                             str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
+           plot = plot_i, width = 8.5, height = 11.5, dpi = 600)  
+    
+  }else{
+    
+    data_i <- data_i %>% 
+      filter(iteration == 1)
+    
+    plot_i <- ggplot(data = data_i, aes(x = residual, fill = color)) + 
+      geom_histogram(aes(y = after_stat(count / sum(count))*100),
+                     alpha = 0.5) +
+      geom_vline(xintercept = 0) +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+            strip.background = element_rect(color = NA, fill = NA),
+            axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+            strip.text = element_text(face = "bold")) +
+      facet_wrap(~category, scales = "free", ncol = 2) +
+      labs(x = "Residuals (obs. - pred.)", y = "Percentage of observations") +
+      lims(x = c(-100, 100))
+    
+    ggsave(filename = "figs/05_additional/02_model/01_distri-residuals_all.png",
+           plot = plot_i, width = 8, height = 5, dpi = 600)
+    
+  }
   
 }
 
-## 6.2 Map over the function ----
+## 6.2 Map over the function (one facet per territory) ----
 
-map(unique(data_results$result_pred_obs$category), ~distri_residuals(category_i = .))
+map(unique(data_results$result_pred_obs$category), ~distri_residuals(category_i = ., territory = TRUE))
+
+## 6.3 All territories combined ----
+
+distri_residuals(territory = FALSE)
 
 # 7. Predicted vs observed ----
 
 ## 7.1 Create the function ----
 
-pred_obs <- function(category_i){
+pred_obs <- function(category_i, territory = TRUE){
   
   data_i <- data_results$result_pred_obs %>% 
     mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
                              category == "Coralline algae" ~ palette_5cols[3],
                              category == "Macroalgae" ~ palette_5cols[4],
-                             category == "Turf algae" ~ palette_5cols[5])) %>% 
-    filter(iteration == 1 & category == category_i)
+                             category == "Turf algae" ~ palette_5cols[5]))
   
-  data_abline <- data_i %>% 
-    select(observed, predicted, territory) %>% 
-    group_by(territory) %>% 
-    nest() %>% 
-    mutate(model = map(data, ~lm(predicted ~ observed, data = .)),
-           coefficients = map(model, coefficients),
-           intercept = map_dbl(coefficients, 1),
-           slope = map_dbl(coefficients, 2)) %>% 
-    select(territory, intercept, slope)
+  if(territory == TRUE){
+    
+    data_i <- data_i %>% 
+      filter(iteration == 1 & category == category_i)
+    
+    data_abline <- data_i %>% 
+      select(observed, predicted, territory) %>% 
+      group_by(territory) %>% 
+      nest() %>% 
+      mutate(model = map(data, ~lm(predicted ~ observed, data = .)),
+             coefficients = map(model, coefficients),
+             intercept = map_dbl(coefficients, 1),
+             slope = map_dbl(coefficients, 2)) %>% 
+      select(territory, intercept, slope)
+    
+    plot_i <- ggplot(data = data_i, aes(x = observed, y = predicted, color = color)) +
+      geom_point(alpha = 0.5) +
+      scale_color_identity() +
+      geom_abline(slope = 1) +
+      geom_abline(data = data_abline, aes(intercept = intercept, slope = slope), col = "red") +
+      theme_graph() +
+      theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+            strip.background = element_rect(color = NA, fill = NA),
+            axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+            strip.text = element_text(face = "bold", color = unique(data_i$color))) +
+      facet_wrap(~territory, scales = "free", ncol = 3) +
+      labs(x = "Observed", y = "Predicted") +
+      lims(x = c(0, 100), y = c(0, 100))
+    
+    ggsave(filename = paste0("figs/05_additional/02_model/02_pred-vs-obs_",
+                             str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
+           plot = plot_i, width = 8.5, height = 11.5, dpi = 600)  
   
-  plot_i <- ggplot(data = data_i, aes(x = observed, y = predicted, color = color)) +
-    geom_point(alpha = 0.5) +
-    scale_color_identity() +
-    geom_abline(slope = 1) +
-    geom_abline(data = data_abline, aes(intercept = intercept, slope = slope), col = "red") +
-    theme_graph() +
-    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-          strip.background = element_rect(color = NA, fill = NA),
-          axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
-          strip.text = element_text(face = "bold", color = unique(data_i$color))) +
-    facet_wrap(~territory, scales = "free", ncol = 3) +
-    labs(x = "Observed", y = "Predicted") +
-    lims(x = c(0, 100), y = c(0, 100))
+  }else{
+    
+    data_i <- data_i %>% 
+      filter(iteration == 1)
+    
+    data_abline <- data_i %>% 
+      select(category, observed, predicted) %>% 
+      group_by(category) %>% 
+      nest() %>% 
+      mutate(model = map(data, ~lm(predicted ~ observed, data = .)),
+             coefficients = map(model, coefficients),
+             intercept = map_dbl(coefficients, 1),
+             slope = map_dbl(coefficients, 2)) %>% 
+      select(intercept, slope)
+    
+    plot_i <- ggplot(data = data_i, aes(x = observed, y = predicted, color = color)) +
+      geom_point(alpha = 0.5) +
+      scale_color_identity() +
+      geom_abline(slope = 1) +
+      geom_abline(data = data_abline, aes(intercept = intercept, slope = slope), col = "red") +
+      theme_graph() +
+      theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
+            strip.background = element_rect(color = NA, fill = NA),
+            axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+            strip.text = element_text(face = "bold")) +
+      facet_wrap(~category, scales = "free", ncol = 2) +
+      labs(x = "Observed", y = "Predicted") +
+      lims(x = c(0, 100), y = c(0, 100))
+    
+    ggsave(filename = "figs/05_additional/02_model/02_pred-vs-obs_all.png",
+           plot = plot_i, width = 8, height = 5, dpi = 600)
   
-  ggsave(filename = paste0("figs/05_additional/02_model/02_pred-vs-obs_",
-                           str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
-         plot = plot_i, width = 8.5, height = 11.5, dpi = 600)  
+  }
   
 }
 
-## 7.2 Map over the function ----
+## 7.2 Map over the function (one facet per territory) ----
 
-map(unique(data_results$result_pred_obs$category), ~pred_obs(category_i = .))
+map(unique(data_results$result_pred_obs$category), ~pred_obs(category_i = ., territory = TRUE))
+
+## 7.3 All territories combined ----
+
+pred_obs(territory = FALSE)
 
 # 8. Variable importance ----
 
