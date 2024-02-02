@@ -8,7 +8,7 @@ var data_sst = ee.ImageCollection('NOAA/CDR/OISST/V2_1')
 
 // 1.2 Import site coordinates ----
 
-var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site_coords");
+var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords-all");
 
 // 2. Mean SST ----
 
@@ -28,7 +28,7 @@ Export.table.toDrive({
   fileNamePrefix:"pred_sst_mean",
   fileFormat:"CSV",
   description:"pred_sst_mean",
-  selectors:["site_id", "first"]
+  selectors:["site_id", "type", "first"]
 });
 
 // 3. SST standard deviation (SD) ----
@@ -49,7 +49,7 @@ Export.table.toDrive({
   fileNamePrefix:"pred_sst_sd",
   fileFormat:"CSV",
   description:"pred_sst_sd",
-  selectors:["site_id", "first"]
+  selectors:["site_id", "type", "first"]
 });
 
 // 4. SST kurtosis ----
@@ -70,7 +70,7 @@ Export.table.toDrive({
   fileNamePrefix:"pred_sst_kurtosis",
   fileFormat:"CSV",
   description:"pred_sst_kurtosis",
-  selectors:["site_id", "first"]
+  selectors:["site_id", "type", "first"]
 });
 
 // 5. SST skewness ----
@@ -91,5 +91,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_sst_skew",
   fileFormat:"CSV",
   description:"pred_sst_skew",
-  selectors:["site_id", "first"]
+  selectors:["site_id", "type", "first"]
 });

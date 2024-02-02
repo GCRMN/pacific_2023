@@ -1,6 +1,6 @@
 // 1. Import data ----
 
-var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site_coords");
+var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords-all");
 
 // 2. Create a function to create a buffer around a point ----
 
@@ -41,5 +41,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_chla",
   fileFormat:"CSV",
   description:"pred_chla",
-  selectors:["site_id", "mean"]
+  selectors:["site_id", "type", "mean"]
 });

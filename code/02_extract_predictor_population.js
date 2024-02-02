@@ -1,6 +1,6 @@
 // 1. Import data ----
 
-var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site_coords");
+var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords-all");
 
 // 2. Create a function to create a buffer around a point ----
 
@@ -31,5 +31,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_human-pop",
   fileFormat:"CSV",
   description:"pred_human-pop",
-  selectors:["site_id", "sum"]
+  selectors:["site_id", "type", "sum"]
 });

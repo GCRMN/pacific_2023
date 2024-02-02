@@ -26,4 +26,4 @@ data_benthic %>%
   distinct() %>% 
   mutate(site_id = row_number(.)) %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
-  st_write(., dsn =  "data/15_benthic-site-coords/benthic-site-coords.shp", delete_dsn = TRUE)
+  st_write(., dsn = "data/15_site-coords/site-coords_obs.shp", delete_dsn = TRUE)
