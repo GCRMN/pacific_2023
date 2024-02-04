@@ -551,11 +551,13 @@ Serge & Planes   &         \contrib          &     \contrib      &              
 
 \pagestyle{biblio}
 
+\begingroup
+\def\chapter*#1{}
+\vspace*{5cm}
+\pagestyle{biblio}
 \bibliographystyle{apa}
-
-\renewcommand{\bibname}{}
-
 \bibliography{bibliography.bib}
+\endgroup
 
 \clearpage
 \newpage
@@ -563,6 +565,11 @@ Serge & Planes   &         \contrib          &     \contrib      &              
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% BACK COVER PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
 
 \thispagestyle{empty}
 
