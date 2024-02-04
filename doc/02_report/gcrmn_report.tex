@@ -8,7 +8,7 @@
 \usepackage{afterpage}
 \usepackage{xcolor} % To define colors
 \usepackage{fancyhdr} % For footer and header
-\usepackage[colorlinks=true,citecolor=colormain,urlcolor=black,linkcolor=black]{hyperref}
+\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=secondcolor,linkcolor=black]{hyperref}
 \usepackage{titlesec}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -37,14 +37,11 @@
 \usepackage{xparse}
 \usetikzlibrary{positioning,calc}
 
-%%%%% COULEURS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\definecolor{colormain}{HTML}{A059A0} % Main color
-
-\definecolor{Couleur2}{HTML}{6C7A89} % Couleur secondaire (gris foncé)
-\definecolor{Couleur3}{HTML}{BDC3C7} % Couleur terciaire (gris clair)
-\definecolor{Couleur4}{HTML}{ECF0F1} % Couleur de fond en-tête
-\definecolor{Couleur5}{HTML}{24252A}
+\definecolor{firstcolor}{HTML}{5C53A5}
+\definecolor{secondcolor}{HTML}{CE6693}
+\definecolor{thirdcolor}{HTML}{6C7A89}
 
 \definecolor{colortableborder}{HTML}{A059A0}
 \definecolor{colortable1}{HTML}{f2e9f2}
@@ -55,18 +52,18 @@
 
 \newcolumntype{C}[1]{>{\centering}m{#1}}
 
-% Thème A - Titres des parties
-%\newcommand{\THEMEA}[1]{\vspace{1cm} \textcolor{colormain}{\LARGE{#1}}}
-\newcommand{\THEMEA}[1]{\vspace{1cm} \hbox to \hsize{\lower.3em\hbox{\textcolor{colormain}{\LARGE{#1}}}\quad \textcolor{Couleur2}{\hrulefill}} \vspace{0.8cm}}
+% Theme 1
+%\newcommand{\THEMEA}[1]{\vspace{1cm} \textcolor{firstcolor}{\LARGE{#1}}}
+\newcommand{\THEMEA}[1]{\vspace{1cm} \hbox to \hsize{\lower.3em\hbox{\textcolor{firstcolor}{\LARGE{#1}}}\quad \textcolor{thirdcolor}{\hrulefill}} \vspace{0.8cm}}
 
-% Thème B - Notes, classements et durée des activités de recherche
-\newcommand{\THEMEB}[1]{\textcolor{colormain}{\Large{#1}} \vspace{0.5cm}}
+% Theme 2
+\newcommand{\THEMEB}[1]{\textcolor{firstcolor}{\Large{#1}} \vspace{0.5cm}}
 
 % Set Figure names
-\captionsetup[figure]{labelfont={color=colormain}, name={\textsf{\ding{115} Figure}}, labelsep=period, justification=justified}
+\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, labelsep=period, justification=justified}
 
 % Set Table names
-\captionsetup[table]{labelfont={color=colormain}, name={\textsf{\ding{116} Table}}, labelsep=period, justification=justified}
+\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, labelsep=period, justification=justified}
 
 %%%%% HEADER & FOOTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -74,9 +71,16 @@
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 
-\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{colormain}{\thepage}}
-\fancyfoot[LO]{\sffamily\footnotesize \textcolor{Couleur2}{Status and Trends of Coral Reefs of the Pacific}}
-\fancyfoot[RE]{\sffamily\footnotesize \textcolor{Couleur2}{French Polynesia}}
+\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{secondcolor}{\thepage}}
+\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{French Polynesia}}
+
+\fancypagestyle{biblio}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{secondcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{Bibliography}}
+}
 
 %%%% OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -98,10 +102,10 @@
 \newcommand\mapeez[1]{
 	\begin{tikzpicture}[overlay, remember picture]
 		\node[anchor=north west, %anchor is upper left corner of the graphic
-		xshift=12cm, %shifting around
-		yshift=-12cm] 
+		xshift=14cm, %shifting around
+		yshift=-10cm] 
 		at (current page.north west) %left upper corner of the page
-		{\includegraphics[width=4cm]{#1}}; 
+		{\includegraphics[width=3.5cm]{#1}}; 
 	\end{tikzpicture}
 }
 
@@ -120,41 +124,60 @@
 % Icon to put for contribution within author contribution table
 \newcommand{\contrib}{\textcolor{colortable3}{\ding{108}}}
 
-%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% COVER PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]	
+	\fill [fill=firstcolor] (current page.north west) rectangle (current page.south east);
+\end{tikzpicture}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% CITATION PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \thispagestyle{empty}
 
 \vspace*{2cm}
 	
-\textbf{GCRMN} \textcolor{colormain}{Global Coral Reef Monitoring Network}
+\textbf{GCRMN} \textcolor{firstcolor}{Global Coral Reef Monitoring Network}
 
 \href{www.gcrmn.net}{www.gcrmn.net}
 	
 \vspace{0.5cm}
 
-\textbf{ICRI} \textcolor{colormain}{International Coral Reef Initiative}
+\textbf{ICRI} \textcolor{firstcolor}{International Coral Reef Initiative}
 
 \href{www.icriforum.org}{www.icriforum.org}
 
-\vspace{5cm}
+\vspace{6cm}
 
-\textcolor{colortable3}{\textbf{Photograph credits}}
+\textcolor{firstcolor}{\textbf{Photograph credits}}
 
 {\footnotesize
 \textbf{Front cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
-
-\textbf{Pages 25 and 26}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
-
-\textbf{Pages 77 and 78}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
 
 \textbf{Back cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
 }
 
 \vspace{1cm}
 
-\textcolor{colortable3}{\textbf{Disclaimer}}
+\textcolor{firstcolor}{\textbf{Disclaimer}}
 
 \begin{flushleft}
 {\footnotesize The content of this report is solely the opinions of the authors, contributors and editors and do not constitute a statement of policy, decision, or position on behalf of the participating organizations, including those represented on the cover.}
@@ -162,16 +185,29 @@
 
 \vspace{1cm}
 
-\textcolor{colortable3}{\textbf{Citation}}
+\textcolor{firstcolor}{\textbf{Citation}}
 
 {\footnotesize
-	Wicquart J. and Planes S. (eds.), 2023. Status and Trends of Coral Reefs of the Pacific. Global Coral Reef Monitoring Network and International Coral Reef Initiative. doi.
+	Wicquart J. and Planes S. (eds.), 2024. Status and Trends of Coral Reefs of the Pacific. Global Coral Reef Monitoring Network and International Coral Reef Initiative. DOI. ISBN.
 }
 
 \vspace{1cm}
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt] at ($(current page.south west)+(3.5cm,4cm)$){\includegraphics[width=2cm]{../../figs/00_misc/01_logo/by-nc-sa.png}};
+	\node[align=left] at ($(current page.south west)+(8.5cm,3.95cm)$) {\footnotesize Copyright Global Coral Reef Monitoring Network\\ \footnotesize and International Coral Reef Initiative, 2024.};
+\end{tikzpicture}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% TABLE OF CONTENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{CONTENTS}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \newpage
@@ -180,28 +216,25 @@
 %%%%% ACKOWLEDGMENTS, ACRONYMS, DEFINITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\THEMEA{Contents}
-
-\newpage
-
 \THEMEA{Ackowledgments}
 
 \newpage
 
 \THEMEA{Acronyms}
 
-\begin{tabular}{>{\bfseries}>{\color{colortable3}}r>{\itshape}l}
+\begin{tabular}{>{\bfseries}>{\color{firstcolor}}r>{\itshape}l}
 	AIMS  & Australian Institute of Marine Science          \\
 	GCRMN & Global Coral Reef Monitoring Network            \\
 	NOAA  & National Oceanic and Atmospheric Administration \\
-	ENSO  & El Niño Southern Oscillation
+	ENSO  & El Nino Southern Oscillation                    \\
+	SST   & Sea Surface Temperature
 \end{tabular}
 
 \newpage
 
 \THEMEA{Definitions}
 
-\begin{tabular}{>{\bfseries}>{\color{colortable3}}rl}
+\begin{tabular}{>{\bfseries}>{\color{firstcolor}}rl}
 	Site  & A unique combination of latitude and longitude          \\
 	Survey & A unique combination of latitude and longitude at a given date (or year)           
 \end{tabular}
@@ -215,10 +248,18 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
-	\node[circle,minimum size=4cm,inner sep=0pt, fill=white] at ($(current page.north)+(5cm,-5.725cm)$) {\textcolor{white}{\textbf{}}};
-	\node[circle,minimum size=3.5cm,inner sep=0pt, fill=Couleur3] at ($(current page.north)+(5cm,-5.75cm)$) {\textcolor{white}{\textbf{}}};
-	\node[fill,text centered, minimum width=5.4cm, minimum height=1.2cm, fill=colortable3, inner sep=0pt, opacity=0.9] at ($(current page.north)+(-4cm,-5.12cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{FOREWORD}}};
+	\node[circle,minimum size=3.5cm,inner sep=0pt, fill=thirdcolor, draw=white, ultra thick] at ($(current page.north)+(5cm,-5.75cm)$) {\textcolor{white}{\textbf{}}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{FOREWORD}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
+
+\vspace{5cm}
+
+\begin{multicols}{2}
+
+\lipsum[1-4]
+
+\end{multicols}
 
 \clearpage
 \newpage
@@ -227,25 +268,11 @@
 %%%%% EXECUTIVE SUMMARY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\vspace*{5.25cm}
-
-\thispagestyle{empty}
-
-\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
-
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{EXECUTIVE SUMMARY}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
-
-{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Executive Summary}}
-
-\vspace{7.5cm}
-
-\begin{flushright}
-	\textbf{Coral reefs in American Samoa}
-	
-	Credit: Shaun Wolfe
-\end{flushright}
 
 \clearpage
 \newpage
@@ -283,10 +310,10 @@ blalala
 \tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{../../figs/00_misc/03_cover/part-2_left.png}};
 
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(5cm,-5cm)$) rectangle ($(current page.north west)+(7cm,-7cm)$) ;
-	\node at ($(current page.north west)+(6cm,-4.25cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{PART}}};
-	\node at ($(current page.north west)+(6cm,-6cm)$) {{\fontsize{50pt}{40pt}\selectfont \textcolor{white}{\textit{2}}}};
-	\node at ($(current page.north west)+(6cm,-8cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{Syntheses for countries and territories}}};
+	\node[fill,text centered, fill=firstcolor, opacity=1, inner xsep=0.65cm, inner ysep=0.65cm] at ($(current page.north west)+(4cm,-5cm)$) {{\fontsize{50pt}{40pt}\selectfont \textcolor{white}{\textit{2}}}};
+	\node at ($(current page.north west)+(4cm,-3.25cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{PART}}};
+	\node at ($(current page.north west)+(8cm,-8.5cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{SYNTHESES FOR COUNTRIES}}};
+	\node at ($(current page.north west)+(9cm,-9.5cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{AND TERRITORIES}}};
 \end{tikzpicture}
 
 \clearpage
@@ -299,8 +326,7 @@ blalala
 \begin{tikzpicture}[remember picture,overlay]
 	\filldraw[color=white, fill=white, opacity=1] ($(current page.north west)+(10cm,0cm)$) rectangle ($(current page.south east)+(0cm,0cm)$) ;
 	\node[text width=8cm] at ($(current page.north west)+(15cm,-5cm)$) {With minor omissions, each national report contains eight main sections, which have been formatted as follows:};
-	\node[circle,minimum size=0.75cm,inner sep=0pt, fill=colortable3] at ($(current page.north west)+(12cm,-8cm)$) {\textcolor{white}{\textbf{1}}};
-	
+	\node[circle,minimum size=0.75cm,inner sep=0pt, fill=firstcolor] at ($(current page.north west)+(12cm,-8cm)$) {\textcolor{white}{\textbf{1}}};
 \end{tikzpicture}
 
 \clearpage
@@ -308,55 +334,33 @@ blalala
 
 %%%%% AMERICAN SAMOA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-{\fontsize{30pt}{40pt}\selectfont \textcolor{colortableborder}{\textit{1.}}}
-
-\vspace{0.3cm}
-
-{\fontsize{40pt}{40pt}\selectfont \textcolor{black}{AMERICAN SAMOA}}
-
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3] ($(current page.north west)+(0cm,-5.2cm)$) rectangle ($(current page.south east)+(-3cm,22.5cm)$) ;
+	\node[text centered, anchor=west, draw=white] at ($(current page.north west)+(2.5cm,-3cm)$) {{\fontsize{30pt}{40pt}\selectfont \textcolor{firstcolor}{\textit{1.}}}};
+	\node[text centered, anchor=west] at ($(current page.north west)+(2.5cm,-4.5cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{black}{AMERICAN SAMOA}}};
+	\fill[anchor=west, draw=white, fill=firstcolor] ($(current page.north west)+(-1cm,-5.5cm)$) rectangle ($(current page.north west)+(18cm,-8cm)$);
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-6.25cm)$) {\textcolor{white}{\textbf{AUTHORS}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-7cm)$) {\textcolor{white}{Gilles Siu\textsuperscript{\textit{1}}, Yannick Chancerelle\textsuperscript{\textit{1}}, Serge Planes\textsuperscript{\textit{1}}, Jérémy Wicquart\textsuperscript{\textit{2}}}};
+	\node[anchor=west, text width=15cm] at ($(current page.north west)+(2.5cm,-9cm)$) {{\scriptsize \textsuperscript{\textcolor{secondcolor}{\textit{1}}}Laboratoire d'Excellence CORAIL, CRIOBE-USR 3278 CNRS-EPHE-UPVD, BP 1013, Papetoai, Moorea,\\French Polynesia \textcolor{secondcolor}{\ding{120}} \textsuperscript{\textcolor{secondcolor}{\textit{2}}}MAREPOLIS, 68 avenue des Corbières, 11490 Portel-Des-Corbières, France}};
 \end{tikzpicture}
 
-\vspace{-0.3cm}
-
-\textcolor{white}{\textbf{AUTHORS}}
-
-\textcolor{white}{Gilles Siu\textsuperscript{\textit{1}}, Yannick Chancerelle\textsuperscript{\textit{1}}, Serge Planes\textsuperscript{\textit{1}}, Jérémy Wicquart\textsuperscript{\textit{2}}}
-
-\vspace{0.4cm}
-
-{\scriptsize \textsuperscript{\textcolor{colormain}{\textit{1}}}Laboratoire d'Excellence CORAIL, CRIOBE-USR 3278 CNRS-EPHE-UPVD, BP 1013, Papetoai, Moorea,\\French Polynesia \textcolor{colormain}{\ding{120}} \textsuperscript{\textcolor{colormain}{\textit{2}}}MAREPOLIS, 68 avenue des Corbières, 11490 Portel-Des-Corbières, France}
-
-\vspace{3cm}
+\vspace{8cm}
 
 \mapeez{../../figs/02_part-2/fig-1/american-samoa.png}
 
 \newpage
 
-{\fontsize{30pt}{40pt}\selectfont \textcolor{colortableborder}{\textit{5.}}}
-
-\vspace{0.3cm}
-
-{\fontsize{40pt}{40pt}\selectfont \textcolor{black}{FRENCH POLYNESIA}}
+%%%%% FRENCH POLYNESIA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3] ($(current page.north west)+(0cm,-5.2cm)$) rectangle ($(current page.south east)+(-3cm,22.5cm)$) ;
+	\node[text centered, anchor=west, draw=white] at ($(current page.north west)+(2.5cm,-3cm)$) {{\fontsize{30pt}{40pt}\selectfont \textcolor{firstcolor}{\textit{5.}}}};
+	\node[text centered, anchor=west] at ($(current page.north west)+(2.5cm,-4.5cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{black}{FRENCH POLYNESIA}}};
+	\fill[anchor=west, draw=white, fill=firstcolor] ($(current page.north west)+(-1cm,-5.5cm)$) rectangle ($(current page.north west)+(18cm,-8cm)$);
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-6.25cm)$) {\textcolor{white}{\textbf{AUTHORS}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-7cm)$) {\textcolor{white}{Gilles Siu\textsuperscript{\textit{1}}, Yannick Chancerelle\textsuperscript{\textit{1}}, Serge Planes\textsuperscript{\textit{1}}, Jérémy Wicquart\textsuperscript{\textit{2}}}};
+	\node[anchor=west, text width=15cm] at ($(current page.north west)+(2.5cm,-9cm)$) {{\scriptsize \textsuperscript{\textcolor{secondcolor}{\textit{1}}}Laboratoire d'Excellence CORAIL, CRIOBE-USR 3278 CNRS-EPHE-UPVD, BP 1013, Papetoai, Moorea,\\French Polynesia \textcolor{secondcolor}{\ding{120}} \textsuperscript{\textcolor{secondcolor}{\textit{2}}}MAREPOLIS, 68 avenue des Corbières, 11490 Portel-Des-Corbières, France}};
 \end{tikzpicture}
 
-\vspace{-0.3cm}
-
-\textcolor{white}{\textbf{AUTHORS}}
-
-\textcolor{white}{Gilles Siu\textsuperscript{\textit{1}}, Yannick Chancerelle\textsuperscript{\textit{1}}, Serge Planes\textsuperscript{\textit{1}}, Jérémy Wicquart\textsuperscript{\textit{2}}}
-
-\vspace{0.4cm}
-
-{\scriptsize \textsuperscript{\textcolor{colormain}{\textit{1}}}Laboratoire d'Excellence CORAIL, CRIOBE-USR 3278 CNRS-EPHE-UPVD, BP 1013, Papetoai, Moorea,\\French Polynesia \textcolor{colormain}{\ding{120}} \textsuperscript{\textcolor{colormain}{\textit{2}}}MAREPOLIS, 68 avenue des Corbières, 11490 Portel-Des-Corbières, France}
-
-\vspace{3cm}
-
-\mapeez{../../figs/02_part-2/fig-1/french-polynesia.png}
+\vspace{8cm}
 
 \begin{figure}[h!]
 	\centering
@@ -365,13 +369,15 @@ blalala
 	\label{chapter1:fig1}
 \end{figure}
 
+\mapeez{../../figs/02_part-2/fig-1/french-polynesia.png}
+
 \newpage
 
 \THEMEA{Introduction}
 
 \begin{multicols}{2}
 
-\textcolor{colormain}{Geographic information}
+\textcolor{firstcolor}{Geographic information}
 
 \vspace{0.1cm}
 
@@ -381,13 +387,7 @@ blalala
 
 \vspace{0.5cm}
 	
-French Polynesia is composed of five archipelagos, namely Tuamotu islands, Austral islands, Society islands, Gambier islands, and Marquesas islands (Figure 1). These archipelagos bring together 118 islands and atolls (REF), whose average altitude is 198 m above sea level. With 4,766,689 km, the economic exclusive zone of French Polynesia represents a surface greater than the entire European Union. French Polynesia is bordered by three territories, with Cook Islands on the West, Kiribati (Line Group) on the North, and Pitcairn on the Southeast.
-
-Frech Polynesia is a French Overseas collectivity. The regional capital of French Polynesia is Papeete, located on the island of Tahiti, in the Society islands archipelago.
-
-French Polynesian coral reefs covers approximately 5,981 km, which represent 9.17 \% of the total coral reef extent of the GCRMN Pacific region, and X \% of the world coral reef extent. Coral reefs of French Polynesia are home to approximately X hard coral species (REF) and Y coral reef fish species (REF).
-
-The total human population of French Polynesia living within 100 km from coral reefs in 2020 was X inhabitants. This population has increased by 31.48 \% between 2000 and 2020. The human population is unevenly distributed over the numerous islands and atolls of the territory. Indeed, most of the population is located within the Society archipelago. Thus, numerous coral reefs of French Polynesia are relatively free from direct human impacts, although they can be threatened by illegal fisheries (REF). 
+\lipsum[1-2]
 
 \end{multicols}
 
@@ -399,15 +399,13 @@ The total human population of French Polynesia living within 100 km from coral r
 
 \begin{multicols}{2}
 	
-The long-term average of SST on coral reefs of French Polynesia between 1985 and 2023 was X°C, with a standard deviation of X°C (Figure 4A). Due to the distance of French Polynesia from the Equator, there is a substantial seasonal pattern on SST, with a difference of X°C between the austral summer (peaking in April)  and the austral winter (peaking in September) (Figure 4C). However, because of the wide latitudinal range of French Polynesia, this seasonality in SST varies between the archipelagos of the territory. SST over coral reefs of French Polynesia have increased by X°C between 1985 and 2023, which correspond to a warming rate of X°C per year and X°C per decade (Figure 4A). This warming rate is lower than the warming rate on coral reefs of the entire Pacific region, and slightly lower than the warming rate of the global ocean (Figure X).
+\lipsum[1-2]
 
 \end{multicols}
 
 \begin{multicols}{2}
 	
-Between 1985 and 2023, maximum DHW over coral reefs of French Polynesia occurred in 2009, 2017, 2021, and 2022 (Figure 5A). However, on these years, the percentage of coral reefs under positive DHW was low (Figure 5B), suggesting limited heat stress to coral reefs. On the contrary, almost 75 \% of French Polynesian coral reefs were exposed to DHW values between 4 and 8°C-weeks in 2016 (Figure 5B), although the maximum DHW value reached this year was below 10°C-weeks (Figure 5A). This result suggests that the heat stress to coral reefs was widespread in 2016, which has potentially led to a massive coral bleaching and ultimately an important mortality of hard corals in the territory.
-
-However, while the Figure 5B provide a broad picture of the occurrence of heat stress on coral, the distribution of positive DHW over coral reefs of French Polynesia was not homogeneous over the territory (Supplementary Material 2). Overall, over a year, when maximum DHW over coral reefs of the northern part of French Polynesia (i.e. Marquesas archipelago) were high, those on the southern part of the territory (i.e. Austral archipelago) were low, and conversely.
+\lipsum[1-2]
 
 \end{multicols}
 
@@ -448,7 +446,7 @@ The impacts of some of these cyclones on coral reefs have been described in the 
 \begin{multicols}{2}
 
 
-\textcolor{colormain}{Benthic monitoring information}
+\textcolor{firstcolor}{Benthic monitoring information}
 
 \vspace{0.1cm}
 
@@ -495,24 +493,17 @@ The impacts of some of these cyclones on coral reefs have been described in the 
 %%%%% MATERIALS AND METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\vspace*{5.25cm}
-
-\thispagestyle{empty}
-
-\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
-
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{MATERIALS AND METHODS}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
-{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Materials and Methods}}
-
-\clearpage
-\newpage
+\vspace{4cm}
 
 \THEMEA{Background maps}
 
-Blalab
+Blablabla \citep{lamy2016three}.
 
 \THEMEA{Indicators}
 
@@ -524,21 +515,10 @@ Blalab
 	\caption{Authors contribution}
 	\begin{center}
 \begin{tabular}{rlcccccccc}
-	 & & \rot{Funding acquisition}
-	& \rot{Supervision}
-	& \rot{Conceptualization} 
-	& \rot{Data acquisition}
-	& \rot{Data integration}
-	& \rot{Data analysis}
-		& \rot{Data visualisation}
-			& \rot{Participation to workshop}
-	
-	
-	\\ \hline
-		                  \rowcolor{colortable1}
-Serge & Planes                         & \contrib & \contrib & &&&&&\\ \hline
-\rowcolor{colortable2}
-Jérémy & Wicquart                       &                                    & & & &  \contrib &&&\\ \hline
+	                              &          & \rot{Funding acquisition} & \rot{Supervision} & \rot{Conceptualization} & \rot{Data acquisition} & \rot{Data integration} & \rot{Data analysis} & \rot{Data visualisation} & \rot{Participation to workshop} \\ \hline
+	 \rowcolor{colortable1}
+Serge & Planes   &         \contrib          &     \contrib      &                         &                        &                        &                     &                          &                                 \\ \hline
+	\rowcolor{colortable2} Jérémy & Wicquart &                           &                   &                         &                        &        \contrib        &                     &                          &                                 \\ \hline
 \end{tabular}
 	\end{center}
 \label{authors-contribution}
@@ -551,54 +531,43 @@ Jérémy & Wicquart                       &                                    & &
 %%%%% ANNEXES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\vspace*{5.25cm}
-
-\thispagestyle{empty}
-
-\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
-
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{ANNEXES}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
-{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Annexes}}
-
-\vspace{7.5cm}
-
-\begin{flushright}
-	\textbf{Coral reefs in American Samoa}
-	
-	Credit: Shaun Wolfe
-\end{flushright}
-
-\clearpage
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% BIBLIOGRAPHY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\vspace*{5.25cm}
-
-\thispagestyle{empty}
-
-\tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
-
 \begin{tikzpicture}[remember picture,overlay]
-	\filldraw[color=colortable3, fill=colortable3, opacity=1] ($(current page.north west)+(0cm,-9cm)$) rectangle ($(current page.north west)+(21cm,-12cm)$) ;
+	\node[opacity=1,inner sep=0pt] at ($(current page.north)+(0cm,-2.5cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/03_cover/executive-summary.png}};
+	\node[text centered, fill=firstcolor, opacity=1, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west, draw=white, ultra thick] at ($(current page.north)+(-8cm,-5.70cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{BIBLIOGRAPHY}}};
+	\node[anchor=west] at ($(current page.north)+(-10cm,-0.5cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
-{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Bibliography}}
+\pagestyle{biblio}
 
-\vspace{7.5cm}
+\bibliographystyle{apa}
 
-\begin{flushright}
-	\textbf{Coral reefs in American Samoa}
-	
-	Credit: Shaun Wolfe
-\end{flushright}
+\renewcommand{\bibname}{}
+
+\bibliography{bibliography.bib}
 
 \clearpage
 \newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% BACK COVER PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]	
+	\fill [fill=firstcolor] (current page.north west) rectangle (current page.south east);
+\end{tikzpicture}
 
 \end{document}

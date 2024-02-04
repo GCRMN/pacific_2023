@@ -53,12 +53,15 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `02_extract_predictor_reef-extent.js` Extract total coral reef extent within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_land.js` Extract total land area within 10 km from each site as a predictor, using GEE.
 * `02_extract_predictor_gravity.R` Extract gravity as a predictor.
+* `02_extract_predictor_sst.js` Extract SST mean from each site as a predictor, using GEE.
 
 #### B3. Models
 
 * `02_model_data-exploration.Rmd` Data exploration for benthic cover.
-* `02_model_benthic-data_grid.R` Create weights for the benthic model based on coral reef extent.
-* `02_model_benthic-cover.R` Machine learning model to estimate temporal trends of benthic categories. 
+* `02_model_site-coordinates.R` Extract site coordinates for coral reefs sites to predict.
+* `02_model_data-preparation.R` Combine predictors and prepare benthic data for the models.
+* `02_model_tuning.R` Hyperparameters tuning for the models.
+* `02_model_bootstrap.R` Bootstrap to calculate confidence interval from model outputs.
 
 ### C. Figures and tables (`03_`)
 
