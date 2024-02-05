@@ -8,7 +8,7 @@
 \usepackage{afterpage}
 \usepackage{xcolor} % To define colors
 \usepackage{fancyhdr} % For footer and header
-\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=secondcolor,linkcolor=black]{hyperref}
+\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=firstcolor,linkcolor=black]{hyperref}
 \usepackage{titlesec}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -39,14 +39,12 @@
 
 %%%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\definecolor{firstcolor}{HTML}{5C53A5}
-\definecolor{secondcolor}{HTML}{CE6693}
+\definecolor{firstcolor}{HTML}{446CB3}
+\definecolor{secondcolor}{HTML}{E4F1FE}
 \definecolor{thirdcolor}{HTML}{6C7A89}
+\definecolor{fourthcolor}{HTML}{2C3E50}
 
-\definecolor{colortableborder}{HTML}{A059A0}
-\definecolor{colortable1}{HTML}{f2e9f2}
-\definecolor{colortable2}{HTML}{ffffff}
-\definecolor{colortable3}{HTML}{a059a0}
+\arrayrulecolor{firstcolor} % Color for table borders
 
 %%%%% STYLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -71,13 +69,13 @@
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 
-\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{secondcolor}{\thepage}}
+\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
 \fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
 \fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{French Polynesia}}
 
 \fancypagestyle{biblio}{%
 	\fancyhf{}%
-	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{secondcolor}{\thepage}}
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
 	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
 	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{Bibliography}}
 }
@@ -122,7 +120,7 @@
 \NewDocumentCommand{\rot}{O{60} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
 
 % Icon to put for contribution within author contribution table
-\newcommand{\contrib}{\textcolor{colortable3}{\ding{108}}}
+\newcommand{\contrib}{\textcolor{firstcolor}{\ding{108}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,7 +137,13 @@
 \thispagestyle{empty}
 
 \begin{tikzpicture}[remember picture,overlay]	
-	\fill [fill=firstcolor] (current page.north west) rectangle (current page.south east);
+	\fill [fill=fourthcolor] (current page.north west) rectangle (current page.south east);
+	\node[anchor=west] at ($(current page.north west)+(3cm,-6cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Status and Trends of}}};
+	\node[anchor=west] at ($(current page.north west)+(4.5cm,-8cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Coral Reefs of the Pacific}}};
+	\node[text centered, fill=firstcolor, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west] at ($(current page.north)+(3cm,-10cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{2024}}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(16cm,-3cm)$){\includegraphics[width=3cm]{../../figs/00_misc/01_logo/logo-gcrmn.png}};
+	\node[anchor=west] at ($(current page.north west)+(3cm,-19cm)$) {{\fontsize{20pt}{40pt}\selectfont \textcolor{firstcolor}{Edited by}}};
+	\node[anchor=west] at ($(current page.north west)+(3cm,-20cm)$) {{\fontsize{25pt}{40pt}\selectfont \textcolor{white}{Jérémy Wicquart and Serge Planes}}};
 \end{tikzpicture}
 
 \newpage
@@ -155,13 +159,13 @@
 
 \vspace*{2cm}
 	
-\textbf{GCRMN} \textcolor{firstcolor}{Global Coral Reef Monitoring Network}
+\textbf{GCRMN} \textcolor{thirdcolor}{Global Coral Reef Monitoring Network}
 
 \href{www.gcrmn.net}{www.gcrmn.net}
 	
 \vspace{0.5cm}
 
-\textbf{ICRI} \textcolor{firstcolor}{International Coral Reef Initiative}
+\textbf{ICRI} \textcolor{thirdcolor}{International Coral Reef Initiative}
 
 \href{www.icriforum.org}{www.icriforum.org}
 
@@ -381,8 +385,6 @@ blalala
 
 \vspace{0.1cm}
 
-\arrayrulecolor{colortableborder}
-
 \input{../../figs/02_part-2/tbl-1/french-polynesia.tex}
 
 \vspace{0.5cm}
@@ -399,7 +401,7 @@ blalala
 
 \begin{multicols}{2}
 	
-\lipsum[1-2]
+\lipsum[1] \citep{spalding1997new}. \lipsum[1]
 
 \end{multicols}
 
@@ -516,9 +518,9 @@ Blablabla \citep{lamy2016three}.
 	\begin{center}
 \begin{tabular}{rlcccccccc}
 	                              &          & \rot{Funding acquisition} & \rot{Supervision} & \rot{Conceptualization} & \rot{Data acquisition} & \rot{Data integration} & \rot{Data analysis} & \rot{Data visualisation} & \rot{Participation to workshop} \\ \hline
-	 \rowcolor{colortable1}
+	 \rowcolor{secondcolor}
 Serge & Planes   &         \contrib          &     \contrib      &                         &                        &                        &                     &                          &                                 \\ \hline
-	\rowcolor{colortable2} Jérémy & Wicquart &                           &                   &                         &                        &        \contrib        &                     &                          &                                 \\ \hline
+	\rowcolor{white} Jérémy & Wicquart &                           &                   &                         &                        &        \contrib        &                     &                          &                                 \\ \hline
 \end{tabular}
 	\end{center}
 \label{authors-contribution}
@@ -553,7 +555,7 @@ Serge & Planes   &         \contrib          &     \contrib      &              
 
 \begingroup
 \def\chapter*#1{}
-\vspace*{5cm}
+\vspace*{4.5cm}
 \pagestyle{biblio}
 \bibliographystyle{apa}
 \bibliography{bibliography.bib}
