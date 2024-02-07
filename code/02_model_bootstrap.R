@@ -8,32 +8,24 @@ library(DALEXtra)
 library(caret)
 library(xgboost)
 library(vip)
-library(pdp)
-library(future)
-library(furrr)
-
-plan(multisession(workers = 4)) # Set parallelization with 4 cores
 
 # 2. Load data ----
 
 load("data/16_model-data/data_benthic_prepared.RData")
 load("data/16_model-data/data_predictors_pred.RData")
+load("data/16_model-data/hyperparameters.RData")
 
-# 3. Model ----
+# 3. Create the model bootstrap function ----
 
-## 3.1 Filter data ----
-
-data_benthic <- data_benthic %>% 
-  filter(category == "Hard coral") %>% 
-  select(-category)
-
-## 3.2 Create the model ----
-
-bootstrap_model <- function(iteration){
+bootstrap_model <- function(iteration, category_i){
   
   # 1. Sample data (bootstrap) ----
   
-  data_i <- slice_sample(data_benthic, n = nrow(data_benthic), replace = TRUE)
+  data_i <- data_benthic %>% 
+    filter(category == category_i) %>% 
+    select(-category)
+  
+  data_i <- slice_sample(data_i, n = nrow(data_i), replace = TRUE)
   
   # 2. Split data into training and testing datasets ----
   
@@ -48,10 +40,13 @@ bootstrap_model <- function(iteration){
   
   # 4. Define the model ----
   
-  boosted_model <- boost_tree(trees = 615, 
-                              min_n = 16, 
-                              tree_depth = 14, 
-                              learn_rate = 0.043) %>% # Model type
+  hyperparameters_i <- hyperparameters %>% 
+    filter(category == category_i)
+  
+  boosted_model <- boost_tree(trees = hyperparameters_i$trees, 
+                              min_n = hyperparameters_i$min_n, 
+                              tree_depth = hyperparameters_i$tree_depth, 
+                              learn_rate = hyperparameters_i$learn_rate) %>% # Model type
     set_engine("xgboost") %>% # Model engine
     set_mode("regression") # Model mode
   
@@ -70,97 +65,96 @@ bootstrap_model <- function(iteration){
   
   model_performance <- collect_metrics(final_model) %>% 
     select(-".estimator", -".config") %>% 
-    pivot_wider(names_from = ".metric", values_from = ".estimate")
+    pivot_wider(names_from = ".metric", values_from = ".estimate") %>% 
+    mutate(bootstrap = iteration, category = category_i)
   
-  # 8. Predict values for new set of predictors ----
+  # 8. Variable importance ----
+  
+  result_vip <- final_model %>% 
+    extract_fit_parsnip() %>% 
+    vip(num_features = 100) %>% 
+    .$data %>% 
+    rename(predictor = 1, importance = 2) %>% 
+    mutate(bootstrap = iteration, category = category_i)
+  
+  # 10. Predict values for new set of predictors ----
   
   final_fitted <- final_model$.workflow[[1]]
   
   results_predicted <- data_predictors_pred %>% 
     mutate(measurementValuepred = predict(final_fitted, data_predictors_pred)$.pred)
   
-  # 9. Summarise predictions ----
+  # 11. Summarise predictions ----
   
-  # 9.1 For the entire Pacific region ----
+  # 11.1 For the entire Pacific region ----
   
   results_region <- results_predicted %>% 
     group_by(year) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(bootstrap = iteration)
+    mutate(bootstrap = iteration, category = category_i)
   
-  # 9.2 For each territory ----
+  # 11.2 For each territory ----
   
   results_territory <- results_predicted %>% 
     group_by(territory, year) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(bootstrap = iteration)
+    mutate(bootstrap = iteration, category = category_i)
   
-  # 10. Return the results ----
+  # 12. Return the results ----
   
-  return(lst(results_region, 
+  return(lst(model_performance,
+             result_vip,
+             results_region, 
              results_territory))
   
 }
 
-# 3.3 Map over the function (bootstrap) ----
+# 4. Map over the function (bootstrap) ----
 
-model_results <- map(1:5, ~ bootstrap_model(iteration = .)) %>% 
+n_bootstrap <- 5
+
+## 4.1 Hard corals ----
+
+results_hard_coral <- map(1:n_bootstrap,
+                          ~ bootstrap_model(iteration = ., category_i = "Hard coral")) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
-# 4. Dataviz ----
+save(results_hard_coral, file = "data/16_model-data/raw-results_hard-coral.RData")
 
-## 4.1 Entire Pacific region ----
+## 4.2 Macroalgae ----
 
-### 4.1.1 Calculate confidence intervals ----
+results_macroalgae <- map(1:n_bootstrap,
+                          ~ bootstrap_model(iteration = ., category_i = "Macroalgae")) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
 
-model_results_region <- model_results$results_region %>% 
-  rename(cover = mean) %>% 
-  group_by(year) %>% 
-  summarise(mean = mean(cover),
-            sd = sd(cover),
-            n = length(cover)) %>% 
-  ungroup() %>% 
-  mutate(t_score_95 = qt(p = 0.05/2, df = n, lower.tail = FALSE),
-         lower_ci_95 = mean - (t_score_95*(sd/sqrt(n))),
-         upper_ci_95 = mean + (t_score_95*(sd/sqrt(n))),
-         t_score_80 = qt(p = 0.2/2, df = n, lower.tail = FALSE),
-         lower_ci_80 = mean - (t_score_80*(sd/sqrt(n))),
-         upper_ci_80 = mean + (t_score_80*(sd/sqrt(n)))) %>% 
-  select(-sd, -n, -t_score_95, -t_score_80)
+save(results_macroalgae, file = "data/16_model-data/raw-results_macroalgae.RData")
 
-### 4.1.2 Make the plot ----
+## 4.3 Turf algae ----
 
-ggplot(data = model_results_region) +
-  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95), fill = "lightgrey") +
-  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80), fill = "grey") +
-  geom_line(aes(x = year, y = mean))
+results_turf_algae <- map(1:n_bootstrap,
+                          ~ bootstrap_model(iteration = ., category_i = "Turf algae")) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
 
-## 4.2 Territories ----
+save(results_turf_algae, file = "data/16_model-data/raw-results_turf-algae.RData")
 
-### 4.2.1 Calculate confidence intervals ----
+## 4.4 Coralline algae ----
 
-model_results_territory <- model_results$results_territory %>% 
-  rename(cover = mean) %>% 
-  group_by(year, territory) %>% 
-  summarise(mean = mean(cover),
-            sd = sd(cover),
-            n = length(cover)) %>% 
-  ungroup() %>% 
-  mutate(t_score_95 = qt(p = 0.05/2, df = n, lower.tail = FALSE),
-         lower_ci_95 = mean - (t_score_95*(sd/sqrt(n))),
-         upper_ci_95 = mean + (t_score_95*(sd/sqrt(n))),
-         t_score_80 = qt(p = 0.2/2, df = n, lower.tail = FALSE),
-         lower_ci_80 = mean - (t_score_80*(sd/sqrt(n))),
-         upper_ci_80 = mean + (t_score_80*(sd/sqrt(n)))) %>% 
-  select(-sd, -n, -t_score_95, -t_score_80)
+results_coralline_algae <- map(1:n_bootstrap,
+                               ~ bootstrap_model(iteration = ., category_i = "Coralline algae")) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
 
-### 4.2.2 Make the plot ----
+save(results_coralline_algae, file = "data/16_model-data/raw-results_coralline-algae.RData")
 
-ggplot(data = model_results_territory) +
-  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95), fill = "lightgrey") +
-  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80), fill = "grey") +
-  geom_line(aes(x = year, y = mean)) +
-  facet_wrap(~territory, scales = "free")
+# 5. Combine and export raw results ----
+
+results_all_raw <- lst(results_hard_coral, results_coralline_algae, results_macroalgae, results_turf_algae) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(results_all_raw, file = "data/16_model-data/raw-results_all.RData")
