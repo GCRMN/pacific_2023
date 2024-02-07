@@ -20,6 +20,7 @@
 \usepackage{booktabs}
 \usepackage{tikz} % For schemas
 \usetikzlibrary{shapes.multipart} % For multilines on schemas
+\usetikzlibrary{fadings}
 \usepackage{datetime} % For date format
 \usepackage{titletoc} % For table of content personalised
 \usepackage{listings} % To include code from external file
@@ -43,6 +44,8 @@
 \definecolor{secondcolor}{HTML}{E4F1FE}
 \definecolor{thirdcolor}{HTML}{6C7A89}
 \definecolor{fourthcolor}{HTML}{2C3E50}
+
+\definecolor{firstpagecolor}{HTML}{013C5E}
 
 \arrayrulecolor{firstcolor} % Color for table borders
 
@@ -137,18 +140,34 @@
 \thispagestyle{empty}
 
 \begin{tikzpicture}[remember picture,overlay]	
-	\fill [fill=fourthcolor] (current page.north west) rectangle (current page.south east);
-	\node[anchor=west] at ($(current page.north west)+(3cm,-6cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Status and Trends of}}};
-	\node[anchor=west] at ($(current page.north west)+(4.5cm,-8cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Coral Reefs of the Pacific}}};
-	\node[text centered, fill=firstcolor, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west] at ($(current page.north)+(3cm,-10cm)$) {{\fontsize{27pt}{40pt}\selectfont \textcolor{white}{2024}}};
-	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(16cm,-3cm)$){\includegraphics[width=3cm]{../../figs/00_misc/01_logo/logo-gcrmn.png}};
-	\node[anchor=west] at ($(current page.north west)+(3cm,-19cm)$) {{\fontsize{20pt}{40pt}\selectfont \textcolor{firstcolor}{Edited by}}};
-	\node[anchor=west] at ($(current page.north west)+(3cm,-20cm)$) {{\fontsize{25pt}{40pt}\selectfont \textcolor{white}{Jérémy Wicquart and Serge Planes}}};
+	\node[anchor=north west, opacity=1,inner sep=0pt] at ($(current page.north west)+(1.5cm,-1.25cm)$){\includegraphics[width=18cm, angle=180]{../../figs/00_misc/03_cover/image10.png}};
+	\tikzfading[name=fade,bottom color=transparent!0,top color=transparent!100]
+	\fill[white,path fading=fade] ($(current page.north west)+(1cm,-21cm)$) rectangle ($(current page.north west)+(21cm,-25cm)$);
+	\fill[white] ($(current page.north west)+(1cm,-25cm)$) rectangle ($(current page.north west)+(21cm,-29cm)$);
+	\fill[fourthcolor, opacity=0.4] ($(current page.north west)+(1.5cm,-12cm)$) rectangle ($(current page.north west)+(19.5cm,-17cm)$);
+	\node[anchor=west] at ($(current page.north west)+(3cm,-13.5cm)$) {{\fontsize{32pt}{40pt}\selectfont \textcolor{white}{Status and Trends of}}};
+	\node[anchor=west] at ($(current page.north west)+(3.2cm,-15cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{white}{Coral Reefs of the Pacific}}};
+	\node[text centered, fill=firstpagecolor, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west] at ($(current page.north)+(3cm,-17cm)$) {{\fontsize{20pt}{40pt}\selectfont \textcolor{white}{1980-2023}}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(16.75cm,-3.5cm)$){\includegraphics[width=3cm]{../../figs/00_misc/01_logo/logo-gcrmn-white.png}};
+	\node[anchor=west] at ($(current page.north west)+(1.5cm,-26.25cm)$) {{\fontsize{13pt}{40pt}\selectfont \textcolor{firstpagecolor}{Edited by}}};
+	\node[anchor=west] at ($(current page.north west)+(1.5cm,-27cm)$) {{\fontsize{15pt}{40pt}\selectfont \textcolor{black}{Jérémy Wicquart and Serge Planes}}};
 \end{tikzpicture}
 
 \newpage
 \thispagestyle{empty}
 \mbox{}
+\newpage
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[anchor=west] at ($(current page.north west)+(3cm,-13.5cm)$) {{\fontsize{32pt}{40pt}\selectfont \textcolor{black}{Status and Trends of}}};
+	\node[anchor=west] at ($(current page.north west)+(3.2cm,-15cm)$) {{\fontsize{40pt}{40pt}\selectfont \textcolor{black}{Coral Reefs of the Pacific}}};
+	\node[text centered, fill=firstpagecolor, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west] at ($(current page.north)+(3cm,-17cm)$) {{\fontsize{20pt}{40pt}\selectfont \textcolor{white}{1980-2023}}};
+	\node[anchor=west] at ($(current page.north west)+(1.5cm,-26.25cm)$) {{\fontsize{13pt}{40pt}\selectfont \textcolor{firstpagecolor}{Edited by}}};
+	\node[anchor=west] at ($(current page.north west)+(1.5cm,-27cm)$) {{\fontsize{15pt}{40pt}\selectfont \textcolor{black}{Jérémy Wicquart and Serge Planes}}};
+\end{tikzpicture}
+
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -576,7 +595,11 @@ Serge & Planes   &         \contrib          &     \contrib      &              
 \thispagestyle{empty}
 
 \begin{tikzpicture}[remember picture,overlay]	
-	\fill [fill=firstcolor] (current page.north west) rectangle (current page.south east);
+	\node[anchor=north west, opacity=1,inner sep=0pt] at ($(current page.north west)+(1.5cm,-1.25cm)$){\includegraphics[width=18cm]{../../figs/00_misc/03_cover/image10.png}};
+	\tikzfading[name=fade reverse,bottom color=transparent!100,top color=transparent!0]
+	\fill[white] ($(current page.north west)+(1cm,-1cm)$) rectangle ($(current page.north west)+(21cm,-18cm)$);
+	\fill[white,path fading=fade reverse] ($(current page.north west)+(1cm,-18cm)$) rectangle ($(current page.north west)+(21cm,-25cm)$);
+	\node[text centered, fill=firstpagecolor, inner xsep=0.25cm, inner ysep=0.25cm, anchor=west] at ($(current page.north west)+(1.5cm,-6cm)$) {{\fontsize{20pt}{40pt}\selectfont \textcolor{white}{SUMMARY}}};
 \end{tikzpicture}
 
 \end{document}
