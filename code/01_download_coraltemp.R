@@ -22,8 +22,9 @@ for(i in 1:nrow(list_url)){
   
   if(file.exists(paste0("data/06_sst/", list_url[i, "filename"])) == FALSE){
     
+    # Use mode "wb" for windows otherwise issue to read the file with terra
     download.file(url = list_url[i, "url"],
-                  destfile = paste0("data/06_sst/", list_url[i, "filename"]))
+                  destfile = paste0("data/06_sst/", list_url[i, "filename"]), mode = "wb")
     
   }
   
@@ -49,8 +50,9 @@ for(i in 1:nrow(list_url)){
   
   if(file.exists(paste0("data/09_dhw/", list_url[i, "filename"])) == FALSE){
     
+    # Use mode "wb" for windows otherwise issue to read the file with terra
     download.file(url = list_url[i, "url"],
-                  destfile = paste0("data/09_dhw/", list_url[i, "filename"]))
+                  destfile = paste0("data/09_dhw/", list_url[i, "filename"]), mode = "wb")
     
   }
   
