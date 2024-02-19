@@ -6,7 +6,6 @@ sf_use_s2(FALSE)
 library(ggrepel)
 library(glue)
 library(scales)
-library(lubridate)
 library(ggsflabel)
 
 # 2. Source functions ----

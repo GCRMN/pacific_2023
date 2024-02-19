@@ -1,8 +1,6 @@
 # 1. Required packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(purrr)
-library(lubridate)
 library(RcppRoll)
 library(sf)
 sf_use_s2(FALSE)

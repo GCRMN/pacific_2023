@@ -1,7 +1,6 @@
 # 1. Required packages and functions ----
 
 library(tidyverse) # Core tidyverse packages
-library(lubridate) # To deal with dates
 library(sf) # To plot maps
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 

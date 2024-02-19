@@ -1,7 +1,6 @@
 # 1. Load packages ----
 
 library(tidyverse)
-library(lubridate)
 library(sf)
 sf_use_s2(FALSE)
 

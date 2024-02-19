@@ -1,7 +1,6 @@
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(stringr)
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 library(patchwork)
