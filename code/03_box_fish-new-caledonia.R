@@ -47,9 +47,11 @@ plot_a <- ggplot() +
   annotate(geom = "text", x = 2017.5, y = 17, label = "Outside MPA", 
            family = font_choose_graph, color = colors[1]) +
   labs(x = "Year", y = expression(paste("Biomass (", g.m^{-1}, ")")), title = "A") +
+  lims(y = c(0, 100)) +
   theme_graph() +
   theme(plot.background = element_rect(fill = "transparent", color = NA),
         axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+        plot.title = element_text(face = "bold"),
         panel.border = element_rect(fill = NA))
 
 ## 4.2 Species richness of commercial species ----
@@ -80,6 +82,7 @@ plot_b <- ggplot() +
   theme_graph() +
   theme(plot.background = element_rect(fill = "transparent", color = NA),
         axis.ticks.y = element_line(linewidth = 0.4, color = "black"),
+        plot.title = element_text(face = "bold"),
         panel.border = element_rect(fill = NA))
 
 ## 4.3 Combine plots ----
