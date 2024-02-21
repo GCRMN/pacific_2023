@@ -3,8 +3,6 @@
 library(tidyverse)
 library(sf)
 sf_use_s2(FALSE)
-library(scico)
-library(extrafont)
 library(treemapify)
 
 # 2. Source functions ----
@@ -39,7 +37,7 @@ data_reef_area_pacific <- st_intersection(data_eez, data_reefs) %>%
 ggplot(data = data_reef_area_pacific, aes(area = reef_area_abs, fill = reef_area_abs, label = territory)) +
   geom_treemap(show.legend = FALSE, color = "white", size = 2) +
   geom_treemap_text(color = "white", place = "centre", reflow = TRUE, family = font_choose_graph) +
-  scale_fill_gradientn(colours = palette_5cols[2:5])
+  scale_fill_gradientn(colours = palette_first[2:5])
 
 ggsave(filename = "figs/01_part-1/fig-2b.png", height = 5, width = 5, dpi = 600)
 
@@ -54,8 +52,8 @@ data_reef_area_gcrmn <- st_intersection(data_gcrmn_regions, data_reefs) %>%
   st_drop_geometry() %>% 
   mutate(reef_area_abs = as.numeric(reef_area_abs)*1e-6,
          gcrmn_region = str_replace_all(gcrmn_region, "EAS", "East Asian Seas"),
-         color = case_when(gcrmn_region == "Pacific" ~ palette_5cols[3],
-                           TRUE ~ palette_5cols[5]),
+         color = case_when(gcrmn_region == "Pacific" ~ palette_first[3],
+                           TRUE ~ palette_first[4]),
          color_text = case_when(gcrmn_region == "Pacific" ~ "white",
                                 TRUE ~ "white"))
 

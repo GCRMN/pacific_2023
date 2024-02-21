@@ -9,7 +9,7 @@ library(patchwork)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-colors <- c(palette_5cols[3], "#013C5E")
+colors <- c(palette_second[3], "#013C5E")
 
 # 3. Load and transform data ----
 

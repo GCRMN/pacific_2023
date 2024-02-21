@@ -1,7 +1,6 @@
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(stringr)
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 library(patchwork)
@@ -171,7 +170,7 @@ ggplot() +
   geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
   # Benthic data
   geom_sf(data = data_benthic %>% arrange(interval_class), aes(color = interval_class)) +
-  scale_color_manual(values = palette_5cols,
+  scale_color_manual(values = palette_second,
                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                      drop = FALSE, name = "Number of years with data") +
   # Annotation (legend)
@@ -204,7 +203,7 @@ data_benthic %>%
   ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
                        y = percent, fill = interval_class)) +
     geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
-    scale_fill_manual(values = palette_5cols,
+    scale_fill_manual(values = palette_second,
                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                       drop = FALSE, name = "Number of years with data") +
     labs(x = NULL, y = "Sites (%)") +
@@ -233,7 +232,7 @@ data_benthic %>%
   mutate(percent = n*100/sum(n)) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
     geom_bar(stat = "identity", show.legend = FALSE, width = 1,
-             color = palette_5cols[5], fill = palette_5cols[4]) +
+             color = palette_first[4], fill = palette_first[3]) +
     labs(x = "Year", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
     theme_graph() +
@@ -254,7 +253,7 @@ data_benthic %>%
   distinct() %>% 
   ggplot(data = ., aes(x = verbatimDepth)) +
   geom_histogram(binwidth = 1, aes(y = after_stat(width * density * 100)),
-                 color = palette_5cols[5], fill = palette_5cols[4]) +
+                 color = palette_first[4], fill = palette_first[3]) +
   labs(x = "Depth (m)", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph()

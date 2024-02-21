@@ -1,7 +1,6 @@
 # 1. Load packages ----
 
 library(tidyverse) # Core tidyverse packages
-library(stringr)
 library(sf)
 sf_use_s2(FALSE) # Switch from S2 to GEOS
 library(patchwork)
@@ -176,7 +175,7 @@ plot_map <- ggplot() +
           alpha = 0.75, linewidth = 0.5, show.legend = "line") +
   scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
                      labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                     values = c(palette_5cols[2:5], "black"),
+                     values = c(palette_second[2:5], "black"),
                      name = "Saffir-Simpson category",
                      drop = FALSE) +
   # Annotation (legend)
@@ -219,7 +218,7 @@ ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill 
   geom_bar(stat = "identity", width = 0.7) +
   scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                      labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                     values = c(palette_5cols[2:5], "black"),
+                     values = c(palette_second[2:5], "black"),
                      name = "Saffir-Simpson category",
                      drop = FALSE) +
   theme_graph() +

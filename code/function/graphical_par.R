@@ -1,6 +1,7 @@
 # 1. Required packages ----
 
-require(extrafont) # For fonts
+library(extrafont)
+library(scico)
 
 # 2. Set the default font family ----
 
@@ -11,12 +12,5 @@ font_choose_map <- "Open Sans"
 
 # 3. Set the colors ----
 
-col_fill_map <- "#f2caae"
-col_color_map <- "#888888"
-col_background_map <- "#e4f1fe"
-
-palette_5cols <- c("#fac484", "#f8a07e", "#ce6693", "#a059a0", "#5c53a5")
-
-# 4. Define a common crs ----
-
-crs_selected <- "+proj=eqearth"
+palette_first <- scico(5, palette = "oslo", begin = 0.8, end = 0)
+palette_second <- c("#fac484", "#f8a07e", "#ce6693", "#a059a0", "#5c53a5")
