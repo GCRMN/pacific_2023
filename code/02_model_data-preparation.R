@@ -14,13 +14,19 @@ load("data/04_data-benthic.RData")
 site_coords <- st_read("data/15_site-coords/site-coords_all.shp") %>% 
   mutate(decimalLongitude = st_coordinates(.)[,"X"],
          decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
-  st_drop_geometry()
+  st_drop_geometry() %>% 
+  mutate(year = 2000) %>% 
+  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type, territory, decimalLongitude, decimalLatitude))
 
 data_pred_elevation <- read.csv("data/14_predictors/pred_elevation.csv") %>% 
   rename(pred_elevation = mean) %>% 
   mutate(pred_elevation = replace_na(pred_elevation, 0))
 
 data_pred_population <- read.csv("data/14_predictors/pred_human-pop.csv") %>% 
+  mutate(year = as.numeric(str_split_fixed(system.index, "_", 8)[,6])) %>% 
+  select(-system.index) %>% 
+  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type), fill = list(sum = NA)) %>% 
+  arrange(type, site_id, year) %>% 
   rename(pred_population = sum)
 
 data_pred_reef_extent <- read.csv("data/14_predictors/pred_reef-extent.csv") %>% 
@@ -48,10 +54,15 @@ data_pred_sst_kurtosis <- read.csv("data/14_predictors/pred_sst_kurtosis.csv") %
 
 data_pred_gravity <- read.csv("data/14_predictors/pred_gravity.csv")
 
+data_pred_enso <- read.csv("data/14_predictors/pred_enso.csv") %>% 
+  rename(pred_enso = enso)
+
 ## 3.2 Join values ----
 
 data_predictors <- site_coords %>% 
   left_join(., data_pred_population) %>% 
+  left_join(., data_pred_enso) %>% 
+  
   left_join(., data_pred_elevation) %>% 
   left_join(., data_pred_land) %>% 
   left_join(., data_pred_reef_extent) %>% 
