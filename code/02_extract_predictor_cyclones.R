@@ -3,12 +3,14 @@
 library(tidyverse)
 library(sf)
 sf_use_s2(FALSE)
+library(lwgeom)
+library(RcppRoll)
 
 # 2. Load data ----
 
 # 2.1 Site coordinates --
 
-data_sites <- st_read("data/15_site-coords/site-coords_obs.shp") %>% 
+data_sites <- st_read("data/15_site-coords/site-coords_all.shp") %>% 
   st_transform(crs = 4326)
 
 # 2.2 Cyclones lines --
@@ -25,38 +27,68 @@ load("data/05_cyclones/01_cyclones_points.RData")
 data_ts_points <- data_ts_points %>% 
   st_transform(crs = 4326)
 
-# 3. Create a function to extract cyclone within 100 km from sites ----
+# 2.4 Coral reef distribution 100 km buffer --
 
-extract_ts_sites <- function(site_id_i){
-  
-  data_sites_i <- data_sites %>% 
-    filter(site_id == site_id_i)
-  
-  data_results <- data_sites_i %>%  
-    # Create the buffer around the site (1 degree ~ 111 km)
-    st_buffer(dist = 1) %>% 
-    st_wrap_dateline() %>% 
-    st_make_valid() %>% 
-    # Extract cyclone passing within 111 km from the site
-    st_intersection(., data_ts_points) %>% 
-    st_filter(., data_ts_points, join = st_filter) %>% 
-    # Extract distance of cyclone position from the site
-    mutate(dist = as.numeric(st_distance(data_sites_i, .))/1000) %>% 
-    # Filter cyclone position within 100 km and minimal distance from the site
-    group_by(ts_id) %>% 
-    filter(dist <= 100) %>% 
-    filter(dist == min(dist)) %>% 
-    filter(wind_speed == max(wind_speed)) %>% 
-    ungroup()
-  
-  return(data_results)
-  
-}
+data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
 
-# 4. Map over the function ----
+# 3. Extract cyclones passing within 100 km from coral reefs ----
 
-pred_cyclones <- map_dfr(data_sites$site_id, ~extract_ts_sites(site_id_i = .))
+data_ts_lines_reef <- st_intersection(data_reef_buffer, data_ts_lines)
 
-# 5. Export the results ----
+data_ts_points <- data_ts_points %>% 
+  filter(ts_id %in% unique(data_ts_lines_reef$ts_id)) %>% 
+  filter(wind_speed >= 119)
+
+# 4. Create buffer of 111 km around sites with coral reefs ----
+
+data_sites_buffer <- data_sites %>%  
+  # Create the buffer around the site (1 degree ~ 111 km)
+  st_buffer(dist = 1) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
+
+# 5. Extract cyclones passing within 100 km from each site ----
+
+pred_cyclones <- st_intersection(data_sites_buffer, data_ts_points) %>% 
+  mutate(year = year(time)) %>% 
+  st_drop_geometry() %>% 
+  select(site_id, type, year, ts_id, name, wind_speed) %>% 
+  distinct() %>% 
+  group_by(site_id, type, year, ts_id, name) %>% 
+  filter(wind_speed == max(wind_speed)) %>% 
+  ungroup()
+
+# 6. Transform data to create predictors ----
+
+pred_cyclones <- pred_cyclones %>%
+  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type), 
+                  fill = list(ts_id = NA, name = NA, wind_speed = NA)) %>% 
+  # Number of cyclones per site from 1980 to 2023
+  group_by(site_id) %>% 
+  mutate(nb_cyclones = sum(!is.na(name))) %>% 
+  ungroup() %>% 
+  # Wind speed of cyclones over year n-5 (five past years)
+  arrange(site_id, type, year) %>% 
+  mutate(wind_speed_y5 = roll_max(wind_speed, n = 5, align = "right", fill = NA, na.rm = TRUE),
+         wind_speed_y5 = if_else(wind_speed_y5 == -Inf, 0, wind_speed_y5)) %>% 
+  # Number of cyclones over year n-5 (five past years)
+  mutate(nb_cyclones_y5 = if_else(is.na(ts_id), 0, 1),
+         nb_cyclones_y5 = roll_sum(nb_cyclones_y5, n = 5, align = "right", fill = NA, na.rm = TRUE)) %>% 
+  select(-ts_id, -name, -wind_speed) %>% 
+  distinct()
+
+# 7. Add missing sites (those without any cyclones) ----
+
+pred_cyclones <- data_sites_buffer %>% 
+  st_drop_geometry() %>% 
+  mutate(year = 1980) %>% 
+  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type)) %>% 
+  left_join(., pred_cyclones) %>% 
+  mutate(across(c(nb_cyclones, wind_speed_y5, nb_cyclones_y5), ~replace_na(.x, 0)))
+
+# 8. Export the results ----
 
 save(pred_cyclones, file = "data/14_predictors/pred_cyclones.RData")
