@@ -25,7 +25,7 @@ var data_pop = ee.ImageCollection("CIESIN/GPWv411/GPW_Population_Count")
 var pop_by_site = data_pop.map(function(image){
   return image.reduceRegions({
     collection:site_buffer, 
-    reducer:ee.Reducer.sum(), 
+    reducer:ee.Reducer.sum().setOutputs(["pred_population"]), 
     scale: 1000
   });
 })
@@ -39,5 +39,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_human-pop",
   fileFormat:"CSV",
   description:"pred_human-pop",
-  selectors:["system:index", "site_id", "type", "sum"]
+  selectors:["system:index", "site_id", "type", "pred_population"]
 });

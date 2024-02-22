@@ -30,7 +30,7 @@ var data_area = data_area.mask(elevation);
 // 7. Extract mean elevation ----
 
 var data_elevation = data_area.reduceRegions({
-  reducer: ee.Reducer.sum(),
+  reducer: ee.Reducer.sum().setOutputs(["pred_land"]),
   collection: site_buffer,
   scale: 90,
 });
@@ -43,5 +43,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_land",
   fileFormat:"CSV",
   description:"pred_land",
-  selectors:["site_id", "type", "sum"]
+  selectors:["site_id", "type", "pred_land"]
 });

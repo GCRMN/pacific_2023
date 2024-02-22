@@ -31,7 +31,7 @@ var aca_area = data_area.mask(aca_benthic);
 
 var reef_extent = aca_area.reduceRegions({
   collection: site_buffer,
-  reducer: ee.Reducer.sum(), 
+  reducer: ee.Reducer.sum().setOutputs(["pred_reefextent"]), 
   scale:5
 });
 
@@ -43,5 +43,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_reef-extent",
   fileFormat:"CSV",
   description:"pred_reef-extent",
-  selectors:["site_id", "type", "sum"]
+  selectors:["site_id", "type", "pred_reefextent"]
 });

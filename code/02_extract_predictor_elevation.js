@@ -22,7 +22,7 @@ var elevation = ee.Image('CGIAR/SRTM90_V4').select('elevation');
 // 5. Extract mean elevation ----
 
 var data_elevation = elevation.reduceRegions({
-  reducer: ee.Reducer.mean(),
+  reducer: ee.Reducer.mean().setOutputs(["pred_elevation"]),
   collection: site_buffer,
   scale: 90,
 });
@@ -35,5 +35,5 @@ Export.table.toDrive({
   fileNamePrefix:"pred_elevation",
   fileFormat:"CSV",
   description:"pred_elevation",
-  selectors:["site_id", "type", "mean"]
+  selectors:["site_id", "type", "pred_elevation"]
 });
