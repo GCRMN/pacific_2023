@@ -1,95 +1,48 @@
 // 1. Import data ----
 
-// 1.1 Import NOAA SST data ----
-
-var data_sst = ee.ImageCollection('NOAA/CDR/OISST/V2_1')
-                  .filter(ee.Filter.date('1985-01-01', '2023-12-31'))
-                  .select('sst');
-
-// 1.2 Import site coordinates ----
-
 var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords-all");
 
-// 2. Mean SST ----
+// 2. Transform NOAA SST data ----
 
-// 2.1 Mean SST between the dates ----
+// 2.1 Import data ----
 
-var data_sst_mean = data_sst.reduce(ee.Reducer.mean());
+var data_sst = ee.ImageCollection('NOAA/CDR/OISST/V2_1')
+                  .filter(ee.Filter.date('1981-01-01', '2023-12-31'))
+                  .select('sst');
 
-// 2.2 Extract mean SST for each site ----
+// 2.2 List of years to aggregate ----
 
-var result_sst_mean = data_sst_mean.reduceRegions(site_coords, ee.Reducer.first());
+var years = ee.List.sequence(1981, 2023);
 
-// 2.3 Export the data ----
+// 2.3 Map a function to select data within the year and apply mean reducer ----
+
+var data_sst = ee.ImageCollection.fromImages(
+    years.map(function(y) {
+      return data_sst
+        .filter(ee.Filter.calendarRange(y, y, 'year'))
+        .reduce(ee.Reducer.mean())
+        .set('year', y);
+    })
+  );
+
+// 3. Mean of SST per year for each site ----
+
+var pred_sst_mean = data_sst.map(function(image) {
+  return image.reduceRegions({
+    collection: site_coords,
+    reducer:ee.Reducer.mean().setOutputs(["pred_sst_mean"])
+  }).map(function (featureWithReduction) {
+    return featureWithReduction.copyProperties(image);
+  });
+}).flatten();
+
+// 4. Export the data ----
 
 Export.table.toDrive({
-  collection:result_sst_mean,
+  collection:pred_sst_mean,
   folder:"GEE",
   fileNamePrefix:"pred_sst_mean",
   fileFormat:"CSV",
   description:"pred_sst_mean",
-  selectors:["site_id", "type", "first"]
-});
-
-// 3. SST standard deviation (SD) ----
-
-// 3.1 SD between the dates ----
-
-var data_sst_sd = data_sst.reduce(ee.Reducer.stdDev());
-
-// 3.2 Extract SST SD for each site ----
-
-var result_sst_sd = data_sst_sd.reduceRegions(site_coords, ee.Reducer.first());
-
-// 3.3 Export the data ----
-
-Export.table.toDrive({
-  collection:result_sst_sd,
-  folder:"GEE",
-  fileNamePrefix:"pred_sst_sd",
-  fileFormat:"CSV",
-  description:"pred_sst_sd",
-  selectors:["site_id", "type", "first"]
-});
-
-// 4. SST kurtosis ----
-
-// 4.1 Kurtosis between the dates ----
-
-var data_sst_kurtosis = data_sst.reduce(ee.Reducer.kurtosis());
-
-// 4.2 Extract SST kurtosis for each site ----
-
-var result_sst_kurtosis = data_sst_kurtosis.reduceRegions(site_coords, ee.Reducer.first());
-
-// 4.3 Export the data ----
-
-Export.table.toDrive({
-  collection:result_sst_kurtosis,
-  folder:"GEE",
-  fileNamePrefix:"pred_sst_kurtosis",
-  fileFormat:"CSV",
-  description:"pred_sst_kurtosis",
-  selectors:["site_id", "type", "first"]
-});
-
-// 5. SST skewness ----
-
-// 5.1 Skewness between the dates ----
-
-var data_sst_skew = data_sst.reduce(ee.Reducer.skew());
-
-// 5.2 Extract SST skewness for each site ----
-
-var result_sst_skew = data_sst_skew.reduceRegions(site_coords, ee.Reducer.first());
-
-// 5.3 Export the data ----
-
-Export.table.toDrive({
-  collection:result_sst_skew,
-  folder:"GEE",
-  fileNamePrefix:"pred_sst_skew",
-  fileFormat:"CSV",
-  description:"pred_sst_skew",
-  selectors:["site_id", "type", "first"]
+  selectors:["year", "site_id", "type", "pred_sst_mean"]
 });
