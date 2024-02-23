@@ -5,7 +5,7 @@ library(RcppRoll)
 
 # 2. Load and transform SOI data ----
 
-read_table("data/enso_soi.txt", skip = 87) %>% 
+read_table("data/09_misc/enso-soi.txt", skip = 87) %>% 
   filter(YEAR %in% c(1980:2023)) %>% 
   select(-X14) %>% 
   mutate_all(., ~as.numeric(.)) %>% 
@@ -28,4 +28,5 @@ read_table("data/enso_soi.txt", skip = 87) %>%
   mutate(enso = roll_mean(x = soi, n = 24, align = "right", fill = NA)) %>% 
   filter(month == "12") %>% 
   select(year, enso) %>% 
-  write.csv(., file = "data/14_predictors/pred_enso.csv", row.names = FALSE)
+  rename(pred_enso = enso) %>% 
+  write.csv(., file = "data/10_predictors/pred_enso.csv", row.names = FALSE)
