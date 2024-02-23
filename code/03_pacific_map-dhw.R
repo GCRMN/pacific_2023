@@ -24,8 +24,8 @@ crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WG
 
 # 4. List of files ----
 
-data_files <- tibble(path = list.files("data/11_max-dhw/", full.names = TRUE)) %>% 
-  mutate(year = as.numeric(str_sub(path, 24, 27)),
+data_files <- tibble(path = list.files("data/8_dhw-year/", full.names = TRUE)) %>% 
+  mutate(year = as.numeric(str_sub(path, -8, -4)),
          group = rep(1:50, each = 8, length.out = nrow(.))) # 8 is the number of subplots (i.e. years) per plot
 
 # 5. Create the function to make the plot for each year ----
@@ -89,7 +89,7 @@ map_dhw_plot <- function(group_i){
   
   # 4. Save the plot ----
   
-  ggsave(filename = paste0("figs/pacific-dhw/years_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
+  ggsave(filename = paste0("figs/04_supp/fig-4_max-dhw_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
          height = 10, combined_plots, dpi = 600)
   
 }
