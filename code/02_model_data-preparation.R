@@ -50,6 +50,9 @@ data_predictors <- read.csv("data/10_predictors/pred_sst_mean.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>% 
   left_join(data_predictors, .)
 
+data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>% 
+  left_join(data_predictors, .)
+
 # 4. Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
@@ -60,7 +63,7 @@ data_predictors <- data_predictors %>%
   mutate(across(c(pred_elevation, pred_reefextent, pred_land,
                   pred_enso, pred_sst_sd, pred_sst_skewness,
                   pred_sst_kurtosis, pred_sst_max, pred_sst_mean,
-                  pred_sst_min), ~ round(.x, digits = 3)))
+                  pred_sst_min, pred_chla_mean), ~ round(.x, digits = 3)))
 
 # 5. Split predictors in observed and to predict tibbles ----
 

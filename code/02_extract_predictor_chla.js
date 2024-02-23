@@ -2,44 +2,42 @@
 
 var site_coords = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords-all");
 
-// 2. Create a function to create a buffer around a point ----
+var data_chla = ee.ImageCollection("NASA/OCEANDATA/MODIS-Aqua/L3SMI")
+                .select('chlor_a');
 
-function bufferPoints(radius, bounds) {
-  return function(pt) {
-    pt = ee.Feature(pt);
-    return bounds ? pt.buffer(radius).bounds() : pt.buffer(radius);
-  };
-}
+// 2. List of years to aggregate ----
 
-// 3. Apply the function (here 10 km radius) ----
+var years = ee.List.sequence(2002, 2022);
 
-var site_buffer = site_coords.map(bufferPoints(10000, false));
+// 3. Map a function to select data within the year and apply mean reducer ----
 
-// 4. Import MODIS data ----
+var data_chla_year = ee.ImageCollection.fromImages(
+    years.map(function(y) {
+      return data_chla
+        .filter(ee.Filter.calendarRange(y, y, 'year'))
+        .reduce(ee.Reducer.mean())
+        .set('year', y);
+    })
+  );
 
-var modis = ee.ImageCollection("NASA/OCEANDATA/MODIS-Aqua/L3SMI")
-  .filterDate('2010-01-01', '2020-01-01')
-  .select(['chlor_a']);
+// 4. Mean of chl a per year for each site ----
 
-// 5. Mean of chl. a between the dates ----
+var pred_chla_mean = data_chla_year.map(function(image) {
+  return image.reduceRegions({
+    collection: site_coords,
+    reducer:ee.Reducer.first().setOutputs(["pred_chla_mean"])
+  }).map(function (featureWithReduction) {
+    return featureWithReduction.copyProperties(image);
+  });
+}).flatten();
 
-var modis_mean = modis.reduce(ee.Reducer.mean());
-
-// 6. Extract chl. a on each site ----
-
-var data_chla = modis_mean.reduceRegions({
-  reducer: ee.Reducer.mean(),
-  collection: site_buffer,
-  scale: 5000,
-});
-
-// 7. Export the data ----
+// 5. Export the data ----
 
 Export.table.toDrive({
-  collection:data_chla,
+  collection:pred_chla_mean,
   folder:"GEE",
-  fileNamePrefix:"pred_chla",
+  fileNamePrefix:"pred_chla_mean",
   fileFormat:"CSV",
-  description:"pred_chla",
-  selectors:["site_id", "type", "mean"]
+  description:"pred_chla_mean",
+  selectors:["year", "site_id", "type", "pred_chla_mean"]
 });
