@@ -38,7 +38,7 @@ ggplot() +
 
 # 5. Join data with site coordinates with observed data ----
 
-st_read("data/15_site-coords/site-coords_obs.shp") %>% 
+st_read("data/04_site-coords/site-coords_obs.shp") %>% 
   mutate(type = "obs") %>% 
   bind_rows(., sites_coordinates) %>% 
-  st_write(., dsn = "data/15_site-coords/site-coords_all.shp", delete_dsn = TRUE)
+  st_write(., dsn = "data/04_site-coords/site-coords_all.shp", delete_dsn = TRUE)

@@ -7,7 +7,7 @@ sf_use_s2(FALSE)
 library(future)
 library(furrr)
 
-plan(multisession, workers = 4) # Set parallelization with 2 cores
+plan(multisession, workers = 4) # Set parallelization with 4 cores
 
 # 2. Load file of coral reefs EEZ ----
 

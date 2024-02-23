@@ -4,7 +4,7 @@ library(tidyverse)
 
 # 2. Load data ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 # 3. DatasetID per territory ----
 

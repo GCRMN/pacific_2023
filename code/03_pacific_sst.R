@@ -22,9 +22,11 @@ data_warming <- read.csv2("figs/01_part-1/table-3.csv") %>%
   # The number 0.88°C is coming from Technical summary IPCC, 2021 (TS.2.4, The Ocean, page 74)
   add_row(TERRITORY1 = "Global Ocean", warming_rate = (0.88/(2020-1900))*(2022-1980), sst_increase = 0.88) %>% 
   mutate(warming_rate = round(warming_rate, 3),
-         TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1),
-         color = if_else(sst_increase > 0, palette_5cols[3], palette_5cols[5])) %>% 
-  arrange(desc(sst_increase)) 
+         color = case_when(TERRITORY1 == "Global Ocean" ~ palette_first[5],
+                           sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ palette_first[3],
+                           sst_increase <= 0 & TERRITORY1 != "Global Ocean" ~ palette_first[2]),
+         TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1)) %>% 
+  arrange(desc(sst_increase))
 
 ## 3.2 Make the plot ----
 
@@ -114,31 +116,26 @@ data_enso <- read_table("data/enso_soi.txt", skip = 87) %>%
 ggplot() +
   geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
-              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_5cols[5], alpha = 0.9) +
+              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[3], alpha = 0.9) +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll > 0, 0, soi_roll)),
-              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_5cols[3], alpha = 0.9) +
+              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[4], alpha = 0.9) +
   geom_line(data = data_enso, aes(x = date, y = soi_roll), size = 0.3) +
   labs(x = "Year", y = "Southern Oscillation Index") +
   # Annotation
-  annotate(geom = "rect", xmin = ym("1987-06"), xmax = ym("1992-08"),
-           ymin = 2.3, ymax = 2.65, fill = palette_5cols[5], color = NA) +
+  annotate(geom = "rect", xmin = ym("1986-06"), xmax = ym("1993-08"),
+           ymin = 2.3, ymax = 2.7, fill = palette_first[3], color = NA) +
   annotate(geom = "text", x = ym("1990-01"), y = 2.5, color = "white",
            label = "La Niña", family = font_choose_graph, size = 4) +
-  annotate(geom = "rect", xmin = ym("2012-07"), xmax = ym("2017-06"),
-           ymin = -3.2, ymax = -2.825, fill = palette_5cols[3], color = NA) +  
+  annotate(geom = "rect", xmin = ym("2011-07"), xmax = ym("2018-06"),
+           ymin = -3.2, ymax = -2.775, fill = palette_first[4], color = NA) +  
   annotate(geom = "text", x = ym("2015-01"), y = -3, color = "white",
            label = "El Niño", family = font_choose_graph, size = 4) +
   scale_y_continuous(limits = c(-3.5, 3.5), breaks = c(-3, -2, -1, 0, 1, 2, 3)) +
-  scale_x_continuous(limits = c(ym("1980-01"), ym("2030-01")),
-                     breaks = c(ym("1980-01"), ym("1990-01"), ym("2000-01"),
-                                ym("2010-01"), ym("2020-01"), ym("2030-01")),
-                     labels = c("1980", "1990", "2000", "2010", "2020", "2030"),
-                     expand = c(0, 0)) +
   coord_cartesian(clip = "off")
 
 ## 5.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-5.png", height = 5, width = 7, dpi = 600)
+ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = 600)
 
 # 6. Comparison of SST distribution ----
 

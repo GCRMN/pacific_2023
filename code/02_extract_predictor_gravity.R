@@ -13,7 +13,7 @@ site_coords <- st_read("data/04_site-coords/site-coords_all.shp")
 
 # 2.2 Gravity ----
 
-data_gravity <- st_read("data/gravity/Total Gravity of Coral Reefs 1.0.shp") %>% 
+data_gravity <- st_read("data/09_misc/gravity/Total Gravity of Coral Reefs 1.0.shp") %>% 
   rename(pred_gravity = Grav_tot) %>% 
   select(-reef_ID)
 
@@ -28,4 +28,4 @@ ggplot() +
 st_intersection(site_coords, data_gravity) %>% 
   st_drop_geometry() %>% 
   left_join(site_coords %>% st_drop_geometry(), .) %>% 
-  write.csv(., file = "data/14_predictors/pred_gravity.csv", row.names = FALSE)
+  write.csv(., file = "data/10_predictors/pred_gravity.csv", row.names = FALSE)

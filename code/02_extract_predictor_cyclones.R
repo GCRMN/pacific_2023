@@ -10,7 +10,7 @@ library(RcppRoll)
 
 # 2.1 Site coordinates --
 
-data_sites <- st_read("data/15_site-coords/site-coords_all.shp") %>% 
+data_sites <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
   st_transform(crs = 4326)
 
 # 2.2 Cyclones lines --
@@ -50,7 +50,7 @@ data_sites_buffer <- data_sites %>%
   st_wrap_dateline() %>% 
   st_make_valid()
 
-# 5. Extract cyclones passing within 100 km from each site ----
+# 5. Extract cyclones passing within 111 km from each site ----
 
 pred_cyclones <- st_intersection(data_sites_buffer, data_ts_points) %>% 
   mutate(year = year(time)) %>% 
@@ -87,8 +87,9 @@ pred_cyclones <- data_sites_buffer %>%
   mutate(year = 1980) %>% 
   tidyr::complete(year = seq(1980, 2023), nesting(site_id, type)) %>% 
   left_join(., pred_cyclones) %>% 
-  mutate(across(c(nb_cyclones, wind_speed_y5, nb_cyclones_y5), ~replace_na(.x, 0)))
+  mutate(across(c(nb_cyclones, wind_speed_y5, nb_cyclones_y5), ~replace_na(.x, 0))) %>% 
+  select(-territory)
 
 # 8. Export the results ----
 
-save(pred_cyclones, file = "data/14_predictors/pred_cyclones.RData")
+write.csv(pred_cyclones, file = "data/10_predictors/pred_cyclones.csv")
