@@ -60,3 +60,6 @@ aggregate_raster <- function(year_i){
 # 4. Map over the function ----
 
 map(unique(list_url$year), ~aggregate_raster(year_i = .))
+
+map(c(1988, 1990), ~aggregate_raster(year_i = .))
+

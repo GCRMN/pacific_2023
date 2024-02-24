@@ -74,4 +74,4 @@ data_sst <- future_map_dfr(1:nrow(list_url), ~extract_sst(row_nb = ., data_reef 
 
 # 6. Export the data ----
 
-save(data_sst, file = "data/09_misc/02_data-sst.RData")
+save(data_sst, file = "data/09_misc/data-sst.RData")

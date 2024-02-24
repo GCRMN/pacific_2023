@@ -53,6 +53,9 @@ data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>% 
   left_join(data_predictors, .)
 
+data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
+  left_join(data_predictors, .)
+
 # 4. Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
