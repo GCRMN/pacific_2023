@@ -7,7 +7,44 @@ library(sf)
 
 load("data/09_misc/data-benthic.RData")
 
-# 3. Load and combine predictors ----
+# 3. Estimate human population for missing years ----
+
+## 3.1 Load the data ----
+
+pred_human_pop <- read.csv("data/10_predictors/pred_human-pop.csv") %>% 
+  rename(year = system.index) %>% 
+  mutate(year = as.numeric(str_split_fixed(year, "_", 9)[,6]))
+
+## 3.2 Create the function ----
+
+extract_coeff <- function(data){
+  
+  model <- lm(pred_population ~ year, data = data)
+  
+  results <- summary(model)$coefficients
+  
+  results <- tibble(intercept = results[1, "Estimate"],
+                    slope = results[2, "Estimate"])
+  
+  return(results)
+  
+}
+
+## 3.3 Map over the function ----
+
+pred_human_pop <- pred_human_pop %>% 
+  # Extract linear model coefficients
+  group_by(site_id, type) %>% 
+  group_modify(~extract_coeff(data = .x)) %>% 
+  ungroup() %>% 
+  left_join(pred_human_pop, .) %>% 
+  # Estimate human population for all years between 2000 and 2023
+  tidyr::complete(year = seq(2000, 2023), nesting(site_id, type, intercept, slope)) %>% 
+  mutate(pred_population = (year*slope)+intercept) %>% 
+  select(-intercept, -slope) %>% 
+  mutate(pred_population = round(pred_population))
+
+# 4. Load and combine predictors ----
 
 data_predictors <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
   mutate(decimalLongitude = st_coordinates(.)[,"X"],
@@ -56,6 +93,8 @@ data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
   left_join(data_predictors, .)
 
+data_predictors <- left_join(data_predictors, pred_human_pop)
+
 # 4. Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
@@ -66,7 +105,7 @@ data_predictors <- data_predictors %>%
   mutate(across(c(pred_elevation, pred_reefextent, pred_land,
                   pred_enso, pred_sst_sd, pred_sst_skewness,
                   pred_sst_kurtosis, pred_sst_max, pred_sst_mean,
-                  pred_sst_min, pred_chla_mean), ~ round(.x, digits = 3)))
+                  pred_sst_min, pred_chla_mean, pred_dhw_max), ~ round(.x, digits = 3)))
 
 # 5. Split predictors in observed and to predict tibbles ----
 
