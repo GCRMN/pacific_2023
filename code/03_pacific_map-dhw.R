@@ -24,7 +24,7 @@ crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WG
 
 # 4. List of files ----
 
-data_files <- tibble(path = list.files("data/8_dhw-year/", full.names = TRUE)) %>% 
+data_files <- tibble(path = list.files("data/08_dhw-year/", full.names = TRUE)) %>% 
   mutate(year = as.numeric(str_sub(path, -8, -4)),
          group = rep(1:50, each = 8, length.out = nrow(.))) # 8 is the number of subplots (i.e. years) per plot
 

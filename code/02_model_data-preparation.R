@@ -95,7 +95,7 @@ data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>%
 
 data_predictors <- left_join(data_predictors, pred_human_pop)
 
-# 4. Round values of predictors ----
+# 5. Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
   # Change unit for SST (°C)
@@ -107,9 +107,9 @@ data_predictors <- data_predictors %>%
                   pred_sst_kurtosis, pred_sst_max, pred_sst_mean,
                   pred_sst_min, pred_chla_mean, pred_dhw_max), ~ round(.x, digits = 3)))
 
-# 5. Split predictors in observed and to predict tibbles ----
+# 6. Split predictors in observed and to predict tibbles ----
 
-## 5.1 Predictors values for sites with observed data ----
+## 6.1 Predictors values for sites with observed data ----
 
 data_predictors_obs <- data_predictors %>% 
   filter(type == "obs") %>% 
@@ -117,12 +117,11 @@ data_predictors_obs <- data_predictors %>%
 
 save(data_predictors_obs, file = "data/11_model-data/data_predictors_obs.RData")
 
-## 5.2 Predictors values for sites to predict ----
+## 6.2 Predictors values for sites to predict ----
 
 data_predictors_pred <- data_predictors %>% 
   filter(type == "pred") %>% 
   select(-type, -site_id) %>% 
-  expand_grid(., year = seq(from = 1980, to = 2023, by = 1)) %>% 
   mutate(datasetID = NA,
          month = NA,
          day = NA,
@@ -132,9 +131,9 @@ data_predictors_pred <- data_predictors %>%
 
 save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData")
 
-# 6. Check number of NA per predictor ----
+# 7. Check number of NA per predictor ----
 
-## 6.1 Predictors values for sites with observed data ----
+## 7.1 Predictors values for sites with observed data ----
 
 data_predictors_obs %>% 
   select(-decimalLatitude, -decimalLongitude) %>% 
@@ -143,7 +142,7 @@ data_predictors_obs %>%
   mutate(n = nrow(data_predictors_obs),
          percent = (na*100)/n)
 
-## 6.2 Predictors values for sites to predict ----
+## 7.2 Predictors values for sites to predict ----
 
 data_predictors_pred %>% 
   select(-decimalLatitude, -decimalLongitude) %>% 
@@ -152,9 +151,9 @@ data_predictors_pred %>%
   mutate(n = nrow(data_predictors_pred),
          percent = (na*100)/n)
 
-# 7. Transform benthic data ----
+# 8. Transform benthic data ----
 
-## 7.1 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
+## 8.1 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
 
 data_benthic_ncrmp <- data_benthic %>% 
   filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
@@ -168,7 +167,7 @@ data_benthic_ncrmp <- data_benthic %>%
   ungroup() %>% 
   filter(measurementValue <= 100)
 
-## 7.2 Summarize data and add predictors ----
+## 8.2 Summarize data and add predictors ----
 
 data_benthic <- data_benthic %>% 
   filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
@@ -190,6 +189,6 @@ data_benthic <- data_benthic %>%
   # Add predictors
   left_join(., data_predictors_obs)
 
-## 7.3 Export data ----
+## 8.3 Export data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")

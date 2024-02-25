@@ -11,8 +11,8 @@ library(vip)
 
 # 2. Load data ----
 
-load("data/16_model-data/data_benthic_prepared.RData")
-load("data/16_model-data/data_predictors_pred.RData")
+load("data/11_model-data/data_benthic_prepared.RData")
+load("data/11_model-data/data_predictors_pred.RData")
 
 # 3. Create the model workflow ----
 
@@ -214,7 +214,7 @@ model_workflow <- function(category_i, bootstrap_i){
                               center = FALSE,
                               type = "partial",
                               variables = c("year", "decimalLatitude", "decimalLongitude", "pred_population",
-                                            "pred_reefextent", "pred_chla", "pred_land", "pred_elevation"),
+                                            "pred_reefextent", "pred_dhw_max", "pred_enso", "pred_elevation"),
                               variable_splits_type = "uniform") %>% 
     .$agr_profiles %>% 
     as_tibble(.) %>% 
@@ -297,11 +297,11 @@ model_workflow <- function(category_i, bootstrap_i){
   
 }
 
-model_results <- map(1:2, ~model_workflow(category_i = "Hard coral", bootstrap_i = .)) %>% 
+model_results <- map(1:3, ~model_workflow(category_i = "Hard coral", bootstrap_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
-save(model_results, file = "data/16_model-data/model_results_hard-coral.RData")
+save(model_results, file = "data/12_model-output/model_results_hard-coral.RData")
 
 # PDP
 model_results$result_pdp %>% 

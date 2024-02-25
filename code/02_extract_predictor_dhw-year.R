@@ -13,7 +13,7 @@ site_coords <- st_read("data/04_site-coords/site-coords_all.shp") %>%
 
 # 3. List of ncdf files ----
 
-ncdf_files <- list.files("data/8_dhw-year/", full.names = TRUE) %>% 
+ncdf_files <- list.files("data/08_dhw-year/", full.names = TRUE) %>% 
   as_tibble() %>% 
   mutate(year = as.numeric(str_sub(value, -8, -5)))
 
@@ -47,7 +47,7 @@ extract_dhw <- function(year_i){
 
 # 5. Map over the function ----
 
-pred_dhw_max <- map_dfr(1985:1988, ~extract_dhw(year_i = .))
+pred_dhw_max <- map_dfr(ncdf_files$year, ~extract_dhw(year_i = .))
 
 # 6. Export the results ----
 

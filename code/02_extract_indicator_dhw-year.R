@@ -48,7 +48,7 @@ aggregate_raster <- function(year_i){
   data_raster_max <- max(data_raster)
   
   writeRaster(x = data_raster_max,
-              filename = paste0("data/8_dhw-year/dhw_max_", year_i, ".tif"),
+              filename = paste0("data/08_dhw-year/dhw_max_", year_i, ".tif"),
               overwrite = TRUE)
 
   # 4. Delete raw files ----
@@ -60,6 +60,3 @@ aggregate_raster <- function(year_i){
 # 4. Map over the function ----
 
 map(unique(list_url$year), ~aggregate_raster(year_i = .))
-
-map(c(1988, 1990), ~aggregate_raster(year_i = .))
-
