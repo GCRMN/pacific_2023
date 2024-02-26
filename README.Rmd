@@ -68,6 +68,9 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `03_benthic-cover-trends.Rmd` Produce figures of hard coral and algae cover trends.
 * `03_indicators.R` Combine and export indicators' values.
 * `03_materials-and-methods.R` Produce figures for the Materials and Methods section of the report.
+
+#### C1. Pacific region
+
 * `03_pacific_cyclones.R` Produce figure and map of cyclones that occurred over the Pacific region.
 * `03_pacific_map.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
 * `03_pacific_map-dhw.R` Produce map of DHW for each year.
@@ -75,11 +78,18 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 * `03_pacific_rel-reef-area.R` Produce figure of relative reef area of Pacific territories.
 * `03_pacific_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for the Pacific region.
 * `03_pacific_sst.R` Produce figures of maximum DHW and DHW percent for the Pacific region.
+
+#### C2. Countries and territories
+
 * `03_territories_cyclones.R` Produce figures and maps of cyclones that occurred on each EEZ.
 * `03_territories_map.R` Produce maps for each EEZ.
 * `03_territories_map-sphere.R` Produce hemisphere maps for each EEZ.
 * `03_territories_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for each EEZ.
 * `03_territories_sst.R` Produce figures of SST, SST anomaly and DHW for each EEZ.
+
+#### C3. Case studies
+
+* `03_box_fish-new-caledonia.R` Case study on MPA of Ouano, New Caledonia.
 
 ### D. Functions
 

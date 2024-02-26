@@ -13,7 +13,7 @@ colors <- c(palette_second[3], "#013C5E")
 
 # 3. Load and transform data ----
 
-data_ouano <- read_xlsx("data/18_boxes/BACI Poissons Ouano 04_20.xlsx", sheet = 1) %>% 
+data_ouano <- read_xlsx("data/13_boxes/BACI Poissons Ouano 04_20.xlsx", sheet = 1) %>% 
   rename(year = "Année") %>% 
   group_by(year, Protection) %>% 
   summarise(biomass_mean = mean(B_Com),
@@ -46,7 +46,7 @@ plot_a <- ggplot() +
            family = font_choose_graph, color = colors[2]) +
   annotate(geom = "text", x = 2017.5, y = 17, label = "Outside MPA", 
            family = font_choose_graph, color = colors[1]) +
-  labs(x = "Year", y = expression(paste("Biomass (", g.m^{-1}, ")")), title = "A") +
+  labs(x = "Year", y = expression(paste("Biomass (", g.m^{-1}, ") per station")), title = "A") +
   lims(y = c(0, 100)) +
   theme_graph() +
   theme(plot.background = element_rect(fill = "transparent", color = NA),
@@ -77,7 +77,7 @@ plot_b <- ggplot() +
            family = font_choose_graph, color = colors[2]) +
   annotate(geom = "text", x = 2017.5, y = 8, label = "Outside MPA", 
            family = font_choose_graph, color = colors[1]) +
-  labs(x = "Year", y = "Species richness", title = "B") +
+  labs(x = "Year", y = "Species richness per station", title = "B") +
   lims(y = c(0, 20)) +
   theme_graph() +
   theme(plot.background = element_rect(fill = "transparent", color = NA),
