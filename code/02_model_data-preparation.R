@@ -53,6 +53,10 @@ data_predictors <- st_read("data/04_site-coords/site-coords_all.shp") %>%
   mutate(year = 2000) %>% 
   tidyr::complete(year = seq(1980, 2023), nesting(site_id, type, territory, decimalLongitude, decimalLatitude))
 
+data_predictors <- read.csv("data/10_predictors/pred_cyclones.csv") %>% 
+  left_join(data_predictors, .) %>% 
+  mutate(across(c(wind_speed_y5, nb_cyclones, nb_cyclones_y5), ~replace_na(.x, 0)))
+
 data_predictors <- read.csv("data/10_predictors/pred_elevation.csv") %>% 
   mutate(pred_elevation = replace_na(pred_elevation, 0)) %>% 
   left_join(data_predictors, .)
@@ -115,8 +119,6 @@ data_predictors_obs <- data_predictors %>%
   filter(type == "obs") %>% 
   select(-type, -site_id, -territory)
 
-save(data_predictors_obs, file = "data/11_model-data/data_predictors_obs.RData")
-
 ## 6.2 Predictors values for sites to predict ----
 
 data_predictors_pred <- data_predictors %>% 
@@ -124,36 +126,15 @@ data_predictors_pred <- data_predictors %>%
   select(-type, -site_id) %>% 
   mutate(datasetID = NA,
          month = NA,
-         day = NA,
          verbatimDepth = NA,
          parentEventID = NA,
          eventID = NA)
 
 save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData")
 
-# 7. Check number of NA per predictor ----
+# 7. Transform benthic data ----
 
-## 7.1 Predictors values for sites with observed data ----
-
-data_predictors_obs %>% 
-  select(-decimalLatitude, -decimalLongitude) %>% 
-  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
-  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
-  mutate(n = nrow(data_predictors_obs),
-         percent = (na*100)/n)
-
-## 7.2 Predictors values for sites to predict ----
-
-data_predictors_pred %>% 
-  select(-decimalLatitude, -decimalLongitude) %>% 
-  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
-  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
-  mutate(n = nrow(data_predictors_pred),
-         percent = (na*100)/n)
-
-# 8. Transform benthic data ----
-
-## 8.1 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
+## 7.1 Modify NCRMP data (from semi-quantitative to quantitative) by averaging at the scale of a transect ----
 
 data_benthic_ncrmp <- data_benthic %>% 
   filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
@@ -167,7 +148,7 @@ data_benthic_ncrmp <- data_benthic %>%
   ungroup() %>% 
   filter(measurementValue <= 100)
 
-## 8.2 Summarize data and add predictors ----
+## 7.2 Summarize data and add predictors ----
 
 data_benthic <- data_benthic %>% 
   filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
@@ -183,12 +164,12 @@ data_benthic <- data_benthic %>%
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup() %>% 
   # Remove useless variables
-  select(-higherGeography, -country, -locality, -habitat, -eventDate) %>% 
+  select(-higherGeography, -country, -locality, -habitat, -eventDate, -day) %>% 
   # Convert to factors
   mutate_if(is.character, factor) %>% 
   # Add predictors
   left_join(., data_predictors_obs)
 
-## 8.3 Export data ----
+## 7.3 Export data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")

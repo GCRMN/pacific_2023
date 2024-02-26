@@ -63,33 +63,26 @@ pred_cyclones <- st_intersection(data_sites_buffer, data_ts_points) %>%
 
 # 6. Transform data to create predictors ----
 
-pred_cyclones <- pred_cyclones %>%
+pred_cyclones <- pred_cyclones %>% 
+  group_by(site_id, type, year) %>% 
+  mutate(wind_speed = max(wind_speed),
+         nb_cyclones = n()) %>% 
+  ungroup() %>% 
+  select(-ts_id, -name) %>%
+  distinct() %>% 
   tidyr::complete(year = seq(1980, 2023), nesting(site_id, type), 
                   fill = list(ts_id = NA, name = NA, wind_speed = NA)) %>% 
-  # Number of cyclones per site from 1980 to 2023
-  group_by(site_id) %>% 
-  mutate(nb_cyclones = sum(!is.na(name))) %>% 
-  ungroup() %>% 
   # Wind speed of cyclones over year n-5 (five past years)
   arrange(site_id, type, year) %>% 
   mutate(wind_speed_y5 = roll_max(wind_speed, n = 5, align = "right", fill = NA, na.rm = TRUE),
          wind_speed_y5 = if_else(wind_speed_y5 == -Inf, 0, wind_speed_y5)) %>% 
   # Number of cyclones over year n-5 (five past years)
-  mutate(nb_cyclones_y5 = if_else(is.na(ts_id), 0, 1),
-         nb_cyclones_y5 = roll_sum(nb_cyclones_y5, n = 5, align = "right", fill = NA, na.rm = TRUE)) %>% 
-  select(-ts_id, -name, -wind_speed) %>% 
-  distinct()
+  mutate(nb_cyclones_y5 = roll_sum(nb_cyclones, n = 5, align = "right", fill = NA, na.rm = TRUE)) %>% 
+  group_by(site_id, type) %>% 
+  mutate(nb_cyclones = sum(nb_cyclones, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  select(-wind_speed)
 
-# 7. Add missing sites (those without any cyclones) ----
+# 7. Export the results ----
 
-pred_cyclones <- data_sites_buffer %>% 
-  st_drop_geometry() %>% 
-  mutate(year = 1980) %>% 
-  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type)) %>% 
-  left_join(., pred_cyclones) %>% 
-  mutate(across(c(nb_cyclones, wind_speed_y5, nb_cyclones_y5), ~replace_na(.x, 0))) %>% 
-  select(-territory)
-
-# 8. Export the results ----
-
-write.csv(pred_cyclones, file = "data/10_predictors/pred_cyclones.csv")
+write.csv(pred_cyclones, file = "data/10_predictors/pred_cyclones.csv", row.names = FALSE)
