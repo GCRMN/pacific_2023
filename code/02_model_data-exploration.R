@@ -9,205 +9,15 @@ library(ggtext)
 source("code/function/graphical_par.R")
 theme_set(theme_bw())
 
-# 3. Load gcrmndb_benthos data ----
+# 3. Taxonomy ----
 
-load("data/04_data-benthic.RData")
+## 3.1 Load data ----
 
-# 4. Transform data ----
+load("data/09_misc/data-benthic.RData")
 
-## 4.1 NCRMP ----
+## 3.2 Taxonomic levels ----
 
-data_benthic_ncrmp <- data_benthic %>% 
-  filter(datasetID %in% c("0011", "0012", "0013", "0014")) %>% 
-  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category, subcategory) %>% 
-  summarise(measurementValue = sum(measurementValue)) %>% 
-  ungroup() %>% 
-  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
-           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, category, subcategory) %>% 
-  summarise(measurementValue = mean(measurementValue)) %>% 
-  ungroup()
-
-## 4.2 Modify data ----
-
-data_benthic_cat <- data_benthic %>% 
-  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
-  bind_rows(., data_benthic_ncrmp) %>% 
-  mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
-                              subcategory == "Coralline algae" ~ "Coralline algae",
-                              subcategory == "Turf algae" ~ "Turf algae",
-                              subcategory == "Cyanobacteria" ~ "Cyanobacteria",
-                              TRUE ~ category)) %>% 
-  filter(category %in% c("Hard coral", "Macroalgae", "Coralline algae", "Turf algae", "Cyanobacteria", "Abiotic")) %>% 
-  group_by(datasetID, higherGeography, country, territory, locality, habitat,
-           parentEventID, eventID, decimalLatitude, decimalLongitude, verbatimDepth,
-           year, month, day, category) %>% 
-  summarise(measurementValue = sum(measurementValue)) %>% 
-  ungroup() %>%
-  mutate(category = as_factor(category)) %>% 
-  filter(measurementValue <= 100)
-
-# 5. 'measurementValue' density and temporal ----
-
-## 5.1 Entire Pacific region ----
-
-# 1. Temporal
-
-plot_a <- ggplot(data = data_benthic_cat, aes(x = measurementValue, fill = category)) +
-  geom_density(alpha = 0.75, show.legend = FALSE) +
-  geom_vline(xintercept = c(0, 100)) +
-  labs(x = "Cover (%)", y = "Density") +
-  facet_wrap(~category, nrow = 1)
-
-# 2. Density
-
-plot_b <- ggplot(data = data_benthic_cat, aes(x = year, y = measurementValue, col = category)) +
-  geom_smooth(show.legend = FALSE) +
-  lims(y = c(0, 100)) +
-  labs(y = "Cover (%)", x = "Year") +
-  facet_wrap(~category, nrow = 1)
-
-# 3. Combine plots
-
-plot_a + plot_b + plot_layout(nrow = 2)
-
-# 4. Export the plot
-
-ggsave("figs/05_additional/01_data-explo/01_overall.png",
-       dpi = 600, height = 8, width = 14)
-
-## 5.2 Comparison plots ----
-
-# 1. Density
-
-# 1.1 Per datasetID
-
-ggplot(data = data_benthic_cat, aes(x = measurementValue, fill = category)) +
-  geom_density(alpha = 0.75, show.legend = FALSE) +
-  geom_vline(xintercept = c(0, 100)) +
-  labs(x = "Benthic cover (%)", y = "Density") +
-  facet_grid(category~datasetID, scales = "free_y")
-
-ggsave("figs/05_additional/01_data-explo/02_comparison_density-dataset.png",
-       dpi = 600, height = 15, width = 40)
-
-# 1.2 Per territory 
-
-ggplot(data = data_benthic_cat, aes(x = measurementValue, fill = category)) +
-  geom_density(alpha = 0.75, show.legend = FALSE) +
-  geom_vline(xintercept = c(0, 100)) +
-  labs(x = "Benthic cover (%)", y = "Density") +
-  facet_grid(category~territory, scales = "free_y")
-
-ggsave("figs/05_additional/01_data-explo/02_comparison_density-territory.png",
-       dpi = 600, height = 15, width = 40)
-
-# 2. Temporal
-
-# 2.1 Per datasetID
-
-ggplot(data = data_benthic_cat, aes(x = year, y = measurementValue, col = category)) +
-  geom_smooth(show.legend = FALSE) +
-  lims(y = c(0, 100)) +
-  labs(y = "Benthic cover (%)", x = "Year") +
-  facet_grid(category~datasetID)
-
-ggsave("figs/05_additional/01_data-explo/02_comparison_temporal-dataset.png",
-       dpi = 600, height = 15, width = 35)
-
-# 2.2 Per territory
-
-ggplot(data = data_benthic_cat, aes(x = year, y = measurementValue, col = category)) +
-  geom_smooth(show.legend = FALSE) +
-  lims(y = c(0, 100)) +
-  labs(y = "Benthic cover (%)", x = "Year") +
-  facet_grid(category~territory)
-
-ggsave("figs/05_additional/01_data-explo/02_comparison_temporal-territory.png",
-       dpi = 600, height = 15, width = 35)
-
-## 5.3 Individual plots ----
-
-# 1. Create the function
-
-data_explo <- function(data, i, type){
-  
-  if(type == "dataset"){
-    
-    data_benthic_cat_i <- data %>% 
-      filter(datasetID == i)
-    
-    plot_a <- ggplot(data = data_benthic_cat_i, aes(x = year, y = measurementValue, col = category)) +
-      geom_point(alpha = 0.1, col = "grey") +
-      geom_smooth(show.legend = FALSE) +
-      lims(y = c(0, 100), x = c(1980, 2023)) +
-      labs(y = "Cover (%)", x = "Year") +
-      facet_wrap(~category, nrow = 1, drop = FALSE)
-    
-    plot_b <- ggplot(data = data_benthic_cat_i, aes(x = measurementValue, fill = category)) +
-      geom_density(alpha = 0.75, show.legend = FALSE) +
-      lims(x = c(0, 100)) +
-      labs(x = "Cover (%)", y = "Density") +
-      facet_wrap(~category, nrow = 1, drop = FALSE)
-    
-    plot_all <- plot_a + plot_b + 
-      plot_annotation(title = paste0("datasetID = ", i),
-                      theme = theme(plot.title = element_text(hjust = 0.5))) +
-      plot_layout(ncol = 1)
-    
-    ggsave(paste0("figs/05_additional/01_data-explo/03_temporal-dataset_", i, ".png"),
-           dpi = 600, height = 6, width = 10)
-    
-  }else if(type == "territory"){
-    
-    data_benthic_cat_i <- data %>% 
-      filter(territory == i)
-    
-    plot_a <- ggplot(data = data_benthic_cat_i, aes(x = year, y = measurementValue, col = category)) +
-      geom_point(alpha = 0.1, col = "grey") +
-      geom_smooth(show.legend = FALSE) +
-      lims(y = c(0, 100), x = c(1980, 2023)) +
-      labs(y = "Cover (%)", x = "Year") +
-      facet_wrap(~category, nrow = 1, drop = FALSE)
-    
-    plot_b <- ggplot(data = data_benthic_cat_i, aes(x = measurementValue, fill = category)) +
-      geom_density(alpha = 0.75, show.legend = FALSE) +
-      lims(x = c(0, 100)) +
-      labs(x = "Cover (%)", y = "Density") +
-      facet_wrap(~category, nrow = 1, drop = FALSE)
-    
-    plot_all <- plot_a + plot_b + 
-      plot_annotation(title = paste0("territory = ", i),
-                      theme = theme(plot.title = element_text(hjust = 0.5))) +
-      plot_layout(ncol = 1)
-    
-    ggsave(paste0("figs/05_additional/01_data-explo/04_temporal-territory_",
-                  str_replace_all(str_to_lower(i), " ", "-"), ".png"), 
-           dpi = 600, height = 6, width = 10)
-    
-  }else{
-    
-    stop("The argument type must be dataset or territory")
-    
-  }
-  
-}
-
-# 2. Map over the function for territories 
-
-map(unique(data_benthic_cat$territory), 
-    ~data_explo(data = data_benthic_cat, i = ., type = "territory"))
-
-# 3. Map over the function for datasetID 
-
-map(unique(data_benthic_cat$datasetID), 
-    ~data_explo(data = data_benthic_cat, i = ., type = "dataset"))
-
-# 6. Benthic categories ----
-
-## 6.1 Taxonomic levels ----
-
-# Create the function
+### 3.2.1 Create the function ----
 
 taxonomic_levels <- function(data){
   
@@ -238,26 +48,35 @@ taxonomic_levels <- function(data){
   
 }
 
-# 6.1.1 For the entire dataset
+### 3.2.2 For the entire dataset ----
 
 data_benthic %>% 
-  taxonomic_levels()
+  taxonomic_levels() +
+  labs(title = "All data")
 
-# 6.1.2 For hards corals
+ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_all.png", dpi = 600, height = 4, width = 8)
+
+### 3.2.3 For hards corals ----
 
 data_benthic %>% 
   filter(category == "Hard coral") %>% 
-  taxonomic_levels()
+  taxonomic_levels() +
+  labs(title = "Hard coral")
 
-# 6.1.3 For algae
+ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_hard-coral.png", dpi = 600, height = 4, width = 8)
+
+### 3.2.4 For algae ----
 
 data_benthic %>% 
   filter(category == "Algae") %>% 
-  taxonomic_levels()
+  taxonomic_levels() +
+  labs(title = "Algae")
 
-## 6.2 Taxonomic frequency ----
+ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_algae.png", dpi = 600, height = 4, width = 8)
 
-# 6.2.1 Create a function
+## 3.3 Taxonomic frequency ----
+
+### 3.3.1 Create the function ----
 
 arrange_factor <- function(data){
   
@@ -281,7 +100,7 @@ arrange_factor <- function(data){
   
 }
 
-# 6.2.2 Plot for percentage of dataset
+### 3.3.2 Plot for percentage of dataset ----
 
 data_cat_a <- data_benthic %>% 
   group_by(datasetID, category) %>% 
@@ -317,9 +136,9 @@ plot_a <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = palette_5cols)
+  scale_fill_manual(values = palette_second)
 
-# 6.2.3 Plot for percentage of territories
+### 3.3.3 Plot for percentage of territories ----
 
 data_cat_a <- data_benthic %>% 
   select(territory, category) %>% 
@@ -359,9 +178,9 @@ plot_b <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = palette_5cols)
+  scale_fill_manual(values = palette_second)
 
-# 6.2.4 Plot for percentage of surveys
+### 3.3.4 Plot for percentage of surveys ----
 
 data_cat_a <- data_benthic %>% 
   select(decimalLatitude, decimalLongitude, year, eventDate, category) %>% 
@@ -401,15 +220,212 @@ plot_c <- ggplot(data = data_cat_c, aes(x = category, y = rel, fill = cat)) +
   coord_flip() +
   theme(axis.text.y = element_markdown()) +
   scale_x_discrete(limits = rev) +
-  scale_fill_manual(values = palette_5cols)
+  scale_fill_manual(values = palette_second)
 
-# 6.2.5 Combine plots 
+### 3.3.5 Combine plots ----
 
 plot_a + plot_b + theme(axis.text.y = element_blank(),
                         axis.ticks.y = element_blank()) +
   plot_c + theme(axis.text.y = element_blank(),
                  axis.ticks.y = element_blank())
 
-# 6.2.6 Export the plot
+### 3.3.6 Export the plot ----
 
-ggsave("figs/05_additional/01_data-explo/05_taxonomic-frequency.png", dpi = 600, height = 6, width = 12)
+ggsave("figs/05_additional/01_data-explo/01_taxonomic-frequency.png", dpi = 600, height = 6, width = 12)
+
+# 4. Variable y (measurementValue) ----
+
+## 4.1 Load data ----
+
+load("data/11_model-data/data_benthic_prepared.RData")
+
+## 4.2 measurementValue density and temporal ----
+
+### 4.2.1 Create the function ----
+
+plot_distribution <- function(data, i, type){
+  
+  data <- data %>% 
+    mutate(category = as.factor(category),
+           color = case_when(category == "Hard coral" ~ palette_second[2],
+                             category == "Coralline algae" ~ palette_second[3],
+                             category == "Macroalgae" ~ palette_second[4],
+                             category == "Turf algae" ~ palette_second[5]))
+  
+  if(type == "dataset"){
+    
+    data_benthic_i <- data %>% 
+      filter(datasetID == i)
+    
+    plot_a <- ggplot(data = data_benthic_i, aes(x = year, y = measurementValue, col = color)) +
+      geom_point(alpha = 0.1, col = "grey") +
+      geom_smooth(show.legend = FALSE) +
+      scale_color_identity() +
+      lims(y = c(0, 100), x = c(1980, 2023)) +
+      labs(y = "Cover (%)", x = "Year") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_b <- ggplot(data = data_benthic_i, aes(x = measurementValue, fill = color)) +
+      geom_density(alpha = 0.75, show.legend = FALSE) +
+      scale_fill_identity() +
+      lims(x = c(0, 100)) +
+      labs(x = "Cover (%)", y = "Density") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_all <- plot_a + plot_b + 
+      plot_annotation(title = paste0("datasetID = ", i),
+                      theme = theme(plot.title = element_text(hjust = 0.5))) +
+      plot_layout(ncol = 1)
+    
+    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-dataset_", i, ".png"),
+           dpi = 600, height = 6, width = 10)
+    
+  }else if(type == "territory"){
+    
+    data_benthic_i <- data %>% 
+      filter(territory == i)
+    
+    plot_a <- ggplot(data = data_benthic_i, aes(x = year, y = measurementValue, col = color)) +
+      geom_point(alpha = 0.1, col = "grey") +
+      scale_color_identity() +
+      geom_smooth(show.legend = FALSE) +
+      lims(y = c(0, 100), x = c(1980, 2023)) +
+      labs(y = "Cover (%)", x = "Year") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_b <- ggplot(data = data_benthic_i, aes(x = measurementValue, fill = color)) +
+      geom_density(alpha = 0.75, show.legend = FALSE) +
+      scale_fill_identity() +
+      lims(x = c(0, 100)) +
+      labs(x = "Cover (%)", y = "Density") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_all <- plot_a + plot_b + 
+      plot_annotation(title = paste0("territory = ", i),
+                      theme = theme(plot.title = element_text(hjust = 0.5))) +
+      plot_layout(ncol = 1)
+    
+    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-territory_",
+                  str_replace_all(str_to_lower(i), " ", "-"), ".png"), 
+           dpi = 600, height = 6, width = 10)
+    
+  }else if(type == "all"){
+
+    plot_a <- ggplot(data = data, aes(x = year, y = measurementValue, col = color)) +
+      geom_point(alpha = 0.1, col = "grey") +
+      scale_color_identity() +
+      geom_smooth(show.legend = FALSE) +
+      lims(y = c(0, 100), x = c(1980, 2023)) +
+      labs(y = "Cover (%)", x = "Year") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_b <- ggplot(data = data, aes(x = measurementValue, fill = color)) +
+      geom_density(alpha = 0.75, show.legend = FALSE) +
+      scale_fill_identity() +
+      lims(x = c(0, 100)) +
+      labs(x = "Cover (%)", y = "Density") +
+      facet_wrap(~category, nrow = 1, drop = FALSE)
+    
+    plot_all <- plot_a + plot_b + 
+      plot_annotation(title = "All data",
+                      theme = theme(plot.title = element_text(hjust = 0.5))) +
+      plot_layout(ncol = 1)
+    
+    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-all.png"), 
+           dpi = 600, height = 6, width = 10)
+    
+  }else{
+    
+    stop("The argument type must be dataset or territory")
+    
+  }
+  
+}
+
+### 4.2.2 For all data ----
+
+plot_distribution(data = data_benthic, type = "all")
+
+### 4.2.3 Map over the function for territories ----
+
+map(unique(data_benthic$territory), 
+    ~plot_distribution(data = data_benthic, i = ., type = "territory"))
+
+### 4.2.4 Map over the function for datasetID ----
+
+map(unique(data_benthic$datasetID), 
+    ~plot_distribution(data = data_benthic, i = ., type = "dataset"))
+
+## 4.3 Number of 0 values ----
+
+### 4.3.1 Per datasetID ----
+
+data_nb_0_dataset <- data_benthic %>% 
+  select(datasetID, measurementValue) %>% 
+  group_by(datasetID) %>% 
+  summarise(nb_0 = sum(measurementValue == 0))
+
+### 4.3.2 Per territory ----
+
+data_nb_0_territory <- data_benthic %>% 
+  select(territory, measurementValue) %>% 
+  group_by(territory) %>% 
+  summarise(nb_0 = sum(measurementValue == 0))
+
+# 5. Predictors ----
+
+## 5.1 Load data ----
+
+load("data/11_model-data/data_predictors_pred.RData")
+
+## 5.2 Percentage of NA per predictor ----
+
+data_pred_na <- data_predictors_pred %>% 
+  select(-datasetID, -month, -verbatimDepth, -parentEventID, -eventID) %>% 
+  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
+  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
+  mutate(n = nrow(data_predictors_pred),
+         percent = (na*100)/n)
+
+## 5.3 Distribution ----
+
+### 5.3.1 Create the function ----
+
+plot_distri <- function(variable){
+  
+    result <- ggplot(data = data_predictors_pred, aes(x = get(variable, data_predictors_pred))) +
+      geom_density(fill = palette_first[2], alpha = 0.5) +
+      labs(x = variable)
+    
+    return(result)
+  
+}
+
+### 5.3.2 Map over the function ----
+
+data_pred_distri <- map(data_predictors_pred %>% 
+                          select(-territory, -datasetID, -month, -verbatimDepth, -parentEventID, -eventID) %>% 
+                          colnames(.),
+         ~plot_distri(variable = .))
+
+### 5.3.3 Combine plots ----
+
+data_pred_distri <- wrap_plots(data_pred_distri, ncol = 5)
+
+### 5.3.4 Export the plots ----
+
+ggsave(plot = data_pred_distri,
+       filename = "figs/05_additional/01_data-explo/03_predictors-distribution.png",
+       dpi = 600, height = 12, width = 15)
+
+## 5.4 Correlation between predictors ----
+
+data_correlation <- round(cor(data_predictors_pred %>% 
+                                select(-territory, -datasetID, -month, 
+                                       -verbatimDepth, -parentEventID, -eventID),
+                                use = "complete.obs"), 2) %>% # "complete.obs" to not use NA
+  as_tibble() %>% 
+  mutate(predictor_a = colnames(.)) %>% 
+  pivot_longer(1:ncol(.)-1, names_to = "predictor_b", values_to = "coefficient") %>% 
+  filter(predictor_a != predictor_b) %>% 
+  arrange(coefficient)
