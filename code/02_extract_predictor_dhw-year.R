@@ -34,7 +34,7 @@ extract_dhw <- function(year_i){
   
   # 3. Extract DHW values
   
-  results <- terra::extract(x = ncdf_i, y = site_coords) %>% 
+  results <- terra::extract(x = ncdf_i, y = site_coords, method = "bilinear") %>% 
     as_tibble() %>% 
     mutate(year = year_i) %>% 
     bind_cols(site_coords %>% st_drop_geometry(), .) %>% 

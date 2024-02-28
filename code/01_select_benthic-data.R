@@ -17,7 +17,7 @@ data_benthic <- synthetic_data %>%
 
 # 4. Save the data ----
 
-save(data_benthic, file = "data/09_misc/01_data-benthic.RData")
+save(data_benthic, file = "data/09_misc/data-benthic.RData")
 
 # 5. Export site coordinates (for predictors extraction) ----
 

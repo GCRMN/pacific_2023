@@ -57,11 +57,10 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 #### B3. Models
 
-* `02_model_data-exploration.Rmd` Data exploration for benthic cover.
 * `02_model_site-coordinates.R` Extract site coordinates for coral reefs sites to predict.
 * `02_model_data-preparation.R` Combine predictors and prepare benthic data for the models.
-* `02_model_tuning.R` Hyperparameters tuning for the models.
-* `02_model_bootstrap.R` Bootstrap to calculate confidence interval from model outputs.
+* `02_model_data-exploration.Rmd` Data exploration for benthic cover.
+* `02_model.R` Models for the estimation of temporal trends of benthic cover.
 
 ### C. Figures and tables (`03_`)
 

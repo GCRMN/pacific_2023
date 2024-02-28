@@ -11,9 +11,9 @@ function bufferPoints(radius, bounds) {
   };
 }
 
-// 3. Apply the function (here 10 km radius) ----
+// 3. Apply the function (here 5 km radius) ----
 
-var site_buffer = site_coords.map(bufferPoints(10000, false));
+var site_buffer = site_coords.map(bufferPoints(5000, false));
 
 // 4. Load data population data ----
 

@@ -91,10 +91,13 @@ data_predictors <- read.csv("data/10_predictors/pred_sst_mean.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>% 
   left_join(data_predictors, .)
 
+data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
+  left_join(data_predictors, .)
+
 data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>% 
   left_join(data_predictors, .)
 
-data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
+data_predictors <- read.csv("data/10_predictors/pred_chla_sd.csv") %>% 
   left_join(data_predictors, .)
 
 data_predictors <- left_join(data_predictors, pred_human_pop)
@@ -109,7 +112,8 @@ data_predictors <- data_predictors %>%
   mutate(across(c(pred_elevation, pred_reefextent, pred_land,
                   pred_enso, pred_sst_sd, pred_sst_skewness,
                   pred_sst_kurtosis, pred_sst_max, pred_sst_mean,
-                  pred_sst_min, pred_chla_mean, pred_dhw_max), ~ round(.x, digits = 3)))
+                  pred_sst_min, pred_dhw_max,
+                  pred_chla_mean, pred_chla_sd), ~ round(.x, digits = 3)))
 
 # 6. Split predictors in observed and to predict tibbles ----
 
@@ -151,7 +155,7 @@ data_benthic_ncrmp <- data_benthic %>%
 ## 7.2 Summarize data and add predictors ----
 
 data_benthic <- data_benthic %>% 
-  filter(!(datasetID %in% c("0011", "0012", "0013", "0014"))) %>% 
+  filter(!(datasetID %in% c("0011", "0012", "0013", "0014", "0039", "0043", "0051", "0052", "0053"))) %>% 
   bind_rows(., data_benthic_ncrmp) %>% 
   mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
                               subcategory == "Turf algae" ~ "Turf algae",
