@@ -8,6 +8,11 @@ library(DALEXtra)
 library(caret)
 library(xgboost)
 library(vip)
+library(future)
+library(furrr)
+
+options(future.globals.maxSize= 3000*1024^2) # 3000 mb
+plan(multisession, workers = 4)
 
 # 2. Load data ----
 
@@ -16,7 +21,7 @@ load("data/11_model-data/data_predictors_pred.RData")
 
 # 3. Create the model workflow ----
 
-model_workflow <- function(category_i, bootstrap_i){
+model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
   
   # 1. Data preparation ----
   
@@ -60,7 +65,7 @@ model_workflow <- function(category_i, bootstrap_i){
   ### 3.3.1 Create the grid ----
   
   tune_grid <- grid_max_entropy(learn_rate(),
-                                size = 20)
+                                size = 30)
   
   ### 3.3.2 Run the hyperparameters tuning ----
   
@@ -201,6 +206,8 @@ model_workflow <- function(category_i, bootstrap_i){
   
   ## 6.3 Partial Dependence Plots ----
   
+  if(pdp == TRUE){
+  
   start_time <- Sys.time()
   
   final_fitted <- final_model$.workflow[[1]]
@@ -228,6 +235,8 @@ model_workflow <- function(category_i, bootstrap_i){
     add_row(., tibble(step = "Outputs", 
                       substep = "PDP", 
                       time = end_time - start_time))
+  
+  }
   
   ## 6.4 Predicted (yhat) vs observed (y) ----
   
@@ -283,102 +292,45 @@ model_workflow <- function(category_i, bootstrap_i){
     add_row(., tibble(step = "Predictions", 
                       substep = NA, 
                       time = end_time - start_time)) %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i,
+           bootstrap = bootstrap_i)
   
   # 8. Return the results ----
   
-  return(lst(model_hyperparams,
-             model_performance,
-             model_time,
-             result_vip,
-             result_pdp,
-             result_pred_obs,
-             result_trends))
+  if(pdp == TRUE){
+    
+    return(lst(model_hyperparams,
+               model_performance,
+               model_time,
+               result_vip,
+               result_pdp,
+               result_pred_obs,
+               result_trends))
+    
+  }else{
+    
+    return(lst(model_hyperparams,
+               model_performance,
+               model_time,
+               result_vip,
+               result_pred_obs,
+               result_trends))
+    
+  }
   
 }
 
-model_results <- map(1:3, ~model_workflow(category_i = "Hard coral", bootstrap_i = .)) %>% 
+model_results <- future_map(1:4, ~model_workflow(category_i = "Hard coral", bootstrap_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_hard-coral.RData")
 
-# PDP
-model_results$result_pdp %>% 
-  ggplot(data = ., aes(x = x, y = y_pred, group = bootstrap)) +
-  geom_line() +
-  facet_wrap(~predictor, scales = "free")
+load("data/12_model-output/model_results_hard-coral.RData")
 
-# VIP
-model_results$result_vip %>% 
-  arrange(desc(importance)) %>% 
-  slice_head(n = 10) %>% 
-  ggplot(data = ., aes(x = predictor, y = importance)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
 
-# RMSE and RSQ per territory
-model_results$result_pred_obs %>% 
-  group_by(bootstrap) %>% 
-  mutate(residual = yhat - y,
-         res = sum((y - yhat)^2),
-         tot = sum((y - mean(y))^2),
-         rsq_global = 1 - (res/tot),
-         rmse_global = sqrt(sum(residual^2/n()))) %>% 
-  ungroup() %>% 
-  group_by(territory, bootstrap, rsq_global, rmse_global) %>% 
-  summarise(res = sum((y - yhat)^2),
-            tot = sum((y - mean(y))^2),
-            rsq = 1 - (res/tot),
-            rmse = sqrt(sum(residual^2/n()))) %>% 
-  ungroup() %>% 
-  select(-res, -tot)
 
-# Pred. vs Obs.
-list$result_pred_obs %>% 
-  ggplot(data = ., aes(x = y, y = yhat)) +
-  geom_point(alpha = 0.1) +
-  geom_abline(slope = 1) +
-  labs(x = "Observed value (y)", y = "Predicted value (ŷ)")
 
-# Distribution residuals
-list$result_pred_obs %>% 
-  mutate(residual = yhat - y) %>% 
-  ggplot(data = ., aes(x = residual)) + 
-  geom_histogram(aes(y = after_stat(count / sum(count))*100),
-                 alpha = 0.5) +
-  geom_vline(xintercept = 0) +
-  lims(x = c(-100, 100)) +
-  labs(x = "Residual (ŷ - y)", y = "Percentage")
 
-# Time
-model_results$model_time %>% 
-  mutate(time = seconds_to_period(as.difftime(time)))
 
-model_results$model_time %>% 
-  mutate(time = as.difftime(time)) %>% 
-  group_by(bootstrap) %>% 
-  summarise(total = seconds_to_period(sum(time)))
 
-model_results$model_time %>% 
-  mutate(time = as.difftime(time)) %>% 
-  group_by(bootstrap) %>% 
-  summarise(time = sum(time)) %>% 
-  ungroup() %>% 
-  summarise(mean_time_bootstrap = seconds_to_period(mean(time)),
-            total_time = seconds_to_period(sum(time)))
-
-# Trend Pacific
-model_results$result_trends %>% 
-  filter(territory == "All") %>% 
-  ggplot(data = ., aes(x = year, y = mean, group = bootstrap)) +
-  geom_point() +
-  geom_line()
-
-# Trends territories
-model_results$result_trends %>% 
-  filter(territory != "All") %>% 
-  ggplot(data = ., aes(x = year, y = mean, group = bootstrap)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~territory, scales = "free")
