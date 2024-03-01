@@ -14,6 +14,8 @@ library(furrr)
 options(future.globals.maxSize = 5000*1024^2) # 5 Gb
 plan(strategy = multisession, workers = 2)
 
+source("code/function/slice_sample_group.R")
+
 # 2. Load data ----
 
 load("data/11_model-data/data_benthic_prepared.RData")
@@ -27,12 +29,17 @@ model_workflow <- function(category_i, bootstrap_i, pdp = TRUE){
   
   start_time <- Sys.time()
   
+  # 1.1 Filter the category
   data_split <- data_benthic %>% 
     filter(category == category_i) %>% 
-    select(-category) %>% 
-    slice_sample(replace = TRUE, n = nrow(.)) %>% # Sampling for bootstrap
-    initial_split(., prop = 3/4)
+    select(-category)
   
+  # 1.2 Sample with replacement by territory (for bootstrap)
+  data_split <- map_dfr(unique(data_split$territory),
+                        ~slice_sample_group(data = data_split, territory_i = .))
+  
+  # 1.3 Split into training and testing data
+  data_split <- initial_split(data_split, prop = 3/4)
   data_train <- training(data_split)
   data_test <- testing(data_split)
   
