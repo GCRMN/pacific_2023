@@ -11,8 +11,8 @@ library(vip)
 library(future)
 library(furrr)
 
-options(future.globals.maxSize= 3000*1024^2) # 3000 mb
-plan(multisession, workers = 4)
+options(future.globals.maxSize = 5000*1024^2) # 5 Gb
+plan(strategy = multisession, workers = 2)
 
 # 2. Load data ----
 
@@ -21,7 +21,7 @@ load("data/11_model-data/data_predictors_pred.RData")
 
 # 3. Create the model workflow ----
 
-model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
+model_workflow <- function(category_i, bootstrap_i, pdp = TRUE){
   
   # 1. Data preparation ----
   
@@ -30,6 +30,7 @@ model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
   data_split <- data_benthic %>% 
     filter(category == category_i) %>% 
     select(-category) %>% 
+    slice_sample(replace = TRUE, n = nrow(.)) %>% # Sampling for bootstrap
     initial_split(., prop = 3/4)
   
   data_train <- training(data_split)
@@ -65,7 +66,7 @@ model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
   ### 3.3.1 Create the grid ----
   
   tune_grid <- grid_max_entropy(learn_rate(),
-                                size = 30)
+                                size = 20)
   
   ### 3.3.2 Run the hyperparameters tuning ----
   
@@ -206,36 +207,36 @@ model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
   
   ## 6.3 Partial Dependence Plots ----
   
-  if(pdp == TRUE){
-  
-  start_time <- Sys.time()
-  
   final_fitted <- final_model$.workflow[[1]]
   
-  model_explain <- explain_tidymodels(model = final_fitted, 
-                                      data = dplyr::select(data_train, -measurementValue), 
-                                      y = data_train$measurementValue)
-  
-  result_pdp <- model_profile(explainer = model_explain,
-                              N = NULL, 
-                              center = FALSE,
-                              type = "partial",
-                              variables = c("year", "decimalLatitude", "decimalLongitude", "pred_population",
-                                            "pred_reefextent", "pred_dhw_max", "pred_enso", "pred_elevation"),
-                              variable_splits_type = "uniform") %>% 
-    .$agr_profiles %>% 
-    as_tibble(.) %>% 
-    select(-"_label_", -"_ids_") %>% 
-    rename(x = "_x_", y_pred = "_yhat_", predictor = "_vname_") %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
-  
-  end_time <- Sys.time()
-  
-  model_time <- model_time %>% 
-    add_row(., tibble(step = "Outputs", 
-                      substep = "PDP", 
-                      time = end_time - start_time))
-  
+  if(pdp == TRUE){
+    
+    start_time <- Sys.time()
+    
+    model_explain <- explain_tidymodels(model = final_fitted, 
+                                        data = dplyr::select(data_train, -measurementValue), 
+                                        y = data_train$measurementValue)
+    
+    result_pdp <- model_profile(explainer = model_explain,
+                                N = NULL, 
+                                center = FALSE,
+                                type = "partial",
+                                variables = c("year", "decimalLatitude", "decimalLongitude", "pred_population",
+                                              "pred_reefextent", "pred_dhw_max", "pred_enso", "pred_elevation"),
+                                variable_splits_type = "uniform") %>% 
+      .$agr_profiles %>% 
+      as_tibble(.) %>% 
+      select(-"_label_", -"_ids_") %>% 
+      rename(x = "_x_", y_pred = "_yhat_", predictor = "_vname_") %>% 
+      mutate(category = category_i, bootstrap = bootstrap_i)
+    
+    end_time <- Sys.time()
+    
+    model_time <- model_time %>% 
+      add_row(., tibble(step = "Outputs", 
+                        substep = "PDP", 
+                        time = end_time - start_time))
+    
   }
   
   ## 6.4 Predicted (yhat) vs observed (y) ----
@@ -292,8 +293,7 @@ model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
     add_row(., tibble(step = "Predictions", 
                       substep = NA, 
                       time = end_time - start_time)) %>% 
-    mutate(category = category_i,
-           bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i)
   
   # 8. Return the results ----
   
@@ -320,17 +320,10 @@ model_workflow <- function(category_i, bootstrap_i, pdp = FALSE){
   
 }
 
-model_results <- future_map(1:4, ~model_workflow(category_i = "Hard coral", bootstrap_i = .)) %>% 
+model_results <- future_map(1:6, ~model_workflow(category_i = "Hard coral",
+                                                 bootstrap_i = .,
+                                                 pdp = FALSE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_hard-coral.RData")
-
-load("data/12_model-output/model_results_hard-coral.RData")
-
-
-
-
-
-
-
