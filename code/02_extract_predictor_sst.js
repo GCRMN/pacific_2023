@@ -133,7 +133,8 @@ var data_sst_sd = data_sst.reduce(ee.Reducer.stdDev());
 
 var result_sst_sd = data_sst_sd.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_sst_sd"]),
-  collection: site_coords
+  collection: site_coords,
+  scale: 10000
 });
 
 // 5.3 Export the data ----
@@ -157,7 +158,8 @@ var data_sst_kurtosis = data_sst.reduce(ee.Reducer.kurtosis());
 
 var result_sst_kurtosis = data_sst_kurtosis.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_sst_kurtosis"]),
-  collection: site_coords
+  collection: site_coords,
+  scale: 10000
 });
 
 // 6.3 Export the data ----
@@ -181,7 +183,8 @@ var data_sst_skew = data_sst.reduce(ee.Reducer.skew());
 
 var result_sst_skew = data_sst_skew.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_sst_skewness"]),
-  collection: site_coords
+  collection: site_coords,
+  scale: 10000
 });
 
 // 7.3 Export the data ----

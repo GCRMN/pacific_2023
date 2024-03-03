@@ -32,7 +32,7 @@ var pred_chla_mean = data_chla.reduce(ee.Reducer.mean());
 var pred_chla_mean = pred_chla_mean.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_chla_mean"]),
   collection: site_buffer,
-  scale: 5000,
+  scale: 10000
 });
 
 // 5.3 Export the data ----
@@ -57,7 +57,7 @@ var pred_chla_sd = data_chla.reduce(ee.Reducer.stdDev());
 var pred_chla_sd = pred_chla_sd.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_chla_sd"]),
   collection: site_buffer,
-  scale: 5000,
+  scale: 10000
 });
 
 // 6.3 Export the data ----
