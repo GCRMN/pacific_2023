@@ -88,7 +88,7 @@ data_bathy <- data_bathy %>%
 
 ### 3.2.4 Benthic data ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 data_benthic_sites <- data_benthic %>% 
   select(decimalLatitude, decimalLongitude, year, territory) %>% 
@@ -160,7 +160,7 @@ map_eez <- function(territory_i){
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     new_scale_fill() +
     geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5)  +
-    scale_fill_manual(values = palette_5cols,
+    scale_fill_manual(values = palette_second,
                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                       drop = FALSE, name = "Number of years with data") +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
@@ -270,7 +270,7 @@ plot_i <- ggplot() +
   geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
   new_scale_fill() +
   geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5)  +
-  scale_fill_manual(values = palette_5cols,
+  scale_fill_manual(values = palette_second,
                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                     drop = FALSE, name = "Number of years with data") +
   coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
@@ -312,7 +312,7 @@ data_benthic_sites %>%
   ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
                        y = percent, fill = interval_class)) +
   geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
-  scale_fill_manual(values = palette_5cols,
+  scale_fill_manual(values = palette_second,
                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                     drop = FALSE, name = "Number of years with data") +
   labs(x = NULL, y = "Sites (%)") +
@@ -340,7 +340,7 @@ data_benthic_sites %>%
   ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
                        y = percent, fill = interval_class)) +
   geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
-  scale_fill_manual(values = palette_5cols,
+  scale_fill_manual(values = palette_second,
                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                     drop = FALSE, name = "Number of years with data") +
   labs(x = NULL, y = "Sites (%)") +
@@ -357,7 +357,7 @@ ggsave(filename = "figs/04_supp/fig-3_b.png", width = 8.5, height = 12, dpi = 60
 
 ## 6.1 Transform the data ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 data_surveys <- data_benthic %>% 
   select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
@@ -376,7 +376,7 @@ data_surveys <- data_benthic %>%
 data_surveys %>% 
   filter(territory %in% unique(data_surveys$territory)[1:15]) %>%  
   ggplot(data = ., aes(x = year, y = percent)) +
-  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
   labs(x = "Year", y = "Surveys (%)") +
   theme_graph() +
   coord_cartesian(clip = "off") +
@@ -393,7 +393,7 @@ ggsave(filename = "figs/04_supp/fig-2_a.png", width = 8.5, height = 12, dpi = 60
 data_surveys %>% 
   filter(territory %in% unique(data_surveys$territory)[16:30]) %>%  
   ggplot(data = ., aes(x = year, y = percent)) +
-  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_5cols[5]) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
   labs(x = "Year", y = "Surveys (%)") +
   theme_graph() +
   coord_cartesian(clip = "off") +
@@ -407,7 +407,7 @@ ggsave(filename = "figs/04_supp/fig-2_b.png", width = 8.5, height = 12, dpi = 60
 
 # 7. Extract descriptors ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 ## 7.1 Add subterritories ----
 

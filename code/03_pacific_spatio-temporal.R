@@ -128,7 +128,7 @@ data_alpha <- data_eez %>%
 
 ## 3.9 Select benthic data ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 data_benthic <- data_benthic %>% 
   select(decimalLatitude, decimalLongitude, year) %>% 
@@ -219,7 +219,7 @@ ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 4, dpi = 600)
 
 ## 5.1 Make the plot ----
 
-load("data/04_data-benthic.RData")
+load("data/09_misc/data-benthic.RData")
 
 data_benthic %>% 
   select(territory, decimalLatitude, decimalLongitude, eventDate, year) %>% 
