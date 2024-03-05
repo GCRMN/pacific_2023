@@ -421,7 +421,7 @@ ggsave(plot = data_pred_distri,
 ## 5.4 Correlation between predictors ----
 
 data_correlation <- round(cor(data_predictors_pred %>% 
-                                select(-territory, -datasetID, -month, 
+                                select(-territory, -datasetID, -month, -day,
                                        -verbatimDepth, -parentEventID, -eventID),
                                 use = "complete.obs"), 2) %>% # "complete.obs" to not use NA
   as_tibble() %>% 

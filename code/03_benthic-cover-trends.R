@@ -11,9 +11,206 @@ source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 theme_set(theme_graph())
 
-# 3. Load model results ----
+# 3. Load and combine model results ----
 
-load("data/16_model-data/raw-results_all.RData")
+load("data/12_model-output/model_results_hard-coral.RData")
+model_results_coral <- model_results
+
+load("data/12_model-output/model_results_macroalgae.RData")
+model_results_macroalgae <- model_results
+
+load("data/12_model-output/model_results_turf-algae.RData")
+model_results_turf <- model_results
+
+load("data/12_model-output/model_results_coralline-algae.RData")
+model_results_cca <- model_results
+
+model_results <- lst(model_results_coral, model_results_macroalgae,
+                     model_results_turf, model_results_cca) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save("data/12_model-output/model_results_all.RData")
+
+rm(model_results_coral, model_results_macroalgae, model_results_turf, model_results_cca)
+
+# 4. Model characteristics ----
+
+## 4.1 Running time ----
+
+model_results$model_time %>% 
+  mutate(time = round(seconds_to_period(as.difftime(time))))
+
+model_results$model_time %>% 
+  mutate(time = as.difftime(time)) %>% 
+  group_by(category, bootstrap) %>% 
+  summarise(total = round(seconds_to_period(sum(time)))) %>% 
+  ungroup()
+
+model_results$model_time %>% 
+  mutate(time = as.difftime(time)) %>% 
+  group_by(category, step, substep) %>% 
+  summarise(time = round(seconds_to_period(mean(time)))) %>% 
+  ungroup()
+
+model_results$model_time %>% 
+  mutate(time = as.difftime(time)) %>% 
+  group_by(bootstrap) %>% 
+  summarise(time = sum(time)) %>% 
+  ungroup() %>% 
+  # total_time must be divided by the number of core use to parallelise
+  summarise(mean_time_bootstrap = round(seconds_to_period(mean(time))),
+            total_time = round(seconds_to_period(sum(time))))
+
+## 4.2 Hyperparameters ----
+
+# 5. Model performance ----
+
+## 5.1 RMSE and R² ----
+
+A <- model_results$result_pred_obs %>% 
+  group_by(category, bootstrap) %>% 
+  mutate(residual = yhat - y,
+         res = sum((y - yhat)^2),
+         tot = sum((y - mean(y))^2),
+         rsq_global = 1 - (res/tot),
+         rmse_global = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  group_by(category, territory, bootstrap, rsq_global, rmse_global) %>% 
+  summarise(res = sum((y - yhat)^2),
+            tot = sum((y - mean(y))^2),
+            rsq = 1 - (res/tot),
+            rmse = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  select(-res, -tot)
+
+ggplot(data = A, aes(x = territory, y = rmse)) +
+  geom_hline(yintercept = mean(unique(A$rmse_global))) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "RMSE")
+
+ggplot(data = A, aes(x = territory, y = rsq)) +
+  geom_hline(yintercept = mean(unique(A$rsq_global))) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "RMSE")
+
+## 5.2 Predicted vs observed ----
+
+## 5.3 Distribution of residuals ----
+
+# 6. Model interpretation ----
+
+## 6.1 Variable importance ----
+
+model_results$result_vip %>% 
+  mutate(predictor = str_remove_all(predictor, "pred_")) %>% 
+  group_by(predictor, category) %>% 
+  summarise(importance = mean(importance)) %>% 
+  ungroup() %>% 
+  arrange(desc(importance)) %>% 
+  slice_head(n = 25) %>% 
+  ggplot(data = ., aes(x = fct_reorder(predictor, importance), y = importance)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    labs(x = NULL, y = "Relative importance (%)")
+
+## 6.2 Partial Dependence Plot ----
+
+# 7. Benthic cover trends ----
+
+## 7.1 Transform the data ----
+
+data_trends <- model_results$result_trends %>% 
+  rename(cover = mean) %>% 
+  group_by(category, region, territory, year) %>% 
+  summarise(mean = mean(cover),
+            sd = sd(cover),
+            n = length(cover)) %>% 
+  ungroup() %>% 
+  mutate(t_score_95 = qt(p = 0.05/2, df = n, lower.tail = FALSE),
+         lower_ci_95 = mean - (t_score_95*(sd/sqrt(n))),
+         upper_ci_95 = mean + (t_score_95*(sd/sqrt(n))),
+         t_score_80 = qt(p = 0.2/2, df = n, lower.tail = FALSE),
+         lower_ci_80 = mean - (t_score_80*(sd/sqrt(n))),
+         upper_ci_80 = mean + (t_score_80*(sd/sqrt(n)))) %>% 
+  select(-sd, -n, -t_score_95, -t_score_80) %>% 
+  mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
+                           category == "Coralline algae" ~ palette_second[3],
+                           category == "Macroalgae" ~ palette_second[4],
+                           category == "Turf algae" ~ palette_second[5]),
+         text_title = case_when(category == "Hard coral" ~ 
+                                  glue("**A.**<span style='color:{color}'> {category}</span>"),
+                                category == "Coralline algae" ~ 
+                                  glue("**B.**<span style='color:{color}'> {category}</span>"),
+                                category == "Macroalgae" ~ 
+                                  glue("**C.**<span style='color:{color}'> {category}</span>"),
+                                category == "Turf algae" ~ 
+                                  glue("**D.**<span style='color:{color}'> {category}</span>")),
+         category = as.factor(category),
+         category = fct_expand(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"),
+         category = fct_relevel(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))
+
+## 7.2 Pacific ----
+
+data_trends %>% 
+  filter(territory == "All") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+  labs(x = "Year", y = "Cover (%)") +
+  theme(plot.title = element_markdown(size = 12))
+
+## 7.3 Countries and territories ----
+
+data_trends %>% 
+  filter(territory != "All") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+  facet_wrap(~territory, scales = "free_y") +
+  labs(x = "Year", y = "Cover (%)") +
+  theme(plot.title = element_markdown(size = 12))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 4. Temporal trends of benthic cover (territory) ----
 
@@ -41,10 +238,10 @@ save(data_trends, file = "data/16_model-data/final-results.RData")
 ## 4.2 Add the colors ----
 
 data_trends <- data_trends %>% 
-  mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
-                           category == "Coralline algae" ~ palette_5cols[3],
-                           category == "Macroalgae" ~ palette_5cols[4],
-                           category == "Turf algae" ~ palette_5cols[5]),
+  mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
+                           category == "Coralline algae" ~ palette_second[3],
+                           category == "Macroalgae" ~ palette_second[4],
+                           category == "Turf algae" ~ palette_second[5]),
          text_title = case_when(category == "Hard coral" ~ 
                                   glue("**A.**<span style='color:{color}'> {category}</span>"),
                                 category == "Coralline algae" ~ 
@@ -144,10 +341,10 @@ map(unique(data_trends$category), ~plot_trends(category_i = .))
 plot_vip <- function(category_i){
   
   data_vip <- results_all_raw$result_vip %>% 
-    mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
-                             category == "Coralline algae" ~ palette_5cols[3],
-                             category == "Macroalgae" ~ palette_5cols[4],
-                             category == "Turf algae" ~ palette_5cols[5])) %>% 
+    mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
+                             category == "Coralline algae" ~ palette_second[3],
+                             category == "Macroalgae" ~ palette_second[4],
+                             category == "Turf algae" ~ palette_second[5])) %>% 
     filter(category == category_i) %>% 
     mutate(importance = importance*100)
   
@@ -257,10 +454,10 @@ data_benthic <- data_benthic %>%
   summarise(measurementValue = sum(measurementValue)) %>% 
   ungroup() %>%
   filter(measurementValue <= 100) %>% 
-  mutate(color = case_when(category == "Hard coral" ~ palette_5cols[2],
-                           category == "Coralline algae" ~ palette_5cols[3],
-                           category == "Macroalgae" ~ palette_5cols[4],
-                           category == "Turf algae" ~ palette_5cols[5]))
+  mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
+                           category == "Coralline algae" ~ palette_second[3],
+                           category == "Macroalgae" ~ palette_second[4],
+                           category == "Turf algae" ~ palette_second[5]))
 
 ## 10.2 Plots ----
 
@@ -320,9 +517,9 @@ plot_e <- read.csv("data/ModelledTrends.all.sum_gcrmn-2020.csv") %>%
   mutate(Var = "Hard coral") %>% 
   bind_rows(., tibble(Var = c("Coralline algae", "Macroalgae", "Turf algae"))) %>% 
   ggplot(data = .) +
-  geom_line(aes(x = Year, y = value), color = palette_5cols[2]) +
-  geom_ribbon(aes(ymin = .lower_0.8, ymax = .upper_0.8, x = Year), fill = palette_5cols[2], alpha = 0.4) +
-  geom_ribbon(aes(ymin = .lower_0.95, ymax = .upper_0.95, x = Year), fill = palette_5cols[2], alpha = 0.2) +
+  geom_line(aes(x = Year, y = value), color = palette_second[2]) +
+  geom_ribbon(aes(ymin = .lower_0.8, ymax = .upper_0.8, x = Year), fill = palette_second[2], alpha = 0.4) +
+  geom_ribbon(aes(ymin = .lower_0.95, ymax = .upper_0.95, x = Year), fill = palette_second[2], alpha = 0.2) +
   facet_wrap(~Var, ncol = 1, drop = FALSE) +
   labs(x = "Year", y = NULL, title = "GCRMN 2020") +
   lims(y = c(0, 100), x = c(1980, 2023))
@@ -337,3 +534,83 @@ plot_combined <- plot_a + plot_b + plot_c + plot_d + plot_e +
 
 ggsave(filename = "figs/05_additional/03_results/02_raw-pointrange-pdp.png",
        plot = plot_combined, height = 12, width = 25, dpi = 600)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# PDP
+model_results$result_pdp %>% 
+  ggplot(data = ., aes(x = x, y = y_pred, group = bootstrap)) +
+  geom_line() +
+  facet_wrap(~predictor, scales = "free")
+
+
+# RMSE and RSQ per territory
+A <- model_results$result_pred_obs %>% 
+  group_by(bootstrap) %>% 
+  mutate(residual = yhat - y,
+         res = sum((y - yhat)^2),
+         tot = sum((y - mean(y))^2),
+         rsq_global = 1 - (res/tot),
+         rmse_global = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  group_by(territory, bootstrap, rsq_global, rmse_global) %>% 
+  summarise(res = sum((y - yhat)^2),
+            tot = sum((y - mean(y))^2),
+            rsq = 1 - (res/tot),
+            rmse = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  select(-res, -tot)
+
+ggplot(data = A, aes(x = territory, y = rmse)) +
+  geom_hline(yintercept = mean(unique(A$rmse_global))) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "RMSE")
+
+ggplot(data = A, aes(x = territory, y = rsq)) +
+  geom_hline(yintercept = mean(unique(A$rsq_global))) +
+  geom_point() +
+  coord_flip() +
+  labs(x = NULL, y = "RMSE")
+
+# Pred. vs Obs.
+list$result_pred_obs %>% 
+  ggplot(data = ., aes(x = y, y = yhat)) +
+  geom_point(alpha = 0.1) +
+  geom_abline(slope = 1) +
+  labs(x = "Observed value (y)", y = "Predicted value (ŷ)")
+
+# Distribution residuals
+list$result_pred_obs %>% 
+  mutate(residual = yhat - y) %>% 
+  ggplot(data = ., aes(x = residual)) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))*100),
+                 alpha = 0.5) +
+  geom_vline(xintercept = 0) +
+  lims(x = c(-100, 100)) +
+  labs(x = "Residual (ŷ - y)", y = "Percentage")
+
+
+
+

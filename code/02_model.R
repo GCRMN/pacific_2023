@@ -11,7 +11,7 @@ library(vip)
 library(future)
 library(furrr)
 
-options(future.globals.maxSize = 5000*1024^2) # 5 Gb
+options(future.globals.maxSize = 10000*1024^2) # 10 Gb
 plan(strategy = multisession, workers = 2)
 
 source("code/function/slice_sample_group.R")
@@ -327,10 +327,44 @@ model_workflow <- function(category_i, bootstrap_i, pdp = TRUE){
   
 }
 
-model_results <- future_map(1:6, ~model_workflow(category_i = "Hard coral",
-                                                 bootstrap_i = .,
-                                                 pdp = FALSE)) %>% 
+# 4. Run the model ----
+
+## 4.1 Hard coral ----
+
+model_results <- future_map(1:10, ~model_workflow(category_i = "Hard coral",
+                                                  bootstrap_i = .,
+                                                  pdp = TRUE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_hard-coral.RData")
+
+## 4.2 Macroalgae ----
+
+model_results <- future_map(1:10, ~model_workflow(category_i = "Macroalgae",
+                                                  bootstrap_i = .,
+                                                  pdp = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_macroalgae.RData")
+
+## 4.3 Turf algae ----
+
+model_results <- future_map(1:10, ~model_workflow(category_i = "Turf algae",
+                                                  bootstrap_i = .,
+                                                  pdp = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_turf-algae.RData")
+
+## 4.4 Coralline algae ----
+
+model_results <- future_map(1:10, ~model_workflow(category_i = "Coralline algae",
+                                                  bootstrap_i = .,
+                                                  pdp = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_coralline-algae.RData")
