@@ -1,0 +1,1358 @@
+\documentclass[a4paper,12pt,twoside,openany]{book}
+
+%%%%% 1. PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{anyfontsize}
+\usepackage[latin9]{inputenc}
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm,marginparwidth=1.75cm]{geometry}
+\usepackage{afterpage}
+\usepackage{xcolor} % To define colors
+\usepackage{fancyhdr} % For footer and header
+\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=firstcolor,linkcolor=black]{hyperref}
+\usepackage[uppercase, sf, explicit, raggedright]{titlesec}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[round]{natbib}
+\usepackage{tcolorbox} % For color box
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{fdsymbol} % For symbols
+\usepackage{booktabs}
+\usepackage{tikz} % For schemas
+\usetikzlibrary{shapes.multipart} % For multilines on schemas
+\usetikzlibrary{fadings}
+\usetikzlibrary{positioning,calc}
+\usetikzlibrary{backgrounds}
+\usepackage{datetime} % For date format
+\usepackage{titletoc} % For table of content personalised
+\usepackage{listings} % To include code from external file
+\usepackage{subcaption} % To include figures 2x1, 2x2...
+\usepackage{fixltx2e}
+\usepackage{array}
+\usepackage{lastpage}
+\usepackage{etaremune}
+\usepackage{lipsum}
+\usepackage{pifont}
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage[round]{natbib}
+\setlength{\columnsep}{1cm} % width between columns
+\usepackage{xparse}
+\usepackage{etoolbox}
+\usepackage{bookmark}
+\usepackage{changepage}
+\usepackage{amsmath}
+
+%\usepackage{draftwatermark}
+%\SetWatermarkText{DRAFT} % To add DRAFT watermark
+
+%%%%% 2. COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{firstcolor}{HTML}{013C5E}
+\definecolor{secondcolor}{HTML}{E4F1FE}
+\definecolor{thirdcolor}{HTML}{6C7A89}
+\definecolor{fourthcolor}{HTML}{2C3E50}
+
+\definecolor{fuzzyred}{HTML}{C44D56}
+
+\arrayrulecolor{firstcolor} % Color for table borders
+
+%%%%% 3. HEADER AND FOOTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{\leftmark}}
+    \renewcommand{\chaptermark}[1]{\markboth{\thechapter {##1}}{}}
+}
+
+\pagestyle{plain}
+
+%%%%% 4. FIGURES AND TABLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set Figure names
+\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, labelsep=period, justification=justified}
+
+% Set Table names
+\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, labelsep=period, justification=justified}
+
+% Increase row height for tables
+\renewcommand{\arraystretch}{1.2} 
+
+% Include figure in multicol
+\newenvironment{figuremulticol}
+{\par\medskip\noindent\minipage{\linewidth}}
+{\endminipage\par\medskip}
+
+% Additional column types
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+%%%%% 5. TABLE OF CONTENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{tocdepth}{1}
+
+\renewcommand{\thepart}{}
+\renewcommand{\thechapter}{}
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+
+\titlecontents{part}
+[-1em]
+{\selectfont\bfseries\color{firstcolor}}
+{\contentslabel[\thecontentslabel]{1em}}
+{}
+{\titlerule*[0.75pc]{.}\contentspage} % dots
+[\addvspace{1ex}]
+
+\titlecontents{chapter}
+[0em]
+{\selectfont\color{black}}
+{\contentslabel[\thecontentslabel]{1em}}
+{}
+{\titlerule*[0.75pc]{.}\contentspage} % dots
+[\addvspace{1ex}]
+
+%%%%% 6. STYLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% 6.1 PART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titleformat{\part}
+{\fontsize{40pt}{40pt}\selectfont}
+{}
+{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{../../figs/00_misc/part.png}};
+		\node[anchor=west, fill,text centered, fill=firstcolor, opacity=1, inner xsep=0.65cm, inner ysep=0.65cm] at ($(current page.north west)+(2.5cm,-5cm)$) {{\fontsize{50pt}{40pt}\selectfont \textcolor{white}{\textit{1}}}};
+		\node[anchor=west] at ($(current page.north west)+(2.15cm,-3.15cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{PART}}};
+		\fill[anchor=west, secondcolor, opacity=0.5] ($(current page.north west)+(-1cm,-6.5cm)$) rectangle ($(current page.north west)+(22cm,-10.5cm)$);
+		\node[yshift=-3cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				(\paperwidth,10cm);
+				\node[anchor=north west,xshift=2.5cm,yshift=-4cm,rectangle,inner sep=8pt, text width=15cm]
+				{\color{firstcolor}\raggedleft#1};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\part}{0pt}{50pt}{-10pt} % The last argument control space between chapter title and text
+
+%%%%% 6.2 CHAPTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
+
+\titleformat{\chapter}
+{\fontsize{20pt}{40pt}\selectfont}
+{}
+{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[yshift=-3cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				(\paperwidth,3cm);
+				\node[anchor=north west,text centered,xshift=2.5cm,yshift=-0.4cm,rectangle,inner sep=8pt, 
+				fill=firstcolor,draw=white, ultra thick]
+				{\color{white}\uppercase{\filright#1}};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\chapter}{0pt}{50pt}{-10pt} % The last argument control space between chapter title and text
+
+%%%%% 6.3 SECTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titleformat{\section}
+{\fontsize{15pt}{20pt}\selectfont\color{firstcolor}}
+{}
+{0pt}
+{\filright#1}
+
+%%%%% 7. OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set the font of the document
+\renewcommand\familydefault{\sfdefault}
+
+% Delete indentation before a paragraph
+\setlength{\parindent}{0pt}
+
+% Icon to separate affiliations
+\newcommand{\sepaffil}{\textcolor{firstcolor}{\ding{120} }}
+
+% Icon to put for contribution within author contribution table
+\newcommand{\contrib}{\textcolor{firstcolor}{\ding{108}}}
+\newcommand{\writing}{\textcolor{firstcolor}{W}}
+\newcommand{\review}{\textcolor{firstcolor}{R}}
+\newcommand{\ie}{\textit{i.e. }}
+
+% To have rotated column headers
+\NewDocumentCommand{\rot}{O{60} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
+
+% Style for definition
+\newcommand{\definition}[1]{\textcolor{firstcolor}{\textbf{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+	
+% PAGE COVER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	% Photo over the entire page (A4 format)
+	\node[rotate=180] at ($(current page.center)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/part.png}};
+	
+	% White borders around the page
+	\fill[anchor=north west, white] (-1.25,-25) -- (-1.25,-18.5) .. controls (5.5, -16) and (10, -21) .. (17.5, -19) -- (17.5,-25);	
+	\fill[anchor=north west, firstcolor] (-1.25,-19) -- (-1.25,-18.5) .. controls (5.5, -16) and (10, -21) .. (17.5, -19) -- (17.5, -19) .. controls (10, -21.25) and (5.5, -16.25) .. (-1.25,-19);
+	\tikzfading[name=fade,bottom color=transparent!100,top color=transparent!0]
+	\fill[anchor=north west,firstcolor,path fading=fade] ($(current page.north west)+(1.5cm,1cm)$) rectangle ($(current page.north west)+(19.5cm,-8cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,1cm)$) rectangle ($(current page.north west)+(21.5cm,-1.5cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,-28.2cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,1cm)$) rectangle ($(current page.north west)+(1.5cm,-30cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(19.5cm,1cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
+
+	% GCRMN logo
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(16.25cm,-3.2cm)$){\includegraphics[height=2cm]{../../figs/00_misc/logo-gcrmn.png}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(10.75cm,-3.2cm)$){\includegraphics[height=2cm]{../../figs/00_misc/logo-icri.png}};
+		
+	% Text
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(0cm,4cm)$){\fontsize{45pt}{40pt}\fontfamily{phv}\selectfont\color{white}
+		\textbf{Status and Trends}
+	};
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(0cm,2cm)$){\fontsize{30pt}{40pt}\fontfamily{phv}\selectfont\color{white}
+		\textbf{of coral reefs of the}
+	};
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(-3cm,0cm)$){\fontsize{50pt}{40pt}\fontfamily{phv}\selectfont\color{secondcolor}
+		\textbf{PACIFIC}
+	};
+	
+	\node[rectangle,inner sep=6pt, fill=firstcolor] at ($(current page.north west)+(15cm,-16cm)$){\huge \textcolor{white}{1980 - 2023}};
+	
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-2.4cm)$){\scriptsize \textcolor{white}{EDITED BY}};
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-3.1cm)$){\textcolor{white}{{\large Jérémy }{\Large Wicquart}}};
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-3.8cm)$){\textcolor{white}{{\large Serge }{\Large Planes}}};
+	
+	% Funding logo
+	\node[opacity=1,inner sep=0pt, align=left] at ($(current page.north west)+(2.9cm,-26.75cm)$){\includegraphics[width=3.25cm]{../../figs/00_misc/outre-mer.png}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(8cm,-26.75cm)$){\includegraphics[width=3.25cm]{../../figs/00_misc/outre-mer.png}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.north west)+(15cm,-26.75cm)$){\includegraphics[width=6cm]{../../figs/00_misc/logo-monaco.png}};
+		
+\end{tikzpicture}
+
+\newpage
+	
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, secondcolor] ($(current page.north west)$) rectangle ($(current page.south east)$);
+\end{tikzpicture}
+
+\newpage
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	
+	% Text
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(0cm,4cm)$){\fontsize{45pt}{40pt}\fontfamily{phv}\selectfont\color{black}
+		\textbf{Status and Trends}
+	};
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(0cm,2cm)$){\fontsize{30pt}{40pt}\fontfamily{phv}\selectfont\color{black}
+		\textbf{of coral reefs of the}
+	};
+	\node[rectangle, inner sep=4pt, fill=firstcolor, opacity=0, text opacity=1, anchor=center] at ($(current page.center)+(-3cm,0cm)$){\fontsize{50pt}{40pt}\fontfamily{phv}\selectfont\color{secondcolor}
+		\textbf{PACIFIC}
+	};
+	
+	\node[rectangle,inner sep=6pt, fill=firstcolor] at ($(current page.north west)+(15cm,-16cm)$){\huge \textcolor{white}{1980 - 2023}};
+	
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-2.4cm)$){\scriptsize \textcolor{black}{EDITED BY}};
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-3.1cm)$){\textcolor{black}{{\large Jérémy }{\Large Wicquart}}};
+	\node[align=left, text width=5cm] at ($(current page.north west)+(5.5cm,-3.8cm)$){\textcolor{black}{{\large Serge }{\Large Planes}}};
+	
+\end{tikzpicture}
+
+\newpage
+
+% CITATION PAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+
+\vspace*{2cm}
+
+\textbf{GCRMN} \textcolor{thirdcolor}{Global Coral Reef Monitoring Network}
+
+\href{www.gcrmn.net}{www.gcrmn.net}
+
+\vspace{0.5cm}
+
+\textbf{ICRI} \textcolor{thirdcolor}{International Coral Reef Initiative}
+
+\href{www.icriforum.org}{www.icriforum.org}
+
+\vspace{4cm}
+
+\textcolor{firstcolor}{\textbf{Photograph credits}}
+
+{\footnotesize
+	\textbf{Front cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+	
+	\textbf{Page 25}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+		
+	\textbf{Page 48}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+	
+	\textbf{Back cover}. Hannes Klostermann. Coral reefs in Moorea, French Polynesia.
+}
+
+\vspace{1cm}
+
+\textcolor{firstcolor}{\textbf{Disclaimer}}
+
+\begin{flushleft}
+	{\footnotesize The content of this report is solely the opinions of the authors, contributors and editors and do not constitute a statement of policy, decision, or position on behalf of the participating organizations, including those represented on the cover.}
+\end{flushleft}
+
+\vspace{1cm}
+
+\textcolor{firstcolor}{\textbf{Citation}}
+
+{\footnotesize
+	Wicquart J. and Planes S. (eds.), 2024. Status and Trends of Coral Reefs of the Pacific. Global Coral Reef Monitoring Network and International Coral Reef Initiative. DOI. ISBN.
+}
+
+\vspace{1cm}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt] at ($(current page.south west)+(3.5cm,4cm)$){\includegraphics[width=2cm]{../../figs/00_misc/by-nc-sa.png}};
+	\node[align=left] at ($(current page.south west)+(8.5cm,3.95cm)$) {\footnotesize Copyright Global Coral Reef Monitoring Network\\ \footnotesize and International Coral Reef Initiative, 2024.};
+\end{tikzpicture}
+
+\newpage
+
+% ACKNOWLEDGMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Acknowledgments}
+
+\begin{multicols}{2}
+	
+	\lipsum[1-4]
+	
+\end{multicols}
+
+\newpage
+
+% TABLE OF CONTENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+\tableofcontents
+\chaptermark{Table of contents}
+\addcontentsline{toc}{chapter}{Table of contents}
+
+\newpage
+
+% ACRONYMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Acronyms}
+
+\begin{tabular}{>{\bfseries}>{\color{firstcolor}}rl}
+	AIMS  & Australian Institute of Marine Science          \\
+	CCA   & Crustose Coralline Algae                        \\
+	EEZ   & Economic Exclusive Zone                         \\
+	ENSO  & El Ni\~{n}o Southern Oscillation                \\
+	GCRMN & Global Coral Reef Monitoring Network            \\
+	GEE   & Google Earth Engine                             \\
+	ICRI  & International Coral Reef Initiative             \\
+	IPCC  & Intergovernmental Panel on Climate Change       \\
+	ML    & Machine Learning                                \\
+	MPA   & Marine Protected Area                           \\
+	NOAA  & National Oceanic and Atmospheric Administration \\
+	SST   & Sea Surface Temperature                         \\
+	WoRMS & World Register of Marine Species
+\end{tabular}
+
+\newpage
+
+% DEFINITIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Glossary}
+
+\begin{multicols}{2}
+	
+	\definition{Dataset}
+	
+	A collection of related sets of information that is composed of separate elements (data files) but can be manipulated as a unit by a computer.
+	
+	\definition{Data integration}
+	
+	Process of combining, merging, or joining data together, in order to make what were distinct, multiple data objects, into a single, unified data object.
+		
+\end{multicols}
+
+\newpage
+
+% FOREWORD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+    \node[circle,minimum size=4cm,inner sep=0pt, fill=thirdcolor, draw=white, ultra thick] at ($(current page.north)+(5cm,-3.25cm)$) {\textcolor{white}{\textbf{}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+    \clip ($(current page.north)+(5cm,-3.25cm)$) circle (1.99cm);
+    \node[anchor=west] at ($(current page.north)+(2.5cm,-3.6cm)$) {\includegraphics[width = 5cm]{../../figs/00_misc/foreword-photo.jpg}};
+\end{tikzpicture}
+
+\chapter{Foreword}
+
+\begin{multicols*}{2}
+	
+\lipsum[1-4]
+
+\begin{flushright}
+	
+	\vspace{0.5cm}
+	
+	\textcolor{firstcolor}{Mr. John Smith}
+	
+	Head director of UNEP
+	
+	\vspace{0.25cm}
+	
+	\includegraphics[width = 3cm]{../../figs/00_misc/foreword-signature.png}
+\end{flushright}
+
+\end{multicols*}
+
+\newpage
+
+% EXECUTIVE SUMMARY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Executive summary}
+
+\begin{multicols}{2}
+	
+	\lipsum[1-4]
+	
+\end{multicols}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% PART 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[RO,LE]{}%
+	\renewcommand{\headrulewidth}{0pt}%
+}
+
+\pagestyle{plain}
+
+\part[Part 1. Synthesis for the Pacific region]{Synthesis for the Pacific region}
+
+\newpage
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, secondcolor] ($(current page.north west)$) rectangle ($(current page.south east)$);
+\end{tikzpicture}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{\leftmark}}
+}
+
+\pagestyle{plain}
+
+\titleformat{\chapter}
+	{\fontsize{20pt}{40pt}\selectfont\color{firstcolor}}
+	{}
+	{0pt}
+	{\filright#1}
+	\titlespacing*{\chapter}{0pt}{0pt}{10pt} % The last argument control space between chapter title and text
+
+\begin{multicols}{2}
+
+\chapter{Introduction}
+
+\lipsum[1-2]
+
+\chapter{Threats}
+
+\section{Thermal regime}
+
+\lipsum[1]
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-2a.png}
+	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\label{part1:chap1:fig-1}
+\end{figuremulticol}
+
+\begin{figure}[h]
+
+\end{figure}
+
+\lipsum[1]
+
+\section{Cyclones}
+
+\lipsum[1]
+
+\chapter{Benthic cover trends}
+
+\lipsum[1-2]
+
+\vfill\null
+\columnbreak
+
+\chapter{Recommandations}
+
+\lipsum[1-2]
+
+\end{multicols}
+
+\newpage
+
+\begin{multicols}{2}
+	\lipsum[1]
+\end{multicols}
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-1.png}
+	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\label{part1:chap1:fig-0}
+\end{figuremulticol}
+
+\newpage
+
+\makeatletter 
+\renewcommand{\thetable}{1.\@arabic\c@table}
+\makeatother
+
+\begin{table}[]
+	\caption{Human population in countries and territories}
+	\input{../../figs/01_part-1/table-2.tex}
+	\label{part1:tbl-1}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[RO,LE]{}%
+	\renewcommand{\headrulewidth}{0pt}%
+}
+
+\pagestyle{plain}
+
+\titleformat{\part}
+{\fontsize{40pt}{40pt}\selectfont}
+{}
+{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{../../figs/00_misc/part.png}};
+		\node[anchor=west, fill,text centered, fill=firstcolor, opacity=1, inner xsep=0.65cm, inner ysep=0.65cm] at ($(current page.north west)+(2.5cm,-5cm)$) {{\fontsize{50pt}{40pt}\selectfont \textcolor{white}{\textit{2}}}};
+		\node[anchor=west] at ($(current page.north west)+(2.15cm,-3.15cm)$) {{\fontsize{26pt}{40pt}\selectfont \textcolor{white}{PART}}};
+		\fill[anchor=west, secondcolor, opacity=0.5] ($(current page.north west)+(-1cm,-6.5cm)$) rectangle ($(current page.north west)+(22cm,-10.5cm)$);
+		\node[yshift=-3cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				(\paperwidth,10cm);
+				\node[anchor=north west,xshift=2.5cm,yshift=-4cm,rectangle,inner sep=8pt, text width=15cm]
+				{\color{firstcolor}\raggedleft#1};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\part}{0pt}{50pt}{-10pt} % The last argument control space between chapter title and text
+
+\part[Part 2. Syntheses for countries and territories]{Syntheses for countries and territories}
+
+\newpage
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, secondcolor] ($(current page.north west)$) rectangle ($(current page.south east)$);
+\end{tikzpicture}
+
+\newpage
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{\leftmark}}
+}
+
+\pagestyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% REDEFINE %%%%%%%
+
+% Redefine TOC appearance for chapters %%
+
+\titlecontents{chapter}
+[1.5em]
+{\selectfont\color{black}}
+{\contentslabel[\thecontentslabel]{1em}}
+{}
+{\titlerule*[0.75pc]{.}\contentspage} % dots
+[\addvspace{1ex}]
+
+% Redefine title appearance for chapters %%
+
+\titleformat{\chapter}
+{\fontsize{25pt}{40pt}\selectfont}
+{}
+{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[yshift=-2.5cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				(\paperwidth,3cm);
+				\node[anchor=north west,fill=firstcolor, minimum width=\textwidth, inner sep=10pt, align=left] at ($(current page.north west)+(2.5cm,-2.5cm)$)
+				{\color{white}\uppercase{\filright#1}};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\chapter}{0pt}{20pt}{-30pt}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+% AMERICAN SAMOA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{American Samoa}
+
+\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+
+\vspace{0.5cm}
+
+\begin{multicols}{2}
+	
+	\input{../../figs/02_part-2/tbl-1/american-samoa.tex}
+	
+	\vspace{0.5cm}
+	
+	\lipsum[1-4]
+	
+	\makeatletter 
+	\renewcommand{\thefigure}{2.2.\@arabic\c@figure}
+	\makeatother
+	
+	\lipsum[1]
+	
+	\begin{figuremulticol}
+		\centering
+		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/american-samoa.png}
+		\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+		\label{part2:chap1:fig-2}
+	\end{figuremulticol}
+	
+	\lipsum[1-3]
+	
+\end{multicols}
+
+\newpage
+
+% FRENCH POLYNESIA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{French Polynesia}
+
+\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+
+\vspace{0.5cm}
+
+\begin{multicols}{2}
+	
+\lipsum[1-4]
+	
+\makeatletter 
+\renewcommand{\thefigure}{2.2.\@arabic\c@figure}
+\makeatother
+
+\lipsum[1]
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/french-polynesia.png}
+	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\label{part2:chap2:fig-1}
+\end{figuremulticol}
+
+\lipsum[1-3]
+
+\end{multicols}
+
+\newpage
+
+% PAPUA NEW GUINEA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Papua New Guinea}
+
+\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+
+\vspace{0.5cm}
+
+\begin{multicols}{2}
+	
+	\lipsum[1-4] \cite{lamy2016three}
+	
+\end{multicols} 
+
+\newpage
+
+% FEDERATED STATES OF MICRONESIA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Federated States of Micronesia}
+
+\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+
+\vspace{0.5cm}
+
+\begin{multicols}{2}
+	
+	\lipsum[1-4]
+	
+\end{multicols}
+
+\newpage
+
+% BOX 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, fill=secondcolor, draw=firstcolor, ultra thick] ($(current page.north west)+(2.5cm,-3cm)$) rectangle ($(current page.north west)+(21.5cm,-27.2cm)$);
+	\node[anchor=north west, fill=firstcolor, inner sep=8pt] at ($(current page.north west)+(2.3cm,-2.5cm)$) {{\fontsize{20pt}{40pt}\selectfont \color{white}{\textbf{BOX 1}}}};
+\end{tikzpicture}
+
+\vspace*{1.5cm}
+
+\begin{adjustwidth}{2cm}{}
+	
+	{\LARGE\selectfont \textcolor{firstcolor}{Effect of marine reserves on fish abundance. Exemple of Kimbe Bay, Papua New Guinea}}
+	
+	\vspace*{1cm}
+	
+	\textbf{Authors}
+	
+	Maya Srinivasan\textsuperscript{\textcolor{firstcolor}{1}}, Serge Planes\textsuperscript{\textcolor{firstcolor}{2}}
+	
+	\par\noindent\rule{14cm}{0.4pt}
+	
+	{\footnotesize 
+		
+		\textsuperscript{\textcolor{firstcolor}{1}}James Cook University, Australia \sepaffil
+		\textsuperscript{\textcolor{firstcolor}{2}}CRIOBE UAR3278, Moorea, French Polynesia
+	
+	}
+		
+	\vspace*{1cm}
+	
+	\lipsum[1-3]
+\end{adjustwidth}
+
+\newpage
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, fill=secondcolor, draw=firstcolor, ultra thick] ($(current page.north west)+(-0.5cm,-3cm)$) rectangle ($(current page.north west)+(18.5cm,-27.2cm)$);
+\end{tikzpicture}
+
+\begin{adjustwidth}{}{2cm}
+	
+	\vspace*{1cm}
+		
+	\lipsum[1-2]
+	
+\end{adjustwidth}
+
+\newpage
+
+% MATERIALS AND METHODS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% REDEFINE %%%%%%%
+
+% Redefine TOC appearance for chapters %%
+
+\titlecontents{chapter}
+	[0em]
+	{\selectfont\color{black}}
+	{\contentslabel[\thecontentslabel]{1em}}
+	{}
+	{\titlerule*[0.75pc]{.}\contentspage} % dots
+	[\addvspace{1ex}]
+
+% Redefine title appearance for chapters %%
+
+\titleformat{\chapter}
+{\fontsize{20pt}{40pt}\selectfont}
+{}
+{0pt}
+{\begin{tikzpicture}[remember picture,overlay]
+		\node[yshift=-3cm] at (current page.north west)
+		{\begin{tikzpicture}[remember picture, overlay]
+				(\paperwidth,3cm);
+				\node[anchor=north west,text centered,xshift=2.5cm,yshift=-0.4cm,rectangle,inner sep=8pt, 
+				fill=firstcolor,draw=white, ultra thick]
+				{\color{white}\uppercase{\filright#1}};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+}
+\titlespacing*{\chapter}{0pt}{50pt}{-10pt} % The last argument control space between chapter title and text
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\bookmarksetup{startatroot} % To leave the previous part section (for bookmarks in the PDF)
+
+\chapter{Materials and Methods}
+
+\makeatletter 
+\renewcommand{\thefigure}{3.\@arabic\c@figure}
+\makeatother
+
+\makeatletter 
+\renewcommand{\thetable}{3.\@arabic\c@figure}
+\makeatother
+
+\begin{multicols}{2}
+	
+	\section{Background maps}
+	
+	\lipsum[1-4]
+	
+	\begin{equation}
+		\label{eq:1}
+		\mathrm{R^{2} = 1 - \frac{\left( y_{i} - \hat{y}_{i} \right)^{2}}{\left( y_{i} - \bar{y} \right)^{2}}}
+	\end{equation}
+	
+	where $\bar{y}$ is the average of predictions, $\hat{y}_{i}$ is the predicted value of cover for observation $i$ \eqref{eq:1}.
+	
+	\lipsum[1]
+	
+	\section{Geographic indicators}
+	
+	\subsection{Maritime area}
+	
+	\section{Cyclones}
+	
+	\section{Thermal regime}
+	
+	\section{Benthic cover}
+	
+\end{multicols}
+
+Using the Allen Coral Atlas data \citep{lyons2024new}.
+
+\begin{equation}
+	\mathnormal{RMSE = \sqrt{\sum_{i=1}^{n} \frac{\left( \hat{y}_{i} - y_{i} \right)^{2}}{n}}}
+\end{equation}
+
+\newpage
+
+\begin{figure}[h!]
+	\centering
+	\vspace*{0.5cm}
+	\begin{tikzpicture}
+		
+		% Define styles
+		
+		\tikzstyle{arrow1}=[thick,color=black,-latex]
+		\tikzstyle{circletext}=[circle,radius=0.15,fill=firstcolor,font=\bfseries,text=white]
+		\tikzstyle{circletextlabel}=[anchor=west,xshift=0.75cm,text=firstcolor]
+		\tikzstyle{circletextsublabel}=[text width=5cm,text=darkgray,font=\footnotesize,anchor=west,xshift=0.75cm,yshift=-1cm]
+		\tikzstyle{datasource}=[rectangle,inner sep=3pt, fill=secondcolor, text=black, font=\footnotesize, rounded corners]
+		\tikzset{
+			pics/table1/.style args={#1,#2,#3}{
+				code={
+					\fill[rectangle,fill=#3, draw=white, thick] (#1,#2) rectangle (#1+0.3,#2-0.3);
+					\fill[rectangle,fill=#3, draw=white, thick] (#1+0.3,#2) rectangle (#1+0.6,#2-0.3);
+					\fill[rectangle,fill=#3, draw=white, thick] (#1+0.6,#2) rectangle (#1+0.9,#2-0.3);
+					\fill[rectangle,fill=#3, draw=white, thick] (#1+0.9,#2) rectangle (#1+1.2,#2-0.3);
+					\fill[rectangle,fill=#3, draw=white, thick] (#1+1.2,#2) rectangle (#1+1.5,#2-0.3);
+
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.3) rectangle (#1+0.3,#2-0.6);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.3,#2-0.3) rectangle (#1+0.6,#2-0.6);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.6,#2-0.3) rectangle (#1+0.9,#2-0.6);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.9,#2-0.3) rectangle (#1+1.2,#2-0.6);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+1.2,#2-0.3) rectangle (#1+1.5,#2-0.6);
+					
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.6) rectangle (#1+0.3,#2-0.9);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.3,#2-0.6) rectangle (#1+0.6,#2-0.9);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.6,#2-0.6) rectangle (#1+0.9,#2-0.9);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+0.9,#2-0.6) rectangle (#1+1.2,#2-0.9);
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1+1.2,#2-0.6) rectangle (#1+1.5,#2-0.9);
+
+				}
+			}
+		}
+		\tikzset{
+			pics/table2/.style args={#1,#2,#3}{
+				code={
+					\fill[rectangle,fill=#3, draw=white, thick] (#1,#2) rectangle (#1+0.3,#2-0.3);
+					
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.3) rectangle (#1+0.3,#2-0.6);
+					
+					\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.6) rectangle (#1+0.3,#2-0.9);
+					
+				}
+			}
+		}
+		
+		% STEP 1 - Standardization
+			
+		\node[circletext] at (0,0) {1};
+		\node[circletextlabel] at (0,0) {Standardization};
+		\node[circletextsublabel] at (0,0) {Standardize all individual datasets to the same format};
+		
+		\draw pic{table1={-8.5, 0, secondcolor!60!firstcolor}};
+		\draw pic{table1={-6, 0, secondcolor!40!firstcolor}};
+		\draw pic{table1={-3.5, 0, secondcolor!80!firstcolor}};
+		
+		\node[circletextsublabel, centered] at (-6.68,1.4) {dataset 1};
+		\node[circletextsublabel, centered] at (-4.18,1.4) {dataset 2};
+		\node[circletextsublabel, centered] at (-1.68,1.4) {dataset \textit{i}};
+		
+		\draw[arrow1] (-7.75,-1) -> (-7.75,-1.9);
+		\draw[arrow1] (-5.25,-1) -> (-5.25,-1.9);
+		\draw[arrow1] (-2.75,-1) -> (-2.75,-1.9);
+		
+		% STEP 2 - Grouping
+				
+		\node[circletext] at (0,-3) {2};
+		\node[circletextlabel] at (0, -3) {Grouping};
+		\node[circletextsublabel] at (0,-3) {Bind all standardized individual datasets together};
+				
+		\draw pic{table1={-8.5, -2, firstcolor}};
+		\draw pic{table1={-6, -2, firstcolor}};
+		\draw pic{table1={-3.5, -2, firstcolor}};
+				
+		\draw[arrow1] (-5.25,-3) -> (-5.25,-3.9);
+				
+		% STEP 3 - Taxonomic recatgorization
+						
+		\node[circletext] at (0,-6) {3};
+		\node[circletextlabel] at (0, -6) {Taxonomic recategorization};
+		\node[circletextsublabel] at (0,-6) {Correct, recategorize, and find upper taxonomic levels};
+				
+		\draw[thick,color=black] (-7.75, -3) -> (-7.75, -3.45) -> (-5.25, -3.45) -> (-2.75, -3.45) -> (-2.75, -3);
+				
+		\draw pic{table1={-6, -4, firstcolor}};
+				
+		\draw[arrow1] (-4.35,-4.45) -> (-2.75,-4.45) -> (-2.75,-7.9);
+				
+		\draw[arrow1] (-6.15,-4.45) -> (-8.35,-4.45) -> (-8.35,-5.9);
+		
+		\draw[thick,color=black] (-6.5,-7.35) -> (-8.35,-7.35);
+		
+		\node[datasource] at (-6.5,-7.35) {WoRMS};
+		
+		\node[circletextsublabel, text width=2.4cm] at (-8.5,-5.25) {Raw benthic categories};
+				
+		\draw pic{table2={-8.5, -6, secondcolor!40!firstcolor}};
+				
+		\draw[arrow1] (-8.35,-7) -> (-8.35,-7.9);
+				
+		\draw pic{table1={-8.5, -8, secondcolor!80!firstcolor}};
+		
+		\draw pic{table2={-8.5, -8, secondcolor!40!firstcolor}};
+		
+		\node[circletextsublabel, align=left, text width=2cm] at (-9.25,-8.3) {CSV file};
+		
+		\node[circletextsublabel, align=center, text width=2cm] at (-7.3,-7.9) {Join};
+						
+		\draw pic{table1={-3.5, -8, firstcolor}};
+				
+		\draw[arrow1] (-2.75,-9) -> (-2.75,-12.9);
+		
+		\draw[arrow1] (-6.85,-8.45) -> (-3.7,-8.45);
+				
+		% STEP 4 - Spatial attribution
+						
+		\node[circletext] at (0,-10.5) {4};
+		\node[circletextlabel] at (0, -10.5) {Spatial attribution};
+		\node[circletextsublabel] at (0,-10.5) {Assign GCRMN region, country, and territory to each site};
+				
+		\draw[thick,color=black] (-5,-10.3) -> (-2.75,-10.3);
+		\node[datasource] at (-5,-10.3) {GCRMN region};
+
+		\draw[thick,color=black] (-5,-11.6) -> (-2.75,-11.6);
+		\node[datasource] at (-5,-11.6) {EEZ};
+				
+		\draw pic{table1={-3.5, -13, firstcolor}};
+				
+		\draw[arrow1] (-2.75,-14) -> (-2.75,-15.9);
+		
+		\draw[arrow1] (-2.75,-14.85) -> (-7.75,-14.85) -> (-7.75, -15.9);
+		
+		\draw[arrow1] (-2.75,-14.85) -> (-7.75,-14.85) -> (-7.75, -13.7);
+				
+		% STEP 5 - Quality checks
+						
+		\node[circletext] at (0,-14.5) {5};
+		\node[circletextlabel] at (0, -14.5) {Quality checks};
+		\node[circletextsublabel] at (0,-14.5) {Control data quality and remove incorrect rows};
+							
+		\draw pic{table1={-8.5, -16, fuzzyred}};
+									
+		\draw pic{table1={-3.5, -16, firstcolor}};
+		
+		\node[circletextsublabel, align=center, text width=2cm] at (-4.65,-16.6) {Synthetic dataset};
+		\node[circletextsublabel, align=center, text width=2cm] at (-9.65,-16.6) {Removed data};
+		
+		\fill[rectangle,fill=lightgray,draw=white,thick] (-8.1,-12.4) rectangle (-7.3,-13.4);
+		\fill[rectangle,fill=lightgray,draw=white,thick] (-8.2,-12.5) rectangle (-7.4,-13.5);
+		\draw[thick,color=fuzzyred] (-8,-12.7) -> (-7.6,-12.7);
+		\draw[thick,color=white] (-7.9,-12.9) -> (-7.6,-12.9);
+		\draw[thick,color=white] (-7.9,-13) -> (-7.6,-13);
+		\draw[thick,color=white] (-7.9,-13.1) -> (-7.6,-13.1);
+		\draw[thick,color=white] (-7.9,-13.2) -> (-7.6,-13.2);
+		\draw[thick,color=white] (-7.9,-13.3) -> (-7.6,-13.3);
+		
+		\node[circletextsublabel, align=left, text width=2.5cm] at (-7.8,-12.1) {Quality checks reports};
+				
+	\end{tikzpicture}
+	\vspace*{0.5cm}
+	\caption[Illustration of the data integration workflow used for the creation of the gcrmndb benthos synthetic dataset]{Illustration of the data integration workflow used for the creation of the gcrmndb benthos synthetic dataset.}
+	\label{metm:fig-1}
+\end{figure}
+
+\newpage
+
+\begin{table}[]
+	\caption[Description of variables included in the synthetic dataset]{Description of variables included in the synthetic dataset. Variable names (except category, subcategory, and condition) correspond to \href{https://dwc.tdwg.org/terms/}{DarwinCore terms}. Variables 2 to 11 are associated with spatial dimension, variables 12 to 15 are associated with temporal dimension, and variables 18 to 26 are associated with taxonomy.}
+	\begin{center}
+		\begin{tabular}{|C{0.75cm}|C{4cm}|C{2.5cm}|L{7cm}|}
+			\hline
+			\rowcolor{firstcolor}
+			\textcolor{white}{Nb} & \textcolor{white}{Variable} & \textcolor{white}{Type} & \textcolor{white}{Description} \\ \hline
+			\rowcolor{white}
+			1              &          datasetID          &         Factor          & ID of the dataset                    \\ \hline
+			\rowcolor{secondcolor}
+			2            &       higherGeography       &         Factor          & GCRMN region                   \\ \hline
+			\rowcolor{white}
+			3              &          country          &         Factor          & Country                     \\ \hline
+			\rowcolor{secondcolor}
+			4            &       territory       &         Character          & Territory                  \\ \hline
+			\rowcolor{white}
+			5              &          locality          &         Character          & Site name
+			                     \\ \hline
+			\rowcolor{secondcolor}
+			6            &       habitat       &         Factor          & Habitat                   \\ \hline
+			\rowcolor{white}
+			7              &          parentEventID          &         Integer          & Transect ID
+			                     \\ \hline
+			\rowcolor{secondcolor}
+			8            &       eventID       &         Integer          & Quadrat ID
+			                  \\ \hline
+			\rowcolor{white}
+			9              &          decimalLatitude          &         Numeric          & Latitude (decimal, EPSG:4326)
+			                     \\ \hline
+			\rowcolor{secondcolor}
+			10            &       decimalLongitude       &         Numeric          & Longitude (decimal, EPSG:4326)
+			                   \\ \hline
+			\rowcolor{white}
+			11             &          verbatimDepth          &         Numeric          & Depth (m)                     \\ \hline
+			\rowcolor{secondcolor}
+			12           &       year       &         Integer          & Four-digit year
+			                   \\ \hline
+			\rowcolor{white}
+			13             &          month          &         Integer          & Integer month
+			                     \\ \hline
+			\rowcolor{secondcolor}
+			14           &       day       &         Integer          & Integer day
+			                   \\ \hline
+			\rowcolor{white}
+			15             &          eventDate          &         Date          & Date (YYYY-MM-DD, ISO 8601)
+			                     \\ \hline
+			\rowcolor{secondcolor}
+			16           &       samplingProtocol       &         Character          &  Method used to acquire the measurement                  \\ \hline
+			\rowcolor{white}
+			17             &          recordedBy          &         Character          &  Person who acquired the measurement                    \\ \hline
+			\rowcolor{secondcolor}
+			18           &       category       &         Factor          & Benthic category
+			                  \\ \hline
+			\rowcolor{white}
+			19             &          subcategory          &         Factor          & Benthic subcategory
+			                     \\ \hline
+				\rowcolor{secondcolor}
+			20           &       condition       &         Character          &  Condition for hard corals                  \\ \hline
+			\rowcolor{white}
+			21             &          phylum          &         Character          & Phylum                     \\ \hline
+				\rowcolor{secondcolor}
+			22           &       class       &         Character          & Class                   \\ \hline
+			\rowcolor{white}
+			23             &          order          &         Character          & Order                     \\ \hline
+				\rowcolor{secondcolor}
+			24           &       family       &         Character          & Family                   \\ \hline
+			\rowcolor{white}
+			25             &          genus          &         Character          & Genus                     \\ \hline
+				\rowcolor{secondcolor}
+			26           &       scientificName       &         Character          & Species                   \\ \hline
+			\rowcolor{white}
+			27             &          measurementValue          &         Numeric          & Percentage cover
+			                     \\ \hline
+		\end{tabular}
+	\end{center}
+	\label{part3:tbl-1}
+	\vspace*{0.5cm}
+\end{table}
+
+\newpage
+
+\begin{table}[]
+	\caption[List of quality checks used for the gcrmndb benthos synthetic dataset.]{List of quality checks used for the gcrmndb benthos synthetic dataset. Inspired by Vandepitte et al, 2015. EEZ = Economic Exclusive Zone.}
+\begin{center}
+	\begin{tabular}{|C{0.75cm}|C{4cm}|L{9.9cm}|}
+		\hline
+		\rowcolor{firstcolor}
+		\textcolor{white}{Nb} & \textcolor{white}{Variable(s)} & \textcolor{white}{Question} \\
+		\hline
+		\rowcolor{white}
+		1 & decimalLatitude \newline decimalLongitude & Are the latitude and longitude available?  \\ \hline
+		\rowcolor{secondcolor}
+		2 & decimalLatitude & Is the latitude within its possible boundaries \newline (\ie between -90 and 90)?  \\ \hline
+		\rowcolor{white}
+		3 & decimalLongitude & Is the longitude within its possible boundaries \newline (\ie between -180 and 180)?  \\ \hline
+		\rowcolor{secondcolor}
+		4 & decimalLatitude \newline decimalLongitude & Is the site within the coral reef distribution area \newline (100 km buffer)?  \\ \hline
+		\rowcolor{white}
+		5 & decimalLatitude \newline decimalLongitude & Is the site located within an EEZ (1 km buffer)? \\ \hline
+		\rowcolor{secondcolor}
+		6 & year & Is the year available?  \\ \hline
+		\rowcolor{white}
+		7 & measurementValue & Is the sum of the percentage cover of benthic categories within the sampling unit greater than 0 and lower than 100? \\ \hline
+		\rowcolor{secondcolor}
+		8 & measurementValue & Is the percentage cover of a given benthic category \newline (\ie a row) greater than 0 and lower than 100? \\ \hline
+	\end{tabular}
+\end{center}
+	\label{part3:tbl-2}
+	\vspace*{0.5cm}
+\end{table}
+
+\begin{multicols}{2}
+	
+	\section{Code availibility}
+	
+	\lipsum[1-2]
+	
+\end{multicols}
+
+\newpage
+\clearpage
+
+% AUTHORS' CONTRIBUTIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Author contributions}
+
+\begin{multicols}{2}
+	
+	\lipsum[1]
+	
+\end{multicols}
+
+\begin{table}[h]
+	\caption[Authors' contribution to the production of the current report]{Authors' contribution to the production of the current report. ``Workshop" correspond to the participation to the workshop held in Auckland in November 2023 and dedicated to the production of this report. ``Mat. and methods" correspond to the writing and review of the materials and methods chapter. A contribution is denoted by \contrib\ for all columns, except columns associated to writing and review, where contributions are denoted by W and R, respectively.}
+	\vspace{1cm}
+		\resizebox{15cm}{!}{%
+		\begin{tabular}{rlcccccccccccccccc}
+			                                &          & \rot{Funding acquisition} & \rot{Supervision} & \rot{Conceptualization} & \rot{Facilitation} & \rot{Data acquisition} & \rot{Data integration} & \rot{Data analysis} & \rot{Workshop} & \rot{Writing and review} & \rot{\textcolor{firstcolor}{Exe. summary}} & \rot{\textcolor{firstcolor}{Synth. Pacific}} & \rot{\textcolor{firstcolor}{Synth. countries}} & \rot{\textcolor{firstcolor}{Boxes}} & \rot{\textcolor{firstcolor}{Mat. and methods}} & \rot{Layout} & \rot{Communication} \\ \hline
+			  \rowcolor{secondcolor} Thomas & Dallison &                           &                   &                         &                    &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                                                &              &      \contrib       \\ \hline
+			         \rowcolor{white} Serge & Planes   &         \contrib          &     \contrib      &        \contrib         &                    &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                                                &              &                     \\ \hline
+			\rowcolor{secondcolor} Erica K. & Towle    &                           &                   &                         &      \contrib      &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                    \review                     &              &                     \\ \hline
+			        \rowcolor{white} Jérémy & Wicquart &                           &     \contrib      &        \contrib         &                    &                        &        \contrib        &      \contrib       &   \contrib             &                          &                                            &                                              &                                                &                                     &                    \writing                    &   \contrib   &                     \\ \hline
+		\end{tabular}}
+	\label{authors-contribution}
+\end{table}
+
+\newpage
+
+% ANNEXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Annexes}
+
+\makeatletter 
+\renewcommand{\thefigure}{S.\@arabic\c@figure}
+\makeatother
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=5cm]{../../figs/02_part-2/fig-3/hawaii.png}
+	\caption[Trajectories of cyclones that passed within 100 km of a coral reef of the Pacific]{Trajectories of cyclones that passed within 100 km of a coral reef of the Pacific, between 1980 and 2023. Polygons represents economic exclusive zones.}
+	\label{supp:fig-1}
+\end{figure}
+
+\newpage
+
+% BIBLIOGRAPHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chaptermark{Bibliography}
+\chapter*{Bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\begingroup
+\def\chapter*#1{}
+\vspace*{0cm}
+\bibliographystyle{apa}
+\bibliography{bibliography.bib}
+\endgroup
+
+% LAST PAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\thispagestyle{empty}
+
+\vspace*{22cm}
+
+\begin{flushleft}
+	{\footnotesize
+		
+		Document created using \LaTeX
+			
+		Compiled with MiKTeX version 23.12 
+			
+		On \today}
+\end{flushleft}
+
+\newpage
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[anchor=west, secondcolor] ($(current page.north west)$) rectangle ($(current page.south east)$);
+\end{tikzpicture}
+
+\newpage
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	% Photo over the entire page (A4 format)
+	\node[rotate=180] at ($(current page.center)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/part.png}};
+	
+	% White borders around the page
+	\fill[anchor=north west, firstcolor] (-1.25,-19) -- (-1.25,-18.5) .. controls (5.5, -16) and (10, -21) .. (17.5, -19) -- (17.5, -19) .. controls (10, -21.25) and (5.5, -16.25) .. (-1.25,-19);
+	\tikzfading[name=fade,bottom color=transparent!100,top color=transparent!0]
+	\fill[anchor=north west,firstcolor,path fading=fade] ($(current page.north west)+(1.5cm,1cm)$) rectangle ($(current page.north west)+(19.5cm,-8cm)$);
+	\fill[anchor=north west, white] (-1.25,6) -- (-1.25,-18.5) .. controls (5.5, -16) and (10, -21) .. (17.5, -19) -- (17.5,6);	
+	
+	\fill[anchor=north west, secondcolor] (-1.25,1.5) -- (-1.25,-18.5) .. controls (5.5, -16) and (10, -21) .. (17.5, -19) -- (17.5,1.5);	
+	
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,1cm)$) rectangle ($(current page.north west)+(21.5cm,-1.5cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,-28.2cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,1cm)$) rectangle ($(current page.north west)+(1.5cm,-30cm)$);
+	\fill[anchor=north west, white] ($(current page.north west)+(19.5cm,1cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
+			
+	\node[rectangle,inner sep=6pt, fill=firstcolor, anchor=north west] at ($(current page.north west)+(1.5cm,-4cm)$){\huge \textcolor{white}{ABSTRACT}};
+
+\end{tikzpicture}
+
+\lipsum[1-4]
+
+\end{document}
