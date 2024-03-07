@@ -99,15 +99,18 @@ model_results$model_time %>%
 
 ## 5.1 RMSE and R² ----
 
-A <- model_results$result_pred_obs %>% 
-  group_by(category, bootstrap) %>% 
+### 5.1.1 Transform data ----
+
+data_perf <- model_results$result_pred_obs %>% 
+  group_by(category, bootstrap, text_title, color) %>% 
   mutate(residual = yhat - y,
          res = sum((y - yhat)^2),
          tot = sum((y - mean(y))^2),
          rsq_global = 1 - (res/tot),
          rmse_global = sqrt(sum(residual^2/n()))) %>% 
   ungroup() %>% 
-  group_by(category, territory, bootstrap, rsq_global, rmse_global) %>% 
+  group_by(category, territory, bootstrap, rsq_global,
+           rmse_global, text_title, color) %>% 
   summarise(res = sum((y - yhat)^2),
             tot = sum((y - mean(y))^2),
             rsq = 1 - (res/tot),
@@ -115,18 +118,62 @@ A <- model_results$result_pred_obs %>%
   ungroup() %>% 
   select(-res, -tot)
 
-ggplot(data = A, aes(x = reorder(territory, desc(territory)), y = rmse)) +
-  geom_hline(yintercept = mean(unique(A$rmse_global))) +
-  geom_point() +
-  coord_flip() +
-  facet_wrap(~category, nrow = 1) +
-  labs(x = NULL, y = "RMSE")
+data_perf_mean_all <- data_perf %>% 
+  group_by(category, text_title, color) %>% 
+  summarise(mean_rmse_all = mean(rmse_global),
+            mean_rsq_all = mean(rsq_global)) %>% 
+  ungroup()
 
-ggplot(data = A, aes(x = reorder(territory, desc(territory)), y = rsq)) +
-  geom_hline(yintercept = mean(unique(A$rsq_global))) +
-  geom_point() +
+data_perf_mean_ter <- data_perf %>% 
+  group_by(category, territory, text_title, color) %>% 
+  summarise(rmse_mean = mean(rmse),
+            rsq_mean = mean(rsq)) %>% 
+  ungroup() %>% 
+  left_join(., data_perf_mean_all)
+
+### 5.1.2 Make the plot for RMSE ----
+
+ggplot(data = data_perf, aes(x = reorder(territory, desc(territory)), color = color, y = rmse)) +
+  geom_jitter(alpha = 0.2, width = 0.05) +
+  geom_hline(data = data_perf_mean_all, aes(yintercept = mean_rmse_all)) +
+  geom_segment(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
+                                                y = rmse_mean, yend = mean_rmse_all),
+               color = "black") +
+  geom_point(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
+                                            fill = color, y = rmse_mean),
+             size = 3.5, shape = 21, color = "white") +
   coord_flip() +
-  labs(x = NULL, y = "RMSE")
+  facet_wrap(~text_title, nrow = 1) +
+  scale_color_identity() +
+  scale_fill_identity() +
+  labs(x = NULL, y = "RMSE") +
+  theme(strip.text = element_markdown(hjust = 0.5),
+        strip.background = element_rect(fill = "#efeff0", color = NULL))
+
+ggsave("figs/04_supp/fig-5_rmse.png", width = 10, height = 8, dpi = 600)
+
+### 5.1.3 Make the plot for R² ----
+
+ggplot(data = data_perf, aes(x = reorder(territory, desc(territory)), color = color, y = rsq)) +
+  geom_jitter(alpha = 0.2, width = 0.05) +
+  geom_hline(data = data_perf_mean_all, aes(yintercept = mean_rsq_all)) +
+  geom_segment(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
+                                              y = rsq_mean, yend = mean_rsq_all),
+               color = "black") +
+  geom_point(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
+                                            fill = color, y = rsq_mean),
+             size = 3.5, shape = 21, color = "white") +
+  coord_flip() +
+  facet_wrap(~text_title, nrow = 1) +
+  scale_color_identity() +
+  scale_fill_identity() +
+  labs(x = NULL, y = "R²") +
+  theme(strip.text = element_markdown(hjust = 0.5),
+        strip.background = element_rect(fill = "#efeff0", color = NULL))
+
+ggsave("figs/04_supp/fig-5_rsq.png", width = 10, height = 8, dpi = 600)
+
+rm(data_perf, data_perf_mean_all, data_perf_mean_ter)
 
 ## 5.2 Predicted vs observed ----
 
