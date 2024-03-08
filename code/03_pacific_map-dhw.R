@@ -89,7 +89,7 @@ map_dhw_plot <- function(group_i){
   
   # 4. Save the plot ----
   
-  ggsave(filename = paste0("figs/04_supp/fig-4_max-dhw_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
+  ggsave(filename = paste0("figs/04_supp/03_indicators/01_dhw-map_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
          height = 10, combined_plots, dpi = 600)
   
 }

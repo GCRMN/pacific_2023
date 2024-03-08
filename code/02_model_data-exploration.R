@@ -54,7 +54,7 @@ data_benthic %>%
   taxonomic_levels() +
   labs(title = "All data")
 
-ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_all.png", dpi = 600, height = 4, width = 8)
+ggsave("figs/04_supp/01_data-explo/01_taxonomic-levels_all.png", dpi = 600, height = 4, width = 8)
 
 ### 3.2.3 For hards corals ----
 
@@ -63,7 +63,7 @@ data_benthic %>%
   taxonomic_levels() +
   labs(title = "Hard coral")
 
-ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_hard-coral.png", dpi = 600, height = 4, width = 8)
+ggsave("figs/04_supp/01_data-explo/01_taxonomic-levels_hard-coral.png", dpi = 600, height = 4, width = 8)
 
 ### 3.2.4 For algae ----
 
@@ -72,7 +72,7 @@ data_benthic %>%
   taxonomic_levels() +
   labs(title = "Algae")
 
-ggsave("figs/05_additional/01_data-explo/01_taxonomic-levels_algae.png", dpi = 600, height = 4, width = 8)
+ggsave("figs/04_supp/01_data-explo/01_taxonomic-levels_algae.png", dpi = 600, height = 4, width = 8)
 
 ## 3.3 Taxonomic frequency ----
 
@@ -231,7 +231,7 @@ plot_a + plot_b + theme(axis.text.y = element_blank(),
 
 ### 3.3.6 Export the plot ----
 
-ggsave("figs/05_additional/01_data-explo/01_taxonomic-frequency.png", dpi = 600, height = 6, width = 12)
+ggsave("figs/04_supp/01_data-explo/01_taxonomic-frequency.png", dpi = 600, height = 6, width = 12)
 
 # 4. Variable y (measurementValue) ----
 
@@ -277,7 +277,7 @@ plot_distribution <- function(data, i, type){
                       theme = theme(plot.title = element_text(hjust = 0.5))) +
       plot_layout(ncol = 1)
     
-    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-dataset_", i, ".png"),
+    ggsave(paste0("figs/04_supp/01_data-explo/02_distribution-dataset_", i, ".png"),
            dpi = 600, height = 6, width = 10)
     
   }else if(type == "territory"){
@@ -305,7 +305,7 @@ plot_distribution <- function(data, i, type){
                       theme = theme(plot.title = element_text(hjust = 0.5))) +
       plot_layout(ncol = 1)
     
-    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-territory_",
+    ggsave(paste0("figs/04_supp/01_data-explo/02_distribution-territory_",
                   str_replace_all(str_to_lower(i), " ", "-"), ".png"), 
            dpi = 600, height = 6, width = 10)
     
@@ -331,7 +331,7 @@ plot_distribution <- function(data, i, type){
                       theme = theme(plot.title = element_text(hjust = 0.5))) +
       plot_layout(ncol = 1)
     
-    ggsave(paste0("figs/05_additional/01_data-explo/02_distribution-all.png"), 
+    ggsave(paste0("figs/04_supp/01_data-explo/02_distribution-all.png"), 
            dpi = 600, height = 6, width = 10)
     
   }else{
@@ -415,7 +415,7 @@ data_pred_distri <- wrap_plots(data_pred_distri, ncol = 5)
 ### 5.3.4 Export the plots ----
 
 ggsave(plot = data_pred_distri,
-       filename = "figs/05_additional/01_data-explo/03_predictors-distribution.png",
+       filename = "figs/04_supp/01_data-explo/03_predictors-distribution.png",
        dpi = 600, height = 12, width = 15)
 
 ## 5.4 Correlation between predictors ----

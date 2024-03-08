@@ -297,7 +297,7 @@ ggsave(filename = paste0("figs/02_part-2/fig-7/pria.png"), plot = plot_i, dpi = 
 
 # 5. Plots of number of sites per interval class ----
 
-## 5.1 Plot a ----
+## 5.1 Make the plot ----
 
 data_benthic_sites %>% 
   st_drop_geometry() %>% 
@@ -308,7 +308,7 @@ data_benthic_sites %>%
   group_by(territory) %>% 
   mutate(percent = n*100/sum(n)) %>% 
   ungroup() %>% 
-  filter(territory %in% unique(data_benthic_sites$territory)[1:15]) %>%  
+  filter(territory %in% unique(data_benthic_sites$territory)) %>%  
   ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
                        y = percent, fill = interval_class)) +
   geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
@@ -318,40 +318,14 @@ data_benthic_sites %>%
   labs(x = NULL, y = "Sites (%)") +
   coord_flip(clip = "off") +
   theme_graph() +
-  facet_wrap(~territory, ncol = 3) +
-  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-        strip.background = element_rect(color = NA, fill = NA),
-        strip.text = element_text(face = "bold"))
+  facet_wrap(~territory, scales = "free", ncol = 5) +
+  theme(strip.text = element_text(hjust = 0.5),
+        strip.background = element_blank())
 
-ggsave(filename = "figs/04_supp/fig-3_a.png", width = 8.5, height = 12, dpi = 600)
+## 5.2 Save the plot ----
 
-## 5.2 Plot b ----
-
-data_benthic_sites %>% 
-  st_drop_geometry() %>% 
-  group_by(interval_class, territory) %>% 
-  count() %>% 
-  ungroup() %>% 
-  complete(interval_class, territory, fill = list(n = 0)) %>% 
-  group_by(territory) %>% 
-  mutate(percent = n*100/sum(n)) %>% 
-  ungroup() %>% 
-  filter(territory %in% unique(data_benthic_sites$territory)[16:30]) %>%  
-  ggplot(data = ., aes(x = reorder(interval_class, desc(interval_class)),
-                       y = percent, fill = interval_class)) +
-  geom_bar(stat = "identity", color = NA, show.legend = FALSE, width = 0.65) +
-  scale_fill_manual(values = palette_second,
-                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                    drop = FALSE, name = "Number of years with data") +
-  labs(x = NULL, y = "Sites (%)") +
-  coord_flip(clip = "off") +
-  theme_graph() +
-  facet_wrap(~territory, ncol = 3) +
-  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-        strip.background = element_rect(color = NA, fill = NA),
-        strip.text = element_text(face = "bold"))
-
-ggsave(filename = "figs/04_supp/fig-3_b.png", width = 8.5, height = 12, dpi = 600)
+ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_duration.png",
+       width = 15, height = 12, dpi = 600)
 
 # 6. Plots of number of surveys per year ----
 
@@ -371,39 +345,25 @@ data_surveys <- data_benthic %>%
   mutate(percent = n*100/sum(n)) %>% 
   ungroup()
 
-## 6.2 Plot a ----
+## 6.2 Make the plot ----
 
 data_surveys %>% 
-  filter(territory %in% unique(data_surveys$territory)[1:15]) %>%  
+  filter(territory %in% unique(data_surveys$territory)) %>%  
   ggplot(data = ., aes(x = year, y = percent)) +
   geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
   labs(x = "Year", y = "Surveys (%)") +
   theme_graph() +
   coord_cartesian(clip = "off") +
-  facet_wrap(~territory, scales = "free_y", ncol = 3) +
-  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-        strip.background = element_rect(color = NA, fill = NA),
-        strip.text = element_text(face = "bold")) +
-  scale_x_continuous(limits = c(1985, 2025))
-
-ggsave(filename = "figs/04_supp/fig-2_a.png", width = 8.5, height = 12, dpi = 600)
-
-## 6.3 Plot b ----
-
-data_surveys %>% 
-  filter(territory %in% unique(data_surveys$territory)[16:30]) %>%  
-  ggplot(data = ., aes(x = year, y = percent)) +
-  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
-  labs(x = "Year", y = "Surveys (%)") +
+  facet_wrap(~territory, scales = "free", ncol = 5) +
   theme_graph() +
-  coord_cartesian(clip = "off") +
-  facet_wrap(~territory, scales = "free_y", ncol = 3) +
-  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-        strip.background = element_rect(color = NA, fill = NA),
-        strip.text = element_text(face = "bold")) +
+  theme(strip.text = element_text(hjust = 0.5),
+        strip.background = element_blank()) +
   scale_x_continuous(limits = c(1985, 2025))
 
-ggsave(filename = "figs/04_supp/fig-2_b.png", width = 8.5, height = 12, dpi = 600)
+## 6.3 Save the plot ----
+
+ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_year.png",
+       width = 15, height = 12, dpi = 600)
 
 # 7. Extract descriptors ----
 

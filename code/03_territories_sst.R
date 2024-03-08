@@ -16,10 +16,9 @@ theme_set(theme_graph())
 
 # 3. Load data ----
 
-load("data/07_data_sst.RData")
-load("data/09_data_dhw.RData")
-load("data/10_data-dhw-percent.RData")
-load("data/01_background-shp/03_eez/data_eez.RData")
+load("data/09_misc/data-sst.RData")
+
+#load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 4. Calculate SST anomaly ----
 
@@ -124,7 +123,7 @@ map_sst_month <- function(territory_i, color_decade){
                                   "Sep.", "Oct.", "Nov.", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
       theme(axis.text.x = element_text(size = 8)) +
-      scale_color_manual(name = "Decade", values = palette_5cols) +
+      scale_color_manual(name = "Decade", values = palette_second) +
       guides(color = guide_legend(override.aes = list(linewidth = 1))) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
@@ -173,9 +172,9 @@ map_sst_anom <- function(territory_i){
   
   ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_5cols[5], alpha = 0.9) +
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_second[5], alpha = 0.9) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_5cols[3], alpha = 0.9) +
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_second[3], alpha = 0.9) +
     geom_line(color = "black", linewidth = 0.3) +
     geom_hline(yintercept = 0, color = "black") +
     scale_fill_identity() +
@@ -195,35 +194,18 @@ map(unique(data_sst$TERRITORY1), ~map_sst_anom(territory_i = .))
 # 8. SST (year) for each territory ----
 
 data_sst %>% 
-  filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[1:15]) %>%  
+  filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)) %>%  
   mutate(daymonth = str_sub(date, 6, 10),
          year = year(date)) %>% 
   ggplot(data = ., aes(x = date, y = sst)) +
     geom_line(color = "#2c3e50", linewidth = 0.25) +
-    geom_line(aes(x = date, y = sst_linear), color = palette_5cols[2], linewidth = 0.8) +
-    geom_hline(aes(yintercept = mean_sst), color = palette_5cols[4], linewidth = 0.8) +
+    geom_line(aes(x = date, y = sst_linear), color = palette_second[2], linewidth = 0.8) +
+    geom_hline(aes(yintercept = mean_sst), color = palette_second[4], linewidth = 0.8) +
     labs(x = "Year", y = "Sea Surface Temperature (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) + 
-    facet_wrap(~TERRITORY1, scales = "free_y", ncol = 3) +
-    theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-          strip.background = element_rect(color = NA, fill = NA),
-          strip.text = element_text(face = "bold"))
+    facet_wrap(~TERRITORY1, ncol = 5, scales = "free") +
+    theme_graph() +
+    theme(strip.text = element_text(hjust = 0.5),
+          strip.background = element_blank())
 
-ggsave(filename = "figs/04_supp/fig-1_a.png", width = 8.5, height = 12, dpi = 600)
-
-data_sst %>% 
-  filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)[16:30]) %>%  
-  mutate(daymonth = str_sub(date, 6, 10),
-         year = year(date)) %>% 
-  ggplot(data = ., aes(x = date, y = sst)) +
-  geom_line(color = "#2c3e50", linewidth = 0.25) +
-  geom_line(aes(x = date, y = sst_linear), color = palette_5cols[2], linewidth = 0.8) +
-  geom_hline(aes(yintercept = mean_sst), color = palette_5cols[4], linewidth = 0.8) +
-  labs(x = "Year", y = "Sea Surface Temperature (°C)") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) + 
-  facet_wrap(~TERRITORY1, scales = "free_y", ncol = 3) +
-  theme(panel.border = element_rect(color = "black", linewidth = 1, fill = NA),
-        strip.background = element_rect(color = NA, fill = NA),
-        strip.text = element_text(face = "bold"))
-
-ggsave(filename = "figs/04_supp/fig-1_b.png", width = 8.5, height = 12, dpi = 600)
+ggsave(filename = "figs/04_supp/03_indicators/02_sst.png", width = 15, height = 12, dpi = 600)
