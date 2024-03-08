@@ -137,6 +137,8 @@ data_predictors_obs <- data_predictors %>%
   filter(type == "obs") %>% 
   select(-type, -site_id, -territory)
 
+save(data_predictors_obs, file = "data/11_model-data/data_predictors_obs.RData")
+
 ## 6.2 Predictors values for sites to predict ----
 
 data_predictors_pred <- data_predictors %>% 

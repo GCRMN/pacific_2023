@@ -341,14 +341,55 @@ plot_vimp <- function(category_i){
 
 map(unique(data_imp_summary$category), ~plot_vimp(category_i = .))
 
+rm(data_imp_raw, data_imp_summary, plot_vimp)
+
 ## 6.2 Partial Dependence Plot ----
 
-model_results$result_pdp %>% 
-  ggplot(data = ., aes(x = x, y = y_pred, group = bootstrap)) +
-  geom_line() +
-  facet_grid(predictor~text_title, scales = "free") +
-  theme(strip.text = element_markdown(hjust = 0),
-        strip.background = element_blank())
+### 6.2.1 Transform data ----
+
+data_pdp <- model_results$result_pdp %>% 
+  group_by(predictor, category, color, x) %>% 
+  summarise(mean = mean(y_pred),
+            lower_ci_95 = quantile(y_pred, 0.05),
+            lower_ci_80 = quantile(y_pred, 0.10),
+            upper_ci_95 = quantile(y_pred, 0.95),
+            upper_ci_80 = quantile(y_pred, 0.80)) %>% 
+  ungroup()
+
+load("data/11_model-data/data_predictors_obs.RData")
+
+data_predictors_obs <- data_predictors_obs %>% 
+  select(unique(data_pdp$predictor)) %>% 
+  pivot_longer(1:ncol(.), values_to = "x", names_to = "predictor")
+
+### 6.2.2 Create the function ----
+
+plot_pdp <- function(category_i){
+  
+  plot_i <- data_pdp %>% 
+    filter(category == category_i) %>% 
+    ggplot(data = .) +
+    geom_rug(data = data_predictors_obs, aes(x = x), color = "darkgrey", alpha = 0.5) +
+    geom_ribbon(aes(x = x, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.4) +
+    geom_ribbon(aes(x = x, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.6) +
+    geom_line(aes(x = x, y = mean, color = color)) +
+    facet_wrap(~predictor, scales = "free", ncol = 4) +
+    scale_color_identity() +
+    scale_fill_identity() +
+    theme(strip.text = element_text(hjust = 0.5),
+          strip.background = element_blank()) +
+    labs(x = "Predictor value", y = "Cover (%)")
+  
+  ggsave(filename = paste0("figs/04_supp/02_model/05_pdp_", str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
+         plot = plot_i, height = 6, width = 10, dpi = 600)
+  
+}
+
+### 6.2.3 Map over the function ----
+
+map(unique(data_pdp$category), ~plot_pdp(category_i = .))
+
+rm(data_pdp, plot_pdp, data_predictors_obs)
 
 # 7. Benthic cover trends ----
 
