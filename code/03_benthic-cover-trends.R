@@ -15,6 +15,8 @@ theme_set(theme_graph())
 
 ## 3.1 Load data ----
 
+load("data/12_model-output/model_tuning.RData")
+
 load("data/12_model-output/model_results_hard-coral.RData")
 model_results_coral <- model_results
 
@@ -40,60 +42,43 @@ save(model_results, file = "data/12_model-output/model_results_all.RData")
 
 rm(model_results_coral, model_results_macroalgae, model_results_turf, model_results_cca)
 
-## 3.4 Add the color, text titles and factor levels ----
+## 3.4 Create the function to add the color, text titles and factor levels ----
+
+add_colors <- function(data){
+  
+  data <- data %>% 
+    mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
+                             category == "Coralline algae" ~ palette_second[3],
+                             category == "Macroalgae" ~ palette_second[4],
+                             category == "Turf algae" ~ palette_second[5]),
+           text_title = case_when(category == "Hard coral" ~ 
+                                    glue("**A.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Coralline algae" ~ 
+                                    glue("**B.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Macroalgae" ~ 
+                                    glue("**C.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Turf algae" ~ 
+                                    glue("**D.**<span style='color:{color}'> {category}</span>")),
+           category = as.factor(category),
+           category = fct_expand(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"),
+           category = fct_relevel(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))
+  
+  return(data)
+  
+}
+
+## 3.5 Add colors for model_results and tuning_results ----
 
 model_results <- model_results %>% 
-  map(., ~ .x %>% mutate(color = case_when(category == "Hard coral" ~ palette_second[2],
-                                           category == "Coralline algae" ~ palette_second[3],
-                                           category == "Macroalgae" ~ palette_second[4],
-                                           category == "Turf algae" ~ palette_second[5]),
-                         text_title = case_when(category == "Hard coral" ~ 
-                                                  glue("**A.**<span style='color:{color}'> {category}</span>"),
-                                                category == "Coralline algae" ~ 
-                                                  glue("**B.**<span style='color:{color}'> {category}</span>"),
-                                                category == "Macroalgae" ~ 
-                                                  glue("**C.**<span style='color:{color}'> {category}</span>"),
-                                                category == "Turf algae" ~ 
-                                                  glue("**D.**<span style='color:{color}'> {category}</span>")),
-      category = as.factor(category),
-      category = fct_expand(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"),
-      category = fct_relevel(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae")))
+  map(., ~ .x %>% add_colors)
+
+tuning_results <- tuning_results %>% 
+  map(., ~ .x %>% add_colors)
 
 # 4. Model characteristics ----
 
-## 4.1 Running time ----
-
-model_results$model_time %>% 
-  mutate(time = round(seconds_to_period(as.difftime(time))))
-
-model_results$model_time %>% 
-  mutate(time = as.difftime(time)) %>% 
-  group_by(category, bootstrap) %>% 
-  summarise(total = round(seconds_to_period(sum(time)))) %>% 
-  ungroup()
-
-model_results$model_time %>% 
-  mutate(time = as.difftime(time)) %>% 
-  group_by(category, step, substep) %>% 
-  summarise(time = round(seconds_to_period(mean(time)))) %>% 
-  ungroup()
-
-model_results$model_time %>% 
-  mutate(time = as.difftime(time)) %>% 
-  group_by(bootstrap) %>% 
-  summarise(time = sum(time)) %>% 
-  ungroup() %>% 
-  # total_time must be divided by the number of core use to parallelise
-  summarise(mean_time_bootstrap = round(seconds_to_period(mean(time))),
-            total_time = round(seconds_to_period(sum(time))))
-
-## 4.2 Hyperparameters ----
-
-
-
-
-
-
+tuning_results$model_hyperparams %>% 
+  select(category, trees, learn_rate, tree_depth, min_n)
 
 # 5. Model performance ----
 
@@ -101,15 +86,15 @@ model_results$model_time %>%
 
 ### 5.1.1 Transform data ----
 
-data_perf <- model_results$result_pred_obs %>% 
-  group_by(category, bootstrap, text_title, color) %>% 
+data_perf <- tuning_results$result_pred_obs %>% 
+  group_by(category, text_title, color) %>% 
   mutate(residual = yhat - y,
          res = sum((y - yhat)^2),
          tot = sum((y - mean(y))^2),
          rsq_global = 1 - (res/tot),
          rmse_global = sqrt(sum(residual^2/n()))) %>% 
   ungroup() %>% 
-  group_by(category, territory, bootstrap, rsq_global,
+  group_by(category, territory, rsq_global,
            rmse_global, text_title, color) %>% 
   summarise(res = sum((y - yhat)^2),
             tot = sum((y - mean(y))^2),
@@ -134,7 +119,6 @@ data_perf_mean_ter <- data_perf %>%
 ### 5.1.2 Make the plot for RMSE ----
 
 ggplot(data = data_perf, aes(x = reorder(territory, desc(territory)), color = color, y = rmse)) +
-  geom_jitter(alpha = 0.2, width = 0.05) +
   geom_hline(data = data_perf_mean_all, aes(yintercept = mean_rmse_all)) +
   geom_segment(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
                                                 y = rmse_mean, yend = mean_rmse_all),
@@ -183,7 +167,7 @@ plot_pred_obs <- function(category_i, all = FALSE){
   
   if(all == TRUE){
     
-    plot_i <- model_results$result_pred_obs %>%
+    plot_i <- tuning_results$result_pred_obs %>%
       ggplot(data = ., aes(x = y, y = yhat, color= color)) +
       geom_point(alpha = 0.1) +
       geom_abline(slope = 1) +
@@ -197,7 +181,7 @@ plot_pred_obs <- function(category_i, all = FALSE){
     
   }else{
     
-    data_i <- model_results$result_pred_obs %>%
+    data_i <- tuning_results$result_pred_obs %>%
       filter(category == category_i)
     
     plot_i <- ggplot(data = data_i, aes(x = y, y = yhat, color= color)) +
@@ -222,7 +206,7 @@ plot_pred_obs <- function(category_i, all = FALSE){
 
 plot_pred_obs(all = TRUE)
 
-map(unique(model_results$result_pred_obs$category), ~plot_pred_obs(category_i = .))
+map(unique(tuning_results$result_pred_obs$category), ~plot_pred_obs(category_i = .))
 
 rm(plot_pred_obs)
 
@@ -234,7 +218,7 @@ plot_residuals <- function(category_i, all = FALSE){
   
   if(all == TRUE){
     
-    plot_i <- model_results$result_pred_obs %>% 
+    plot_i <- tuning_results$result_pred_obs %>%
       mutate(residual = yhat - y) %>% 
       ggplot(data = ., aes(x = residual, fill = color)) + 
       geom_histogram(aes(y = after_stat(count / sum(count))*100),
@@ -252,7 +236,7 @@ plot_residuals <- function(category_i, all = FALSE){
     
   }else{
     
-    data_i <- model_results$result_pred_obs %>% 
+    data_i <- tuning_results$result_pred_obs %>%
       mutate(residual = yhat - y) %>%
       filter(category == category_i)
     
@@ -280,7 +264,7 @@ plot_residuals <- function(category_i, all = FALSE){
 
 plot_residuals(all = TRUE)
 
-map(unique(model_results$result_pred_obs$category), ~plot_residuals(category_i = .))
+map(unique(tuning_results$result_pred_obs$category), ~plot_residuals(category_i = .))
 
 rm(plot_residuals)
 
@@ -330,7 +314,8 @@ plot_vimp <- function(category_i){
     geom_point(aes(y = mean), size = 3.5, shape = 21, fill = "white") +
     coord_flip() +
     scale_color_identity() +
-    labs(x = NULL, y = "Relative importance (%)")
+    labs(x = NULL, y = "Relative importance (%)") +
+    lims(y = c(0, NA))
   
   ggsave(filename = paste0("figs/04_supp/02_model/04_vimp_", str_replace_all(str_to_lower(category_i), " ", "-"), ".png"),
          plot = plot_i, height = 8, width = 4, dpi = 600)
