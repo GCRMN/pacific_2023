@@ -172,9 +172,9 @@ map_sst_anom <- function(territory_i){
   
   ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_second[5], alpha = 0.9) +
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_first[3], alpha = 0.9) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_second[3], alpha = 0.9) +
+                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_first[4], alpha = 0.9) +
     geom_line(color = "black", linewidth = 0.3) +
     geom_hline(yintercept = 0, color = "black") +
     scale_fill_identity() +

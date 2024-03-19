@@ -163,7 +163,7 @@ map_eez <- function(territory_i){
   y_max <- st_bbox(data_eez_i)["ymax"]
   
   percent_margin_ltr <- 10 # Margin in percentage for left, top, and right of plot
-
+  
   data_bbox <- tibble(lon = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
                               x_max + ((x_max - x_min)*percent_margin_ltr/100)),
                       lat = c(y_min - ((y_max - y_min)*percent_margin_ltr/100),
@@ -205,7 +205,7 @@ map_eez <- function(territory_i){
     geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
     geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
     geom_sf_label_repel(data = data_label_i %>% filter(position <= 3), aes(label = name),
-                  alpha = 0.75, size = 2.5, label.size  = NA) +
+                        alpha = 0.75, size = 2.5, label.size  = NA) +
     scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                        labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                        values = c(palette_5cols[1:5], "black"),
@@ -410,7 +410,8 @@ map_cyclone_plot <- function(territory_i){
   # 2. Make the plot 
   
   plot_i <- ggplot(data = data_cyclones_i, aes(x = time, y = wind_speed)) +
-    geom_point(aes(fill = max_saffir), color = "white", shape = 21, size = 4.5) +
+    geom_point(aes(fill = max_saffir), color = "white", shape = 21, size = 4.5,
+               show.legend = c(shape = TRUE)) +
     geom_label_repel(data = data_cyclones_i %>% filter(position %in% 1:15), # Label only the first 15 cyclones
                      aes(label = name, color = max_saffir), fill = "white", alpha = 0.9,
                      label.r = unit(0.4, "lines"), show.legend = FALSE) +
@@ -419,12 +420,12 @@ map_cyclone_plot <- function(territory_i){
     coord_cartesian(ylim = c(14.25, 310)) +
     scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                      values = c(palette_5cols[2:5], "black"),
+                      values = c(palette_second[2:5], "black"),
                       name = "Saffir-Simpson category",
                       drop = FALSE) +
     scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
                        labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                       values = c(palette_5cols[2:5], "black"),
+                       values = c(palette_second[2:5], "black"),
                        name = "Saffir-Simpson category",
                        drop = FALSE) +
     guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4))) +

@@ -111,7 +111,7 @@ map_eez <- function(territory_i){
   
   data_eez_i <- data_eez %>% 
     filter(TERRITORY1 == territory_i)
-
+  
   data_benthic_sites_i <- data_benthic_sites %>% 
     filter(territory == territory_i) %>%
     arrange(interval_class)
@@ -159,7 +159,8 @@ map_eez <- function(territory_i){
     geom_sf(data = data_land_supp, fill = "grey", col = "darkgrey") +
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     new_scale_fill() +
-    geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5)  +
+    geom_sf(data = data_benthic_sites_i, aes(fill = interval_class), color = "black", shape = 21, size = 2.5,
+            show.legend = c(shape = TRUE))  +
     scale_fill_manual(values = palette_second,
                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                       drop = FALSE, name = "Number of years with data") +
@@ -208,8 +209,8 @@ data_eez_i <- data_eez %>%
 
 data_benthic_sites_i <- data_benthic_sites %>% 
   filter(territory %in% c("Palmyra Atoll", "Johnston Atoll",
-                           "Wake Island", "Jarvis Island",
-                           "Howland and Baker Islands")) %>% 
+                          "Wake Island", "Jarvis Island",
+                          "Howland and Baker Islands")) %>% 
   arrange(interval_class)
 
 ### 3.5.2 Create the bbox ----
