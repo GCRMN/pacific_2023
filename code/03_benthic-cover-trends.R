@@ -170,14 +170,15 @@ plot_pred_obs <- function(category_i, all = FALSE){
     plot_i <- tuning_results$result_pred_obs %>%
       ggplot(data = ., aes(x = y, y = yhat, color= color)) +
       geom_point(alpha = 0.1) +
-      geom_abline(slope = 1) +
+      geom_abline(slope = 1, linewidth = 0.5) +
+      geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", linewidth = 0.5) +
       scale_color_identity() +
       facet_wrap(~text_title, scales = "free") +
       labs(x = "Observed value (y)", y = "Predicted value (ŷ)") +
       theme(strip.text = element_markdown(hjust = 0),
             strip.background = element_blank())
     
-    ggsave(plot_i, filename = "figs/04_supp/02_model/02_pred-vs-obs_all.png", dpi = 600)
+    ggsave(plot_i, filename = "figs/04_supp/02_model/02_pred-vs-obs_all.png", dpi = 600, height = 5)
     
   }else{
     
@@ -186,7 +187,8 @@ plot_pred_obs <- function(category_i, all = FALSE){
     
     plot_i <- ggplot(data = data_i, aes(x = y, y = yhat, color= color)) +
       geom_point(alpha = 0.2) +
-      geom_abline(slope = 1) +
+      geom_abline(slope = 1, linewidth = 0.5) +
+      geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", linewidth = 0.5) +
       scale_color_identity() +
       facet_wrap(~territory, scales = "free", ncol = 5) +
       labs(x = "Observed value (y)", y = "Predicted value (ŷ)") +
@@ -231,7 +233,7 @@ plot_residuals <- function(category_i, all = FALSE){
       theme(strip.text = element_markdown(hjust = 0),
             strip.background = element_blank())
     
-    ggsave(plot_i, filename = "figs/04_supp/02_model/03_distri-residuals_all.png", dpi = 600)
+    ggsave(plot_i, filename = "figs/04_supp/02_model/03_distri-residuals_all.png", dpi = 600, height = 5)
     
     
   }else{
@@ -442,3 +444,30 @@ combine_plot_trends <- function(territory_i){
 ## 7.4 Map over the function ----
 
 map(unique(data_trends$territory), ~combine_plot_trends(territory_i = .))
+
+# 8. Comparison of trends with 2020 global report ----
+
+plot_a <- data_trends %>% 
+  filter(category == "Hard coral" & territory == "All") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  lims(y = c(0, 100), x = c(1980, 2023)) +
+  labs(x = "Year", y = "Hard coral cover (%)", title = "GCRMN 2024 Pacific report")
+
+plot_b <- read.csv("data/09_misc/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
+  filter(GCRMN_region == "Pacific" & Var == "Hard Coral Cover") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(ymin = .lower_0.95, ymax = .upper_0.95, x = Year), fill = palette_second[2], alpha = 0.3) +
+  geom_ribbon(aes(ymin = .lower_0.8, ymax = .upper_0.8, x = Year), fill = palette_second[2], alpha = 0.4) +
+  geom_line(aes(x = Year, y = value), color = palette_second[2], linewidth = 1) +
+  labs(x = "Year", y = "Hard coral cover (%)", title = "GCRMN 2020 global report") +
+  lims(y = c(0, 100), x = c(1980, 2023))
+
+plot_a + plot_b + plot_layout(ncol = 2)
+
+ggsave("figs/04_supp/02_model/comparison_2020_trends.png", height = 4, width = 10)
+
