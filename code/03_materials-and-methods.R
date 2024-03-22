@@ -5,6 +5,7 @@ library(sf)
 sf_use_s2(FALSE)
 library(patchwork)
 library(ggtext)
+library(ggspatial) # For annotation_scale function
 
 # 2. Source functions ----
 
@@ -68,12 +69,12 @@ data_ts_points <- st_intersection(data_ts_points, data_eez)
 ### 3.2.1 Plot A ----
 
 plot_a <- ggplot() +
-  geom_sf(data = data_eez, fill = "#ecf0f1") +
-  geom_sf(data = data_reef_buffer, fill = "#f1a9a0") +
-  geom_sf(data = data_reef, col = "#2c82c9") +
+  geom_sf(data = data_eez, fill = NA, color = "darkgrey", linetype = "dashed") +
+  geom_sf(data = data_reef_buffer, fill = "#f1a9a0", alpha = 0.5) +
+  geom_sf(data = data_reef, col = "#d64541") +
   theme_minimal() +
-  theme(plot.title = element_markdown(family = font_choose_graph),
-        panel.background = element_rect(colour = "black", linewidth = 1),
+  theme(plot.title = element_markdown(family = font_choose_graph, hjust = 0.5),
+        panel.background = element_rect(colour = NA, fill = NA, linewidth = 1),
         panel.grid = element_blank(),
         axis.text = element_blank()) +
   labs(title = "**1.** Create 100 km coral reef buffer")
@@ -81,17 +82,17 @@ plot_a <- ggplot() +
 ### 3.2.2 Plot B ----
 
 plot_b <- ggplot() +
-  geom_sf(data = data_eez, fill = "#ecf0f1") +
+  geom_sf(data = data_eez, fill = NA, color = "darkgrey", linetype = "dashed") +
   geom_sf(data = data_reef_buffer) +
-  geom_sf(data = data_reef, col = "#2c82c9") +
-  geom_sf(data = data_ts_lines %>% filter(ts_id == "1997333N06194"), col = "#d64541") +
+  geom_sf(data = data_reef, col = "#d64541") +
+  geom_sf(data = data_ts_lines %>% filter(ts_id == "1997333N06194"), col = "#446cb3") +
   geom_sf(data = data_ts_points %>% filter(ts_id == "1997333N06194"), shape = 21, 
-          col = "#d64541", fill = "#d64541") +
+          col = "#446cb3", fill = "#446cb3") +
   geom_sf(data = data_ts_lines %>% filter(ts_id == "2009238N12189")) +
   geom_sf(data = data_ts_points %>% filter(ts_id == "2009238N12189"), shape = 21, fill = "white") +
   theme_minimal() +
-  theme(plot.title = element_markdown(family = font_choose_graph),
-        panel.background = element_rect(colour = "black", linewidth = 1),
+  theme(plot.title = element_markdown(family = font_choose_graph, hjust = 0.5),
+        panel.background = element_rect(colour = NA, fill = NA, linewidth = 1),
         panel.grid = element_blank(),
         axis.text = element_blank()) +
   labs(title = "**2.** Filter cyclone crossing the buffer")
@@ -99,17 +100,17 @@ plot_b <- ggplot() +
 ### 3.2.3 Plot C ----
 
 plot_c <- ggplot() +
-  geom_sf(data = data_eez, fill = "#ecf0f1") +
+  geom_sf(data = data_eez, fill = NA, color = "darkgrey", linetype = "dashed") +
   geom_sf(data = data_reef_buffer) +
-  geom_sf(data = data_reef, col = "#2c82c9") +
+  geom_sf(data = data_reef, col = "#d64541") +
   geom_sf(data = data_ts_lines %>% filter(ts_id == "1997333N06194")) +
   geom_sf(data = data_ts_points %>% filter(ts_id == "1997333N06194"), shape = 21, fill = "white") +
   geom_sf(data = data_ts_points %>% 
             filter(ts_id == "1997333N06194") %>% 
-            filter(row_number() == 11), shape = 21, fill = "#d64541", size = 2) +
+            filter(row_number() == 11), shape = 21, fill = "#446cb3", size = 2) +
   theme_minimal() +
-  theme(plot.title = element_markdown(family = font_choose_graph),
-        panel.background = element_rect(colour = "black", linewidth = 1),
+  theme(plot.title = element_markdown(family = font_choose_graph, hjust = 0.5),
+        panel.background = element_rect(colour = NA, fill = NA, linewidth = 1),
         panel.grid = element_blank(),
         axis.text = element_blank()) +
   labs(title = "**3.** Extract cyclone distance and wind speed")
@@ -120,7 +121,7 @@ plot_a + plot_b + plot_c + plot_layout(ncol = 3)
 
 ## 3.4. Export the plot ----
 
-ggsave("figs/03_methods/fig-1.png", height = 5, width = 15)
+ggsave("figs/03_methods/fig-1.png", height = 5, width = 15, dpi = 600)
 
 # 4. SST change and warming rate ----
 
@@ -196,3 +197,60 @@ ggplot(data = data_sst) +
 ## 4.5 Export the plot ----
   
 ggsave("figs/03_methods/fig-2.png", height = 5, width = 8)
+
+# 5. Grid for ML predictions ----
+
+## 5.1 Load data ----
+
+data_land <- st_read("data/01_background-shp/02_princeton/palau/PLW_adm0.shp")
+
+data_pred <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
+  filter(territory == "Palau", type == "pred")
+
+load("data/09_misc/data-benthic.RData")
+
+data_benthic <- data_benthic %>% 
+  filter(territory == "Palau") %>% 
+  select(decimalLatitude, decimalLongitude) %>% 
+  distinct() %>% 
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+
+## 5.2 Map of sites with observed data ----
+
+plot_a <- ggplot() +
+  geom_sf(data = data_land, fill = "darkgrey") +
+  geom_sf(data = data_benthic, size = 0.75, col = "red") +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.15)) +
+  theme_minimal() +
+  labs(title = "Sites with observed data") +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        panel.grid = element_blank(),
+        text = element_text(family = font_choose_map)) +
+  annotation_scale(location = "br", width_hint = 0.25, text_family = font_choose_graph, 
+                   text_cex = 0.7, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
+                   pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
+
+## 5.3 Map of sites on which to make the predictions ----
+
+plot_b <- ggplot() +
+  geom_sf(data = data_land, fill = "darkgrey") +
+  geom_sf(data = data_pred, size = 0.75, col = "red") +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.15)) +
+  theme_minimal() +
+  labs(title = "Sites for making predictions") +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_blank(),
+        panel.grid = element_blank(),
+        text = element_text(family = font_choose_map)) +
+  annotation_scale(location = "br", width_hint = 0.25, text_family = font_choose_graph, 
+                   text_cex = 0.7, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
+                   pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
+
+## 5.4 Combine the plots ----
+
+plot_a + plot_spacer() + plot_b
+
+## 5.5 Export the plot ----
+
+ggsave("figs/03_methods/fig-3.png", dpi = 600)

@@ -1,8 +1,6 @@
-// 1. Create a polygon defining the area of interest ----
+// 1. Use EEZ as the area of interest ----
 
-var polygon_area = ee.Feature(ee.Geometry.Polygon(
-  [133, 6, 135, 6, 135, 8, 133, 8]
-));
+var data_eez = ee.FeatureCollection("users/jeremywicquart/pacific_2023_eez");
 
 // 2. Load and transform ACA data ----
 
@@ -21,9 +19,11 @@ var aca_area = data_area.mask(aca_benthic);
 // 3. Create the grid over coral reefs ----
 
 var reef_grid = aca_area.sample({
-  region: polygon_area.geometry(),
-  geometries: true, // if you want points
-  scale: 1000
+  region: data_eez.geometry(),
+  geometries: true, // To have points
+  scale: 100, // In meters
+  seed: 10,
+  factor: 0.0025 // To reduce the number of sampled sites
 });
 
 // 4. Export sites coordinates ----
@@ -38,6 +38,6 @@ Export.table.toDrive({
 
 // 5. Visualise the results ----
 
-Map.addLayer(polygon_area);
+Map.addLayer(data_eez);
 Map.addLayer(reef_grid.style({color: 'red'}));
 //Map.addLayer(aca_area);
