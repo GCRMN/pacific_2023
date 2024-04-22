@@ -87,9 +87,11 @@ plot_b <- ggplot() +
 
 ## 4.3 Combine plots ----
 
-plot_a + plot_b
+plot_a + plot_b &
+  plot_annotation(theme = theme(plot.background = element_rect(fill = "transparent"),
+                                panel.border = element_rect(fill = NA)))
 
-ggsave("figs/02_part-2/boxes/01_box_fish-new-caledonia_1.png", bg = "transparent", width = 11, height = 5)
+ggsave("figs/02_part-2/case-studies/01_new-caledonia_2.png", bg = "transparent", width = 10, height = 4.5)
 
 ## 4.4 Map of Ouano ----
 
@@ -104,7 +106,7 @@ data_ouano <- tibble(lon = 165.779879, lat = -21.872524, site = "OUANO") %>%
 ggplot() +
   geom_sf(data = data_land) +
   geom_sf(data = data_ouano, fill = colors[2], color = "white", size = 10, shape = 21) +
-  geom_sf_label(data = data_ouano, aes(label = site), fill = colors[2], size = 9, label.padding = unit(7, "pt"),
+  geom_sf_label(data = data_ouano, aes(label = site), fill = colors[2], size = 7, label.padding = unit(7, "pt"),
                 color = "white", family = font_choose_graph, nudge_x = 0.5, nudge_y = 0.4) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
@@ -113,4 +115,4 @@ ggplot() +
         plot.background = element_rect(fill = "transparent", color = NA)) +
   coord_sf(x = c(163, 168.6), y = c(-23, -19))
 
-ggsave("figs/02_part-2/boxes/01_box_fish-new-caledonia_2.png", bg = "transparent")
+ggsave("figs/02_part-2/case-studies/01_new-caledonia_1.png", bg = "transparent")
