@@ -54,6 +54,7 @@
 \definecolor{secondcolor}{HTML}{E4F1FE}
 \definecolor{thirdcolor}{HTML}{6C7A89}
 \definecolor{fourthcolor}{HTML}{2C3E50}
+\definecolor{fifthcolor}{HTML}{ececec}
 
 \definecolor{fuzzyred}{HTML}{C44D56}
 
@@ -391,8 +392,10 @@
 \chapter{Acronyms}
 
 \begin{tabular}{>{\bfseries}>{\color{firstcolor}}rl}
+	ACA   & Allen Coral Atlas                               \\
 	AIMS  & Australian Institute of Marine Science          \\
 	CCA   & Crustose Coralline Algae                        \\
+	DHW   & Degree Heating Week                             \\
 	EEZ   & Economic Exclusive Zone                         \\
 	ENSO  & El Ni\~{n}o Southern Oscillation                \\
 	GCRMN & Global Coral Reef Monitoring Network            \\
@@ -488,6 +491,10 @@
 
 \newpage
 
+\setcounter{chapter}{0}
+\renewcommand{\thefigure}{\arabic{part}.\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{part}.\arabic{chapter}.\arabic{table}}
+
 \fancypagestyle{plain}{%
 	\fancyhf{}%
 	\fancyfoot[RO,LE]{}%
@@ -575,15 +582,11 @@
 \begin{figuremulticol}
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-1.png}
-	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\captionof{figure}{Map of the economic exclusive zones (EEZ) of the Pacific GCRMN region. The unnumbered economic exclusive zone represents the overlapping claimed area of Matthew and Hunter Islands, by France and Vanuatu.}
 	\label{part1:chap1:fig-0}
 \end{figuremulticol}
 
 \newpage
-
-\makeatletter 
-\renewcommand{\thetable}{1.\@arabic\c@table}
-\makeatother
 
 \begin{table}[]
 	\caption{Human population in countries and territories}
@@ -678,12 +681,18 @@
 }
 \titlespacing*{\chapter}{0pt}{20pt}{-30pt}
 
+\setcounter{chapter}{0}
+\renewcommand{\thefigure}{\arabic{part}.\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{part}.\arabic{chapter}.\arabic{table}}
+
 %%%%%%%%%%%%%%%%%%%%%
 
 % AMERICAN SAMOA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{American Samoa}
+
+\def \territoryname {american-samoa}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
@@ -695,21 +704,17 @@
 
 \begin{multicols}{2}
 	
-	\input{../../figs/02_part-2/tbl-1/american-samoa.tex}
+	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 	
 	\vspace{0.5cm}
 	
 	\lipsum[1-4]
 	
-	\makeatletter 
-	\renewcommand{\thefigure}{2.2.\@arabic\c@figure}
-	\makeatother
-	
 	\lipsum[1]
 	
 	\begin{figuremulticol}
 		\centering
-		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/american-samoa.png}
+		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
 		\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
 		\label{part2:chap1:fig-2}
 	\end{figuremulticol}
@@ -725,6 +730,8 @@
 
 \chapter{French Polynesia}
 
+\def \territoryname {french-polynesia}
+
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
 \par\noindent\rule{\textwidth}{0.4pt}
@@ -735,52 +742,44 @@
 
 \begin{multicols}{2}
 	
+	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
+
+\vspace{0.5cm}
+
 \lipsum[1-4]
-	
-\makeatletter 
-\renewcommand{\thefigure}{2.2.\@arabic\c@figure}
-\makeatother
 
 \lipsum[1]
 
 \begin{figuremulticol}
 	\centering
-	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/french-polynesia.png}
-	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
+	\captionof{figure}{Sea Surface Temperature (SST) over coral reefs of French Polynesia between 1985 and 2023. Each line, colored by its associated decade, correspond to a unique year. The black line represents the interannual average SST from 1985 to 2023.}
 	\label{part2:chap2:fig-1}
 \end{figuremulticol}
 
 \lipsum[1-3]
 
-\end{multicols}
-
-\newpage
-
-% PAPUA NEW GUINEA
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\chapter{Papua New Guinea}
-
-\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
-
-\par\noindent\rule{\textwidth}{0.4pt}
-
-\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+\input{../../figs/02_part-2/tbl-2/\territoryname.tex}
 
 \vspace{0.5cm}
 
-\begin{multicols}{2}
-	
-	\lipsum[1-4] \cite{lamy2016three}
-	
-\end{multicols} 
+\end{multicols}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-6/\territoryname.png}
+	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+	\label{part2:chap2:fig-3}
+\end{figure}
 
 \newpage
 
-% FEDERATED STATES OF MICRONESIA
+% NEW CALEDONIA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Federated States of Micronesia}
+\chapter{New Caledonia}
+
+\def \territoryname {new-caledonia}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
@@ -798,53 +797,76 @@
 
 \newpage
 
-% BOX 1
+% CASE STUDY 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}[remember picture,overlay]
-	\fill[anchor=west, fill=secondcolor, draw=firstcolor, ultra thick] ($(current page.north west)+(2.5cm,-3cm)$) rectangle ($(current page.north west)+(21.5cm,-27.2cm)$);
-	\node[anchor=north west, fill=firstcolor, inner sep=8pt] at ($(current page.north west)+(2.3cm,-2.5cm)$) {{\fontsize{20pt}{40pt}\selectfont \color{white}{\textbf{BOX 1}}}};
+	\fill[anchor=west, secondcolor!30!white] ($(current page.north west)$) rectangle ($(current page.south east)$);
+	\node[anchor=north west, fill=firstcolor, inner sep=8pt] at ($(current page.north west)+(2.5cm,-2.5cm)$) {{\fontsize{20pt}{40pt}\selectfont \color{white}{\textbf{CASE STUDY 1}}}};
+	\node[] at ($(current page.north east)+(-6cm,-5cm)$){\includegraphics[width=8cm]{../../figs/02_part-2/case-studies/01_new-caledonia_1.png}};
 \end{tikzpicture}
 
 \vspace*{1.5cm}
 
-\begin{adjustwidth}{2cm}{}
+{\LARGE\selectfont \textcolor{firstcolor}{Effects of the implementation\\ of a marine protected area on\\ commercial reef fish species biomass\\ and richness in Ouano, New Caledonia}}
+
+\vspace*{1cm}
+
+\textbf{Authors}
+
+Laurent Wantiez\textsuperscript{\textcolor{firstcolor}{1}}
+
+\par\noindent\rule{14cm}{0.4pt}
+
+{\footnotesize 
 	
-	{\LARGE\selectfont \textcolor{firstcolor}{Effect of marine reserves on fish abundance. Exemple of Kimbe Bay, Papua New Guinea}}
+	\textsuperscript{\textcolor{firstcolor}{1}}University of New Caledonia, France
 	
-	\vspace*{1cm}
-	
-	\textbf{Authors}
-	
-	Maya Srinivasan\textsuperscript{\textcolor{firstcolor}{1}}, Serge Planes\textsuperscript{\textcolor{firstcolor}{2}}
-	
-	\par\noindent\rule{14cm}{0.4pt}
-	
-	{\footnotesize 
-		
-		\textsuperscript{\textcolor{firstcolor}{1}}James Cook University, Australia \sepaffil
-		\textsuperscript{\textcolor{firstcolor}{2}}CRIOBE UAR3278, Moorea, French Polynesia
-	
-	}
-		
-	\vspace*{1cm}
-	
-	\lipsum[1-3]
-\end{adjustwidth}
+}
+
+\vspace*{1cm}
+
+Ouano Marine Protected Area (3,499 ha) was created in 1989 but the MPA is implemented and enforced since 2007. The MPA extends from the coastline to the outer slope. The objective is the conservation of the lagoon seascape (mangrove, soft-bottoms, coral reefs) in the context of sustainable development. Ouano MPA is also included in the Lagoons of New Caledonia: Reef Diversity and Associated Ecosystems, a UNESCO world heritage site since 2008. The MPAS effects were assessed for coral reef fish, macroinvertebrates and coral habitat, using a Before-After Control-Impact Paired Series (BACIPS) design. The sampling network includes two unprotected areas, located North and South of the MPA. Three surveys were conducted before enforcement (2004-2006), then 7 surveys after (2007-2020), all at the same season. Each survey consisted of 30 stations sampled on coral reefs (fringing reef, lagoon reef and inner barrier reef). Eighteen are located within the MPA and 12 outside on unprotected reefs. At each station, the reef flat, the reef crest and the reef slope were sampled.
+
+The first significant MPAs effects were detected in 2009, three years after enforcement. Then they increased until 2014, and they were still efficient during the last survey in 2020 despite a lowering for several indicators. The commercial fish species increased in the MPA until 2014 while it remained stable outside (Figure 1). The MPA effects are even more significant for the biomass of commercial species, with a constant increase since enforcement, compared to the stability recorded outside the MPA (Figure 1). The main families benefiting from protection are the groupers and the acanthurids. The coral trout illustrates these positive effects. The species was observed only once in the unprotected zone and only twice in the MPA before enforcement. Now, the species is censused In the MPAs every survey since enforcement, with maximum densities and biomasses since 2014. Similar patterns are described for the humphead wrasse and the bluespine unicornfish. These three fish species are among the most targeted coral reef fish in the country. Macroinvertebrates also benefited from MPA effects, such as the commercial top shell, the giant clams and the lobsters. No MPA effect was detected for the coral habitat as the anthropogenic pressure was similar inside and outside the MPA.
 
 \newpage
 
 \begin{tikzpicture}[remember picture,overlay]
-	\fill[anchor=west, fill=secondcolor, draw=firstcolor, ultra thick] ($(current page.north west)+(-0.5cm,-3cm)$) rectangle ($(current page.north west)+(18.5cm,-27.2cm)$);
+	\fill[anchor=west, secondcolor!30!white] ($(current page.north west)$) rectangle ($(current page.south east)$);
 \end{tikzpicture}
 
-\begin{adjustwidth}{}{2cm}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/02_part-2/case-studies/01_new-caledonia_2.png}
+	\caption[Comparison of the temporal trends of biomass (A) and species richness (B) of commercial coral reef fish species within and outside the Marine Protected Area (MPA) of Ouano, in New Caledonia.]{Comparison of the temporal trends of biomass (A) and species richness (B) of commercial coral reef fish species within and outside the Marine Protected Area (MPA) of Ouano, in New Caledonia. Points represent the mean between stations within (\textit{n} = 18) and outside (\textit{n} = 12) the MPA, and error bars represent the mean $\pm$ standard error. The lines between the points are only intended to show the temporal trends and do not rely on data.}
+	\label{box:1}
+\end{figure}
+
+However, the level of these positive effects is directly related to the enforcement strategy. A change of the management of the MPA occurred in 2014. Before, the ranger?s office in charge of the MPA enforcement was located on top of a hill with a direct view on all the MPA. Similarly, any person in the MPA can see the office. In 2014, the office was moved to the village of La Foa. The presence of the ranges on the water increased but they had no view of the MPA from their office anymore. At the same time, we observed a stabilization or a decrease of the MPA effects on several indicators between 2014 and 2020, such as illustrated by the commercial fish species richness (Figure 1). We hypotheses that the presence of the ranger's office in view of the MPA had a significant dissuasive impact on potential poachers. This highlights the importance of the perception of control strategy by the users of the area.
+
+\newpage
+
+% PAPUA NEW GUINEA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Papua New Guinea}
+
+\def \territoryname {papua-new-guinea}
+
+\colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\input{../../figs/02_part-2/tbl-4/affiliations.tex}
+
+\vspace{0.5cm}
+
+\begin{multicols}{2}
 	
-	\vspace*{1cm}
-		
-	\lipsum[1-2]
+	\lipsum[1-4] \cite{lamy2016three}
 	
-\end{adjustwidth}
+\end{multicols} 
 
 \newpage
 
@@ -882,6 +904,10 @@
 }
 \titlespacing*{\chapter}{0pt}{50pt}{-10pt} % The last argument control space between chapter title and text
 
+\setcounter{part}{3}
+\renewcommand{\thefigure}{\arabic{part}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{part}.\arabic{table}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}[remember picture,overlay]
@@ -892,14 +918,6 @@
 \bookmarksetup{startatroot} % To leave the previous part section (for bookmarks in the PDF)
 
 \chapter{Materials and Methods}
-
-\makeatletter 
-\renewcommand{\thefigure}{3.\@arabic\c@figure}
-\makeatother
-
-\makeatletter 
-\renewcommand{\thetable}{3.\@arabic\c@figure}
-\makeatother
 
 \begin{multicols}{2}
 	
@@ -1225,10 +1243,234 @@ Using the Allen Coral Atlas data \citep{lyons2024new}.
 \end{multicols}
 
 \newpage
+
+\begin{multicols*}{2}
+	
+\section{Models}
+
+\textbf{1. \textcolor{firstcolor}{human pop}}
+
+\vspace{0.25cm}
+
+\hrule
+
+Category:
+
+Data source:
+
+Spatial resolution:
+
+	
+
+
+\end{multicols*}
+
+\newpage
+
+\begin{figure}
+	\begin{center}
+		\begin{tikzpicture}
+			\tikzstyle{arrow1}=[thick,color=black,-latex]
+			\tikzstyle{arrow2}=[thin,color=black,densely dashed]
+			\tikzstyle{circletext}=[circle,radius=0.15,fill=firstcolor,font=\bfseries,text=white]
+			\tikzstyle{circletextlabel}=[anchor=west,xshift=0.75cm,text=firstcolor]
+			\tikzstyle{circletextsublabel}=[text width=5cm,text=darkgray,font=\footnotesize,anchor=west,xshift=0.75cm,yshift=-1cm]
+			% Grid without points
+			\tikzset{
+				pics/layer/.style args={#1,#2,#3}{
+					code={
+						\fill[draw=black, thin, fill=fifthcolor, opacity=#3] (#1-2, #2) -- (#1,#2-1) -- (#1+2,#2) --  (#1,#2+1) -- (#1-2,#2);
+						
+					}
+				}
+			}
+			\tikzset{
+				pics/siteleft/.style args={#1,#2}{
+					code={
+						\fill[fill=firstcolor!60!white, draw=firstcolor] (#1,#2-0.5) circle[radius=2pt];
+						\fill[fill=firstcolor!60!white, draw=firstcolor] (#1+0.5, #2+0.25) circle[radius=2pt];
+						\fill[fill=firstcolor!60!white, draw=firstcolor] (#1-0.5, #2-0.25) circle[radius=2pt];
+						
+					}
+				}
+			}
+			% Grid with points
+			\tikzset{
+				pics/layerpoints/.style args={#1,#2,#3}{
+					code={
+						\fill[draw=black, thin, fill=fifthcolor, opacity=#3] (#1-2, #2) -- (#1,#2-1) -- (#1+2,#2) --  (#1,#2+1) -- (#1-2,#2);
+						
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1,#2) circle[radius=2pt];
+						
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1,#2-0.5) circle[radius=2pt];
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1,#2+0.5) circle[radius=2pt];
+						
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1-1,#2) circle[radius=2pt];
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1+1,#2) circle[radius=2pt];
+						
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1-0.5, #2+0.25) circle[radius=2pt];
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1+0.5, #2+0.25) circle[radius=2pt];
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1-0.5, #2-0.25) circle[radius=2pt];
+						\fill[fill=fuzzyred!60!white, draw=fuzzyred] (#1+0.5, #2-0.25) circle[radius=2pt];
+						
+					}
+				}
+			}
+			\tikzset{
+				pics/tablecol/.style args={#1,#2,#3}{
+					code={
+						\fill[rectangle,fill=#3, draw=white, thick] (#1,#2) rectangle (#1+0.3,#2-0.3);
+						
+						\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.3) rectangle (#1+0.3,#2-0.6);
+						
+						\fill[rectangle,fill=lightgray, draw=white, thick] (#1,#2-0.6) rectangle (#1+0.3,#2-0.9);
+						
+					}
+				}
+			}
+			
+			% STEP 1 - Selection of benthic data
+			
+			\node[circletext] at (-2.5,9.5) {1};
+			\node[circletextlabel] at (-2.5, 9.5) {Pre-processing of benthic data};
+			\draw pic{layer={0,7.5,1}};
+			\draw pic{siteleft={0, 7.5}};
+			
+			\draw pic{tablecol={1,5.5,firstcolor}};
+			\node[circletextsublabel] at (0.155, 6.8) {$y$};
+			\draw pic{tablecol={1.5,5.5,firstcolor!70!white}};
+			\node[circletextsublabel] at (0.7, 6.8) {$pred.$};
+			
+			\node[circletextsublabel, text width=3cm] at (1.1, 9.35) {Site with observed data ($y$)};
+			\draw [arrow1, color=darkgray] (1.8, 8.6) to [bend right=25] (0.55,7.9);
+			
+			\draw pic{tablecol={10.9,5.5,fuzzyred!70!white}};
+			\node[circletextsublabel] at (10.05, 6.8) {$pred.$};
+			
+			% STEP 2 - Selection of benthic data
+			
+			\node[circletext] at (7.5,9.5) {2};
+			\node[circletextlabel] at (7.5, 9.5) {Selection of sites to predict};
+			\draw pic{layerpoints={10,7.5,1}};
+			
+			\node[circletextsublabel, text width=2cm, align=right] at (6, 7) {Site with coral reefs};
+			\draw [arrow1, color=darkgray] (8.2, 6.55) to [bend left=20] (9.35, 7.25);
+			
+			% STEP 3 - Extraction of predictors
+			
+			% Left
+			
+			\draw[arrow1] (0, 6) -> (0,3.25);
+			\draw[arrow1] (10, 6) -> (10,3.25);
+			
+			\node[circletext] at (2.5,3.5) {3};
+			\node[circletextlabel] at (2.5, 3.5) {Extraction of predictors};
+			
+			\draw pic{layer={0,0,1}};
+			\draw pic{siteleft={0, 0}};
+			
+			\draw pic{layer={0,1,0.9}};
+			\draw pic{layer={0,1.25,0.9}};
+			\draw pic{layer={0,1.5,0.9}};
+			\draw pic{layer={0,1.75,0.9}};
+			
+			\draw pic{tablecol={1,-2,firstcolor}};
+			\node[circletextsublabel] at (0.155, -0.7) {$y$};
+			\draw pic{tablecol={1.5,-2,firstcolor!70!white}};
+			\draw pic{tablecol={1.8,-2,firstcolor!70!white}};
+			\draw pic{tablecol={2.1,-2,firstcolor!70!white}};
+			\draw pic{tablecol={2.4,-2,firstcolor!70!white}};
+			\draw pic{tablecol={2.7,-2,firstcolor!70!white}};
+			\node[circletextsublabel] at (0.7, -0.7) {$pred.$};
+			
+			% Right
+			
+			\draw pic{layerpoints={10,0,1}};
+			
+			\draw pic{layer={10,1,0.9}};
+			\draw pic{layer={10,1.25,0.9}};
+			\draw pic{layer={10,1.5,0.9}};
+			\draw pic{layer={10,1.75,0.9}};
+			
+			\node[circletextsublabel, centered] at (5.1, 2.35) {Predictor's data layers};
+			\draw[black, thick] (2.3, 1.85) -> (2.4, 1.85) -> (2.4,0.85) -> (2.3,0.85);
+			\draw[black, thick] (2.4, 1.35) -> (2.8, 1.35);
+			\draw[black, thick] (7.7, 1.85) -> (7.6, 1.85) -> (7.6,0.85) -> (7.7,0.85);
+			\draw[black, thick] (7.2, 1.35) -> (7.6, 1.35);
+			
+			\draw pic{tablecol={7.6,-2,fuzzyred!70!white}};
+			\draw pic{tablecol={7.9,-2,fuzzyred!70!white}};
+			\draw pic{tablecol={8.2,-2,fuzzyred!70!white}};
+			\draw pic{tablecol={8.5,-2,fuzzyred!70!white}};
+			\draw pic{tablecol={8.8,-2,fuzzyred!70!white}};
+			\node[circletextsublabel] at (6.8, -0.7) {$pred.$};
+			
+			% STEP 4 - Machine learning model
+			
+			\draw[arrow1] (0, -1.5) -> (0,-3.25);
+			
+			\node[circletext] at (-2.5,-4) {4};
+			\node[circletextlabel] at (-2.5, -4) {Machine learning model};
+			
+			\draw pic{tablecol={1,-5.5,firstcolor}};
+			\node[circletextsublabel] at (0.155, -4.15) {$y$};
+			\node[circletextsublabel] at (0.61, -5) {$\thicksim$};
+			\draw pic{tablecol={2,-5.5,firstcolor!70!white}};
+			\draw pic{tablecol={2.3,-5.5,firstcolor!70!white}};
+			\draw pic{tablecol={2.6,-5.5,firstcolor!70!white}};
+			\draw pic{tablecol={2.9,-5.5,firstcolor!70!white}};
+			\draw pic{tablecol={3.2,-5.5,firstcolor!70!white}};
+			\node[circletextsublabel] at (1.2, -4.15) {$pred.$};
+			
+			\draw [arrow1, color=darkgray] (2.3, -7.3) to [bend left=30] (1.6, -6.3);
+			\node[circletextsublabel, text width=3.5cm] at (1.7, -6.75) {Relationship between $y$ and predictors' values};
+			
+			% STEP 5 - Model evaluation
+			
+			\draw[arrow1] (0, -4.6) -> (0,-7);
+			
+			\node[circletext] at (-2,-8) {5};
+			\node[circletextlabel] at (-2, -8) {Model evaluation};
+			
+			\node[circletextsublabel] at (-2, -8.15) {Model performance};
+			\node[circletextsublabel] at (-2, -8.65) {Model interpretation};
+			
+			% STEP 6 - Predictions
+			
+			\draw[black, thick] (3, -4) -> (10,-4);
+			\draw[arrow1] (10, -1.5) -> (10,-7);
+			
+			\node[circletext] at (8.5,-8) {6};
+			\node[circletextlabel] at (8.5, -8) {Predictions};
+			
+			\draw pic{tablecol={8.2,-9.5,fuzzyred!70!white}};
+			\draw pic{tablecol={8.5,-9.5,fuzzyred!70!white}};
+			\draw pic{tablecol={8.8,-9.5,fuzzyred!70!white}};
+			\draw pic{tablecol={9.1,-9.5,fuzzyred!70!white}};
+			\draw pic{tablecol={9.4,-9.5,fuzzyred!70!white}};
+			\node[circletextsublabel] at (7.4, -8.2) {$pred.$};
+			
+			\draw[arrow1] (9.85, -9.95) -> (10.25,-9.95);
+			
+			\draw pic{tablecol={10.4,-9.5,fuzzyred}};
+			\node[circletextsublabel] at (9.6, -8.2) {$\hat{y}$};
+			
+		\end{tikzpicture}
+	\end{center}
+	\vspace*{1cm}
+	\caption[Illustration of the data integration workflow used for the creation of the gcrmndb benthos synthetic dataset]{Main steps of the machine learning modelling approach used to estimate the temporal trends of percentage cover of the four benthic categories (hard coral, macroalgae, turf algae, coralline algae). $y$ are the observed values of percentage cover (\textit{i.e.} ``measurementValue") for a given benthic category, $pred.$ is the set of predictors used to in the ML model, $\hat{y}$ are the predicted values of percentage cover for a given benthic category over coral reef sites.}
+	\label{metm:fig-4}
+\end{figure}
+
+\newpage
 \clearpage
 
 % AUTHORS' CONTRIBUTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{part}{4}
+\renewcommand{\thefigure}{\arabic{part}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{part}.\arabic{table}}
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
@@ -1248,7 +1490,7 @@ Using the Allen Coral Atlas data \citep{lyons2024new}.
 	\vspace{1cm}
 		\resizebox{15cm}{!}{%
 		\begin{tabular}{rlcccccccccccccccc}
-			                                &          & \rot{Funding acquisition} & \rot{Supervision} & \rot{Conceptualization} & \rot{Facilitation} & \rot{Data acquisition} & \rot{Data integration} & \rot{Data analysis} & \rot{Workshop} & \rot{Writing and review} & \rot{\textcolor{firstcolor}{Exe. summary}} & \rot{\textcolor{firstcolor}{Synth. Pacific}} & \rot{\textcolor{firstcolor}{Synth. countries}} & \rot{\textcolor{firstcolor}{Boxes}} & \rot{\textcolor{firstcolor}{Mat. and methods}} & \rot{Layout} & \rot{Communication} \\ \hline
+			                                &          & \rot{Funding acquisition} & \rot{Supervision} & \rot{Conceptualization} & \rot{Facilitation} & \rot{Data acquisition} & \rot{Data integration} & \rot{Data analysis} & \rot{Workshop} & \rot{Writing and review} & \rot{\textcolor{firstcolor}{Exe. summary}} & \rot{\textcolor{firstcolor}{Synth. Pacific}} & \rot{\textcolor{firstcolor}{Synth. countries}} & \rot{\textcolor{firstcolor}{Case studies}} & \rot{\textcolor{firstcolor}{Mat. and methods}} & \rot{Layout} & \rot{Communication} \\ \hline
 			  \rowcolor{secondcolor} Thomas & Dallison &                           &                   &                         &                    &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                                                &              &      \contrib       \\ \hline
 			         \rowcolor{white} Serge & Planes   &         \contrib          &     \contrib      &        \contrib         &                    &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                                                &              &                     \\ \hline
 			\rowcolor{secondcolor} Erica K. & Towle    &                           &                   &                         &      \contrib      &                        &                        &                     &                &                          &                                            &                                              &                                                &                                     &                    \review                     &              &                     \\ \hline
@@ -1262,16 +1504,15 @@ Using the Allen Coral Atlas data \citep{lyons2024new}.
 % ANNEXES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\renewcommand{\thefigure}{S. \arabic{figure}}
+\renewcommand{\thetable}{S. \arabic{table}}
+
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
 	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Annexes}
-
-\makeatletter 
-\renewcommand{\thefigure}{S.\@arabic\c@figure}
-\makeatother
 
 \begin{figure}[h!]
 	\centering
