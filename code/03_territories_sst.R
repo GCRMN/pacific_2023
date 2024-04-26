@@ -119,10 +119,13 @@ map_sst_month <- function(territory_i, color_decade){
                 color = "black", linewidth = 1) +
       scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
                                   "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
-                       labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
-                                  "Sep.", "Oct.", "Nov.", "Dec.")) +
+                       labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
+                                  "", "Oct.", "", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
-      theme(axis.text.x = element_text(size = 8)) +
+      theme(axis.text = element_text(size = 11),
+            legend.title.position = "top",
+            legend.title = element_text(hjust = 0.5),
+            legend.text = element_text(size = 11)) +
       scale_color_manual(name = "Decade", values = palette_second) +
       guides(color = guide_legend(override.aes = list(linewidth = 1))) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
@@ -142,10 +145,13 @@ map_sst_month <- function(territory_i, color_decade){
                 color = "black", linewidth = 1) +
       scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
                                   "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
-                       labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", 
-                                  "Sep.", "Oct.", "Nov.", "Dec.")) +
+                       labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
+                                  "", "Oct.", "", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
-      theme(axis.text.x = element_text(size = 8)) +
+      theme(axis.text = element_text(size = 11),
+            legend.title.position = "top",
+            legend.title = element_text(hjust = 0.5),
+            legend.text = element_text(size = 11)) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
     ggsave(filename = paste0("figs/02_part-2/fig-3/",

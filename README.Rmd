@@ -88,7 +88,7 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 #### C3. Case studies
 
-* `03_box_fish-new-caledonia.R` Case study on MPA of Ouano, New Caledonia.
+* `03_case-studies.R` Produce figures and maps for case studies.
 
 ### D. Functions
 

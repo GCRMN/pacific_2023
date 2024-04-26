@@ -9,7 +9,7 @@ library(patchwork)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-colors <- c(palette_second[3], "#013C5E")
+colors <- c(palette_first[5], palette_first[3])
 
 load("data/01_background-shp/02_princeton/data_land.RData")
 

@@ -29,7 +29,7 @@ data_population <- read.csv("data/02_indicators/ind_human-pop_5km.csv") %>%
 ggplot(data = data_population, aes(x = year, y = population, fill = territory_type)) +
   geom_area(show.legend = FALSE) +
   scale_fill_manual(values = rev(palette_first)) +
-  labs(x = "Year", y = "Number of inhabitants (millions)") +
+  labs(x = "Year", y = "Inhabitants (millions)") +
   annotate(geom = "text", label = "Papua New Guinea", x = 2003, y = 0.45, 
            family = font_choose_graph, color = "white", hjust = 0) +
   annotate(geom = "text", label = "Other territories", x = 2003, y = 1.75, 
@@ -40,8 +40,8 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
            family = font_choose_graph, color = "white", hjust = 0) +
   theme_graph() + 
   lims(y = c(0, 6)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(2000, 2020))
+  scale_x_continuous(expand = expansion(mult = c(0.025, 0)), limits = c(2000, 2020))
 
 # 5. Export the plot ----
 
-ggsave("figs/01_part-1/fig-3.png", height = 5, width = 6, dpi = 600)
+ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = 600)
