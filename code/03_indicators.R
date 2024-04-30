@@ -102,11 +102,56 @@ data_table_1 <- data_table_1 %>%
 
 ## 2.9 Export the table ----
 
+### 2.9.1 In .xlsx format ---- 
+
 data_table_1b <- data_table_1 %>% 
   filter(territory != "Entire Pacific region") %>% 
   bind_rows(., data_table_1 %>% 
-              filter(territory == "Entire Pacific region")) %>% 
-  openxlsx::write.xlsx(., file = "figs/01_part-1/table-1.xlsx")
+              filter(territory == "Entire Pacific region"))
+
+openxlsx::write.xlsx(data_table_1b, file = "figs/01_part-1/table-1.xlsx")
+
+### 2.9.2 In .tex format ----
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", data_table_1b[i, "territory"], "} &", data_table_1b[i, "reef_area_abs"], "&",
+                     data_table_1b[i, "reef_area_rel_pacific"], "&", data_table_1b[i, "reef_area_rel_world"]," \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", data_table_1b[i, "subterritory"], " &", data_table_1b[i, "reef_area_abs"], "&",
+                     data_table_1b[i, "reef_area_rel_pacific"], "&", data_table_1b[i, "reef_area_rel_world"]," \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{2.9cm}|R{2.9cm}|R{2.9cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Absolute extent (km\\textsuperscript{2})
+} & \\textcolor{white}{Extent rel. to the Pacific (\\%)}  & \\textcolor{white}{Extent rel. to the world (\\%)} \\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", data_table_1b[33, "territory"], "}} &", data_table_1b[33, "reef_area_abs"], "&",
+                    data_table_1b[33, "reef_area_rel_pacific"], "&", data_table_1b[33, "reef_area_rel_world"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/01_part-1/table-1.tex"))
 
 ## 2.10 Remove useless objects ----
 
@@ -241,10 +286,10 @@ latex_table_line <- function(i, subterritory){
 }
 
 writeLines(c("\\begin{center}",
-             "\\begin{tabular}{|ll|r|r|r|}",
+             "\\begin{tabular}{|ll|R{2.85cm}|R{2.85cm}|R{2.85cm}|}",
              "\\hline",
              "\\rowcolor{firstcolor}",
-             "\\multicolumn{2}{|l|}{\\textcolor{white}{Country/Territory}} & \\textcolor{white}{Pop. 2020} & \\textcolor{white}{Rel. change}  & \\textcolor{white}{Percent.} \\\\ \\hline",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Pop. 2020} & \\textcolor{white}{Rel. change}  & \\textcolor{white}{Percent.} \\\\ \\hline",
              map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
              map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
              map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
