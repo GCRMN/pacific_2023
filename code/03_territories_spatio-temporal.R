@@ -428,7 +428,53 @@ monitoring_descriptors <- monitoring_descriptors %>%
 
 ## 7.5 Export the table ----
 
+### 7.5.1 In .xlsx format ---- 
+
 openxlsx::write.xlsx(monitoring_descriptors, file = "figs/01_part-1/table-4.xlsx")
+
+### 7.5.2 In .tex format ---- 
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", monitoring_descriptors[i, "territory"], "} &", monitoring_descriptors[i, "nb_sites"], "&",
+                     monitoring_descriptors[i, "nb_surveys"], "&", monitoring_descriptors[i, "nb_datasets"],
+                     "&", monitoring_descriptors[i, "first_year"], "&", monitoring_descriptors[i, "last_year"]," \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", monitoring_descriptors[i, "subterritory"], " &", monitoring_descriptors[i, "nb_sites"], "&",
+                     monitoring_descriptors[i, "nb_surveys"], "&", monitoring_descriptors[i, "nb_datasets"],
+                     "&", monitoring_descriptors[i, "first_year"], "&", monitoring_descriptors[i, "last_year"]," \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{1.5cm}|R{1.5cm}|R{1.5cm}|R{1.5cm}|R{1.5cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Sites} & \\textcolor{white}{Surveys}  & \\textcolor{white}{Datasets} & \\textcolor{white}{First year} & \\textcolor{white}{Last year}\\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", monitoring_descriptors[33, "territory"], "}} &", monitoring_descriptors[33, "nb_sites"], "&",
+                    monitoring_descriptors[33, "nb_surveys"], "&", monitoring_descriptors[33, "nb_datasets"],"&", monitoring_descriptors[33, "first_year"],
+                    "&", monitoring_descriptors[33, "last_year"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/01_part-1/table-4.tex"))
 
 ## 7.6 Export table for each territory ----
 

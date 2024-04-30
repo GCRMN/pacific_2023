@@ -353,7 +353,7 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Acknowledgments}
@@ -371,7 +371,7 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \renewcommand{\contentsname}{TABLE OF CONTENTS}
@@ -386,7 +386,7 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Acronyms}
@@ -416,7 +416,7 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Glossary}
@@ -441,7 +441,7 @@
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
     \node[circle,minimum size=4cm,inner sep=0pt, fill=thirdcolor, draw=white, ultra thick] at ($(current page.north)+(5cm,-3.25cm)$) {\textcolor{white}{\textbf{}}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
     \clip ($(current page.north)+(5cm,-3.25cm)$) circle (1.99cm);
     \node[anchor=west] at ($(current page.north)+(2.5cm,-3.6cm)$) {\includegraphics[width = 5cm]{../../figs/00_misc/foreword-photo.jpg}};
 \end{tikzpicture}
@@ -474,7 +474,7 @@
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Executive summary}
@@ -482,6 +482,24 @@
 \begin{multicols}{2}
 	
 	\lipsum[1-4]
+	
+\end{multicols}
+
+\newpage
+
+% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[remember picture,overlay]
+	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+\end{tikzpicture}
+
+\chapter{Introduction}
+
+\begin{multicols}{2}
+	
+	\lipsum[1-3]
 	
 \end{multicols}
 
@@ -531,17 +549,16 @@
 	{\filright#1}
 	\titlespacing*{\chapter}{0pt}{0pt}{10pt} % The last argument control space between chapter title and text
 
+
+
+
 \begin{multicols}{2}
 
-\chapter{Introduction}
+\chapter{Coral reefs of the Pacific}
+
+\section{Distribution and extent}
 
 \lipsum[1-2]
-
-\chapter{Threats}
-
-\section{Thermal regime}
-
-\lipsum[1]
 
 \begin{figuremulticol}
 	\centering
@@ -550,22 +567,53 @@
 	\label{part1:chap1:fig-1}
 \end{figuremulticol}
 
-\begin{figure}[h]
-
-\end{figure}
-
 \lipsum[1]
 
+\end{multicols}
+
+\newpage
+
+\begin{table}[]
+	\caption{Comparison of the absolute extent of coral reefs between Pacific countries and territories, the relative extent of Pacific reefs and the relative extent of the world's reefs. Since the values for ``Kiribati" and ``Pacific Remote Island Area" rows corresponds to the sum of their associated EEZ, they were not used to calculate the totals.}
+	\input{../../figs/01_part-1/table-1.tex}
+	\label{part1:tbl-1}
+\end{table}
+
+\newpage
+
+\begin{multicols}{2}
+
+
+\section{Biodiversity}
+
+\section{Ecosystem services}
+
+\chapter{Threats to coral reefs of the Pacific}
+
+\section{Human population}
+
+\section{Thermal regime}
+
 \section{Cyclones}
+
+\section{Other threats}
+
+
+
+
+
+
+
+
+
+
+
 
 \lipsum[1]
 
 \chapter{Benthic cover trends}
 
 \lipsum[1-2]
-
-\vfill\null
-\columnbreak
 
 \chapter{Recommandations}
 
@@ -575,23 +623,27 @@
 
 \newpage
 
-\begin{multicols}{2}
-	\lipsum[1]
-\end{multicols}
-
-\begin{figuremulticol}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-1.png}
 	\captionof{figure}{Map of the economic exclusive zones (EEZ) of the Pacific GCRMN region. The unnumbered economic exclusive zone represents the overlapping claimed area of Matthew and Hunter Islands, by France and Vanuatu.}
 	\label{part1:chap1:fig-0}
-\end{figuremulticol}
+\end{figure}
 
 \newpage
 
 \begin{table}[]
 	\caption{Human population in countries and territories}
 	\input{../../figs/01_part-1/table-2.tex}
-	\label{part1:tbl-1}
+	\label{part1:tbl-2}
+\end{table}
+
+\newpage
+
+\begin{table}[]
+	\caption{Human population in countries and territories}
+	\input{../../figs/01_part-1/table-4.tex}
+	\label{part1:tbl-4}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -765,7 +817,7 @@
 
 \end{multicols}
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-6/\territoryname.png}
 	\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
@@ -791,7 +843,11 @@
 
 \begin{multicols}{2}
 	
-	\lipsum[1-4]
+		\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
+	
+	\vspace{0.5cm}
+		
+	\lipsum[1-3]
 	
 \end{multicols}
 
@@ -864,7 +920,11 @@ However, the level of these positive effects is directly related to the enforcem
 
 \begin{multicols}{2}
 	
-	\lipsum[1-4] \cite{lamy2016three}
+	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
+	
+	\vspace{0.5cm}
+	
+	\lipsum[1-3] \cite{lamy2016three}
 	
 \end{multicols} 
 
@@ -912,7 +972,7 @@ However, the level of these positive effects is directly related to the enforcem
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \bookmarksetup{startatroot} % To leave the previous part section (for bookmarks in the PDF)
@@ -1474,7 +1534,7 @@ Spatial resolution:
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Author contributions}
@@ -1509,7 +1569,7 @@ Spatial resolution:
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chapter{Annexes}
@@ -1528,7 +1588,7 @@ Spatial resolution:
 
 \begin{tikzpicture}[remember picture,overlay]
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
-	\node[anchor=west] at ($(current page.north west)+(2.5cm,-1cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
+	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
 \chaptermark{Bibliography}
