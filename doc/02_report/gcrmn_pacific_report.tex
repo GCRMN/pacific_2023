@@ -375,6 +375,15 @@
 	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
 
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{Table of contents}}
+}
+
+\pagestyle{plain}
+
 \renewcommand{\contentsname}{TABLE OF CONTENTS}
 \tableofcontents
 \chaptermark{Table of contents}
@@ -389,6 +398,15 @@
 	\node[opacity=1,inner sep=0pt, anchor=north west] at ($(current page.north west)+(0cm,0cm)$){\includegraphics[width=\paperwidth]{../../figs/00_misc/chapter.png}};
 	\node[anchor=west] at ($(current page.north west)+(2.5cm,-0.75cm)$) {\textcolor{white}{{\scriptsize Hannes Klostermann. Coral reefs in Moorea, French Polynesia}}};
 \end{tikzpicture}
+
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
+	\fancyfoot[LO]{\sffamily\footnotesize \textcolor{thirdcolor}{Status and Trends of Coral Reefs of the Pacific}}
+	\fancyfoot[RE]{\sffamily\footnotesize \textcolor{thirdcolor}{\leftmark}}
+}
+
+\pagestyle{plain}
 
 \chapter{Acronyms}
 
