@@ -180,7 +180,12 @@
 {0pt}
 {\filright#1}
 
-%%%%% 7. OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% 7. FIGURE CAPTIONS FOR PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\titleFigureA}[1]{Sea Surface Temperature (SST) over coral reefs of #1 between 1985 and 2023. Each line, colored by its associated decade, correspond to a unique year. The black line represents the interannual average SST from 1985 to 2023.}
+
+%%%%% 8. OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Set the font of the document
@@ -414,6 +419,7 @@
 	ACA   & Allen Coral Atlas                               \\
 	AIMS  & Australian Institute of Marine Science          \\
 	CCA   & Crustose Coralline Algae                        \\
+	COTS  & Crown-of-Thorns Starfish                        \\
 	DHW   & Degree Heating Week                             \\
 	EEZ   & Economic Exclusive Zone                         \\
 	ENSO  & El Ni\~{n}o Southern Oscillation                \\
@@ -544,9 +550,9 @@
 	
 \end{multicols}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% PART 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% PART 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
 
@@ -576,6 +582,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%% REDEFINE %%%%%%%
+
+% Footer
+
 \fancypagestyle{plain}{%
 	\fancyhf{}%
 	\fancyfoot[LE,RO]{\sffamily\footnotesize \textcolor{firstcolor}{\thepage}}
@@ -585,6 +595,18 @@
 
 \pagestyle{plain}
 
+% Redefine TOC appearance for chapters %%
+
+\titlecontents{chapter}
+[1.5em]
+{\selectfont\color{black}}
+{\contentslabel[\thecontentslabel]{1em}}
+{}
+{\titlerule*[0.75pc]{.}\contentspage} % dots
+[\addvspace{1ex}]
+
+% Redefine title appearance for chapters %%
+
 \titleformat{\chapter}
 	{\fontsize{20pt}{40pt}\selectfont\color{firstcolor}}
 	{}
@@ -592,8 +614,7 @@
 	{\filright#1}
 	\titlespacing*{\chapter}{0pt}{0pt}{10pt} % The last argument control space between chapter title and text
 
-
-
+%%%%%%%%%%%%%%%%%%%%%
 
 \begin{multicols}{2}
 
@@ -627,26 +648,58 @@
 
 \section{Biodiversity}
 
+\section{Human population}
+
 \section{Ecosystem services}
 
 \chapter{Threats to coral reefs of the Pacific}
 
-\section{Human population}
-
 \section{Thermal regime}
+
+\subsection{Long-term change in SST}
+
+\subsection{Marine heatwaves}
 
 \section{Cyclones}
 
-\section{Other threats}
+\section{Crown-of-Thorns Starfish}
+
+\section{Fishing}
+
+\section{Nutrients and sediments}
+
+\section{Pollution}
+
+\section{Invasive species}
+
+\subsection{Coral diseases}
+
+\subsection{Ocean acidification}
 
 
 \lipsum[1]
 
-\chapter{Benthic cover trends}
+\chapter{Temporal trends in benthic cover}
+
+\section{Spatio-temporal distribution of monitoring}
+
+\section{Trends in major benthic groups}
+
+\section{Trends in major hard coral genera}
 
 \lipsum[1-2]
 
 \chapter{Recommandations}
+
+\section{Reduction in greenhouse gas emissions}
+
+\section{Reduction of local threats}
+
+\section{Implementation of marine protected areas}
+
+\section{Reef rehabilitation}
+
+\section{Maintenance and development of monitoring}
 
 \lipsum[1-2]
 
@@ -677,9 +730,9 @@
 	\label{part1:tbl-4}
 \end{table}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
 
@@ -798,7 +851,7 @@
 	\begin{figuremulticol}
 		\centering
 		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
-		\captionof{figure}{Relative coral reef area between countries and territories of the Pacific.}
+		\captionof{figure}{\titleFigureA{American Samoa}}
 		\label{part2:chap1:fig-2}
 	\end{figuremulticol}
 	
@@ -837,7 +890,7 @@
 \begin{figuremulticol}
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
-	\captionof{figure}{Sea Surface Temperature (SST) over coral reefs of French Polynesia between 1985 and 2023. Each line, colored by its associated decade, correspond to a unique year. The black line represents the interannual average SST from 1985 to 2023.}
+	\captionof{figure}{\titleFigureA{French Polynesia}}
 	\label{part2:chap2:fig-1}
 \end{figuremulticol}
 
