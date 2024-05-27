@@ -9,7 +9,7 @@
 \usepackage{afterpage}
 \usepackage{xcolor} % To define colors
 \usepackage{fancyhdr} % For footer and header
-\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=firstcolor,linkcolor=black]{hyperref}
+\usepackage[colorlinks=true,citecolor=firstcolor,urlcolor=firstcolor,linkcolor=firstcolor]{hyperref}
 \usepackage[uppercase, sf, explicit, raggedright]{titlesec}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -504,10 +504,57 @@
 
 \chapter{Executive summary}
 
+\newcommand*\circled[2]{\tikz[baseline=(char.base)]{
+		\node[shape=circle,fill=#1, draw=white,inner sep=2pt] (char) {\textcolor{white}{#2}};}}
+
 \begin{multicols}{2}
 	
-	\lipsum[1-4]
+	{\Large{\textcolor{thirdcolor}{Coral reefs of the Pacific}}}
 	
+	\vspace{0.5cm}
+	
+	\circled{thirdcolor}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{thirdcolor}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{thirdcolor}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\vspace{0.5cm}
+		
+	{\Large{\textcolor{red}{Threats}}}
+	
+	\vspace{0.5cm}
+	
+	\circled{red}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{red}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{red}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+		
+	\vspace{0.5cm}
+			
+	{\Large{\textcolor{orange}{Trends}}}
+	
+	\vspace{0.5cm}
+	
+	\circled{orange}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{orange}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{orange}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+		
+	\vspace{0.5cm}
+		
+	{\Large{\textcolor{purple}{Recommandations}}}
+	
+	\vspace{0.5cm}
+	
+	\circled{purple}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{purple}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	
+	\circled{purple}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+		
 \end{multicols}
 
 \newpage
@@ -629,7 +676,7 @@
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-2.png}
-	\caption[Relative coral reef extent between GCRMN regions and between countries and territories within the GCRMN Pacific region]{Relative coral reef extent between GCRMN regions (A) and between countries and territories within the GCRMN Pacific region (B). The area of each polygon is proportional to the relative coral reef extent of the associated region. The absolute values of coral reef extent for countries and territories of the Pacific are provided in Table 1. In subfigure A, WIO is the acronym for Western Indian Ocean.}
+	\caption[Relative coral reef extent between GCRMN regions and between countries and territories within the GCRMN Pacific region]{Relative coral reef extent between GCRMN regions (A) and between countries and territories within the GCRMN Pacific region (B). The area of each polygon is proportional to the relative coral reef extent of the associated region. The absolute values of coral reef extent for countries and territories of the Pacific are provided in \autoref{part1:tbl-1}. In subfigure A, WIO is the acronym for Western Indian Ocean.}
 	\label{part1:chap1:fig-1}
 \end{figure}
 
@@ -809,8 +856,11 @@
 		\node[yshift=-2.5cm] at (current page.north west)
 		{\begin{tikzpicture}[remember picture, overlay]
 				(\paperwidth,3cm);
+				\fill[fill=secondcolor,color=secondcolor] ($(current page.north west)+(3cm,-2.5cm)$) rectangle ($(current page.north west)+(18.51cm,-4cm)$);
 				\node[anchor=north west,fill=firstcolor, minimum width=\textwidth, inner sep=10pt, align=left] at ($(current page.north west)+(2.5cm,-2.5cm)$)
 				{\color{white}\uppercase{\filright#1}};
+				\fill[fill=white,color=white] ($(current page.north west)+(16.5cm,-5cm)$) circle (1.5cm);
+				\node[opacity=1,inner sep=0pt, scale=10.5] at ($(current page.north west)+(16.5cm,-5cm)$){\includegraphics[width=\paperwidth]{../../figs/02_part-2/fig-1/\territoryname.png}};
 			\end{tikzpicture}
 		};
 	\end{tikzpicture}
@@ -826,19 +876,21 @@
 % AMERICAN SAMOA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{American Samoa}
-
 \def \territoryname {american-samoa}
+
+\chapter{American Samoa}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{\textwidth}{0.4pt}
+\par\noindent\rule{12cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
 \vspace{0.5cm}
 
 \begin{multicols}{2}
+	
+	\section*{Introduction}
 	
 	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 	
@@ -864,21 +916,24 @@
 % FRENCH POLYNESIA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\def \territoryname {french-polynesia}
+
 \chapter{French Polynesia}
 
-\def \territoryname {french-polynesia}
 \addtocounter{chaptercounter}{1}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{\textwidth}{0.4pt}
+\par\noindent\rule{12cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
-\vspace{0.5cm}
+\vspace{0.4cm}
 
 \begin{multicols}{2}
 	
+	\section*{Introduction}
+			
 	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 
 \vspace{0.5cm}
@@ -896,9 +951,7 @@
 
 \lipsum[1-3]
 
-\input{../../figs/02_part-2/tbl-2/\territoryname.tex}
-
-\vspace{0.5cm}
+\newpage
 
 \end{multicols}
 
@@ -914,14 +967,15 @@
 % NEW CALEDONIA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\def \territoryname {new-caledonia}
+
 \chapter{New Caledonia}
 
-\def \territoryname {new-caledonia}
 \addtocounter{chaptercounter}{1}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{\textwidth}{0.4pt}
+\par\noindent\rule{12cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
@@ -992,14 +1046,15 @@ However, the level of these positive effects is directly related to the enforcem
 % PAPUA NEW GUINEA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\def \territoryname {papua-new-guinea}
+
 \chapter{Papua New Guinea}
 
-\def \territoryname {papua-new-guinea}
 \addtocounter{chaptercounter}{1}
 
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{\textwidth}{0.4pt}
+\par\noindent\rule{12cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
@@ -1007,12 +1062,38 @@ However, the level of these positive effects is directly related to the enforcem
 
 \begin{multicols}{2}
 	
+	\section*{Introduction}
+	
 	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 	
 	\vspace{0.5cm}
 	
-	\lipsum[1-3] \cite{lamy2016three}
+	\lipsum[1-3] \cite{lamy2016three}.
 	
+	\section*{Disturbance regime}
+	
+	\subsection*{Thermal regime}
+	
+	\lipsum[1-3]
+	
+	\subsection*{Cyclones}
+	
+	\lipsum[1-3]
+		
+	\subsection*{Other disturbances}
+	
+	\lipsum[1-3]
+	
+	\section*{Benthic cover}
+		
+	\subsection*{Monitoring}
+	
+	\lipsum[1-3]
+			
+	\subsection*{Temporal trends}
+	
+	\lipsum[1-3]
+		
 \end{multicols} 
 
 \newpage
