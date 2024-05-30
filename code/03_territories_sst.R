@@ -132,7 +132,7 @@ map_sst_month <- function(territory_i, color_decade){
     
     ggsave(filename = paste0("figs/02_part-2/fig-3/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           width = 5.5, height = 4.5, dpi = 600)
+           width = 5.5, height = 4.5, dpi = 300)
     
   }else{
     
@@ -156,7 +156,7 @@ map_sst_month <- function(territory_i, color_decade){
     
     ggsave(filename = paste0("figs/02_part-2/fig-3/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           width = 6, height = 4, dpi = 600)
+           width = 6, height = 4, dpi = 300)
     
   }
   

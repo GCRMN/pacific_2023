@@ -424,7 +424,11 @@ monitoring_descriptors <- data_benthic %>%
 
 monitoring_descriptors <- monitoring_descriptors %>% 
   mutate(nb_sites = as.character(format(nb_sites, big.mark = ",", scientific = FALSE)),
-         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE)))
+         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE)),
+         first_year = as.character(first_year),
+         first_year = replace_na(first_year, ""),
+         last_year = as.character(last_year),
+         last_year = replace_na(last_year, ""))
 
 ## 7.5 Export the table ----
 

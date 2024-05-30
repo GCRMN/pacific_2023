@@ -40,8 +40,8 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
            family = font_choose_graph, color = "white", hjust = 0) +
   theme_graph() + 
   lims(y = c(0, 6)) +
-  scale_x_continuous(expand = expansion(mult = c(0.025, 0)), limits = c(2000, 2020))
+  scale_x_continuous(expand = expansion(mult = c(0.025, 0.025)), limits = c(2000, 2020))
 
 # 5. Export the plot ----
 
-ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = 600)
+ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = 300)

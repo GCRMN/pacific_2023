@@ -180,11 +180,11 @@ plot_map <- ggplot() +
                      drop = FALSE) +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "#363737", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 3.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
-               color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
+               color = "#363737", size = 3.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
-               color = "#1e517b", fontface = "italic", size = 3, family = font_choose_map) +
+               color = "#1e517b", fontface = "italic", size = 3.5, family = font_choose_map) +
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
@@ -193,7 +193,7 @@ plot_map <- ggplot() +
 
 ## 3.11 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-6.png", width = 8, height = 5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-6.png", width = 8, height = 5.5, dpi = 300)
 
 # 4. Comparison of cyclones occurrence ----
 
@@ -210,7 +210,11 @@ data_cyclones <- data_cyclones %>%
   bind_rows(., tibble(territory = setdiff(data_eez$TERRITORY1, data_cyclones$territory),
                       n = rep(0, length(setdiff(data_eez$TERRITORY1, data_cyclones$territory))),
                       n_tot = n)) %>% 
-  filter(territory != "Matthew and Hunter Islands")
+  filter(territory != "Matthew and Hunter Islands") %>% 
+  mutate(territory = str_replace_all(territory, c("Islands" = "Isl.",
+                                                  "Federated States of Micronesia" = "Fed. Sts. Micronesia",
+                                                  "Northern" = "North.",
+                                                  "Howland" = "How.")))
 
 ## 4.2 Make the plot ----
 
@@ -219,10 +223,11 @@ ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill 
   scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                      labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                      values = c(palette_second[2:5], "black"),
-                     name = "Saffir-Simpson category",
+                     name = "Saffir-Simpson\ncategory\n",
                      drop = FALSE) +
   theme_graph() +
-  theme(legend.position = c(0.60, 0.25),
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.65, 0.2),
         legend.direction = "vertical",
         legend.background = element_blank()) +
   coord_cartesian(clip = "off") +
@@ -231,4 +236,4 @@ ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill 
   
 ## 4.3 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-7.png", width = 6, height = 8, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-7.png", width = 5, height = 10, dpi = 300)

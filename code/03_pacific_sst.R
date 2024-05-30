@@ -26,7 +26,11 @@ data_warming <- read.csv2("figs/01_part-1/table-3.csv") %>%
                            sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ palette_first[3],
                            sst_increase <= 0 & TERRITORY1 != "Global Ocean" ~ palette_first[2]),
          TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1)) %>% 
-  arrange(desc(sst_increase))
+  arrange(desc(sst_increase)) %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Islands" = "Isl.",
+                                                    "Federated States of Micronesia" = "Fed. Sts. Micronesia",
+                                                    "Northern" = "North.",
+                                                    "Howland" = "How.")))
 
 ## 3.2 Make the plot ----
 
@@ -35,7 +39,7 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
   scale_fill_identity() +
   scale_color_identity() +
   geom_vline(xintercept = 0) +
-  labs(x = "Change in SST (°C) between 1980 and 2023", y = NULL) +
+  labs(x = "Change in SST (°C)\nbetween 1980 and 2023", y = NULL) +
   theme_graph() +
   theme(axis.text.y = element_markdown()) +
   coord_cartesian(clip = "off") +
@@ -43,7 +47,7 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
 
 ## 3.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-4.png", height = 8, width = 6, dpi = 600)
+ggsave("figs/01_part-1/fig-4.png", height = 10, width = 5, dpi = 300)
 
 # 4. DHW ----
 
@@ -89,7 +93,7 @@ ggsave(filename = "figs/dhw-pacific.png", width = 10, height = 4, dpi = 600)
 
 ## 5.1 Load and transform data ----
 
-data_enso <- read_table("data/enso_soi.txt", skip = 87) %>% 
+data_enso <- read_table("data/09_misc/enso-soi.txt", skip = 87) %>% 
   filter(YEAR %in% c(1980:2023)) %>% 
   select(-X14) %>% 
   mutate_all(., ~as.numeric(.)) %>% 
@@ -118,24 +122,24 @@ ggplot() +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
               aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[3], alpha = 0.9) +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll > 0, 0, soi_roll)),
-              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[4], alpha = 0.9) +
-  geom_line(data = data_enso, aes(x = date, y = soi_roll), size = 0.3) +
+              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_second[3], alpha = 0.9) +
+  geom_line(data = data_enso, aes(x = date, y = soi_roll), linewidth = 0.3) +
   labs(x = "Year", y = "Southern Oscillation Index") +
   # Annotation
   annotate(geom = "rect", xmin = ym("1986-06"), xmax = ym("1993-08"),
            ymin = 2.3, ymax = 2.7, fill = palette_first[3], color = NA) +
   annotate(geom = "text", x = ym("1990-01"), y = 2.5, color = "white",
-           label = "La Niña", family = font_choose_graph, size = 4) +
+           label = "La Niña", family = font_choose_graph, size = 5) +
   annotate(geom = "rect", xmin = ym("2011-07"), xmax = ym("2018-06"),
-           ymin = -3.2, ymax = -2.775, fill = palette_first[4], color = NA) +  
+           ymin = -3.2, ymax = -2.775, fill = palette_second[3], color = NA) +  
   annotate(geom = "text", x = ym("2015-01"), y = -3, color = "white",
-           label = "El Niño", family = font_choose_graph, size = 4) +
+           label = "El Niño", family = font_choose_graph, size = 5) +
   scale_y_continuous(limits = c(-3.5, 3.5), breaks = c(-3, -2, -1, 0, 1, 2, 3)) +
   coord_cartesian(clip = "off")
 
 ## 5.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = 600)
+ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = 300)
 
 # 6. Comparison of SST distribution ----
 

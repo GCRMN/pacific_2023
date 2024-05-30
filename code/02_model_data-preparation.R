@@ -175,7 +175,7 @@ data_benthic <- data_benthic %>%
            decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, category) %>% 
   summarise(measurementValue = mean(measurementValue)) %>% 
   ungroup() %>% 
-  # 3. Remove values grater than 100 (unlikely but included to avoid any issues later)
+  # 3. Remove values greater than 100 (unlikely but included to avoid any issues later)
   filter(measurementValue <= 100) %>% 
   # 4. Remove useless variables
   select(-higherGeography, -country, -locality, -habitat, -eventDate) %>% 

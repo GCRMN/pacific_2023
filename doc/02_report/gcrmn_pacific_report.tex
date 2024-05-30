@@ -80,10 +80,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Set Figure names
-\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, labelsep=period, justification=justified}
+\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, font=normalsize, labelsep=period, justification=justified}
 
 % Set Table names
-\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, labelsep=period, justification=justified}
+\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, font=normalsize, labelsep=period, justification=justified}
 
 % Increase row height for tables
 \renewcommand{\arraystretch}{1.2} 
@@ -180,10 +180,20 @@
 {0pt}
 {\filright#1}
 
+%%%%% 6.4 SUBSECTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titleformat{\subsection}
+{\fontsize{13pt}{20pt}\selectfont\color{firstcolor}}
+{}
+{0pt}
+{#1}
+
 %%%%% 7. FIGURE CAPTIONS FOR PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\titleFigureA}[1]{Sea Surface Temperature (SST) over coral reefs of #1 between 1985 and 2023. Each line, colored by its associated decade, correspond to a unique year. The black line represents the interannual average SST from 1985 to 2023.}
+
+\newcommand{\titleFigureB}[1]{Average Sea Surface Temperature (SST) anomaly between 1985 and 2023 over coral reefs of #1. The black dashed line represents a null SST anomaly, values below this line are negative SST anomalies (\ie cooler than average), and values above this line are positive SST anomalies (\ie warmer than average).}
 
 %%%%% 8. OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -455,7 +465,11 @@
 	\definition{Data integration}
 	
 	Process of combining, merging, or joining data together, in order to make what were distinct, multiple data objects, into a single, unified data object.
-		
+	
+	\definition{Non-native species}
+	
+	A species occurring outside its natural past or present range and dispersal potential, whose presence and dispersal is due to intentional or unintentional human action \citep{walther2009alien}.
+			
 \end{multicols}
 
 \newpage
@@ -509,15 +523,15 @@
 
 \begin{multicols}{2}
 	
-	{\Large{\textcolor{thirdcolor}{Coral reefs of the Pacific}}}
+	{\Large{\textcolor{firstcolor}{Coral reefs of the Pacific}}}
 	
 	\vspace{0.5cm}
 	
-	\circled{thirdcolor}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	\circled{firstcolor}{1} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
 	
-	\circled{thirdcolor}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	\circled{firstcolor}{2} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
 	
-	\circled{thirdcolor}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
+	\circled{firstcolor}{3} The extent of coral reefs of the Pacific is 62,000 km which represent 26.5 \% of the extent of the world's coral reefs.
 	
 	\vspace{0.5cm}
 		
@@ -659,94 +673,181 @@
 	{}
 	{0pt}
 	{\filright#1}
-	\titlespacing*{\chapter}{0pt}{0pt}{10pt} % The last argument control space between chapter title and text
+	\titlespacing*{\chapter}{0pt}{-35pt}{10pt} % The last argument control space between chapter title and text
 
 %%%%%%%%%%%%%%%%%%%%%
 
-\begin{multicols}{2}
-
 \chapter{Coral reefs of the Pacific}
+
+\begin{multicols}{2}
 
 \section{Distribution and extent}
 
-\lipsum[1-3]
+\lipsum[1-2]
 
 \end{multicols}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-2.png}
-	\caption[Relative coral reef extent between GCRMN regions and between countries and territories within the GCRMN Pacific region]{Relative coral reef extent between GCRMN regions (A) and between countries and territories within the GCRMN Pacific region (B). The area of each polygon is proportional to the relative coral reef extent of the associated region. The absolute values of coral reef extent for countries and territories of the Pacific are provided in \autoref{part1:tbl-1}. In subfigure A, WIO is the acronym for Western Indian Ocean.}
+	\caption[Relative coral reef extent between GCRMN regions and between countries and territories within the GCRMN Pacific region]{Relative coral reef extent between GCRMN regions (A) and between countries and territories within the GCRMN Pacific region (B). The area of each polygon is proportional to the relative coral reef extent of the associated region. The absolute values of coral reef extent for countries and territories of the Pacific are provided in \autoref{part1:chap1:tbl-1}. In subfigure A, WIO is the acronym for Western Indian Ocean.}
 	\label{part1:chap1:fig-1}
 \end{figure}
 
 \newpage
 
-\begin{table}[]
+\begin{table}[h!]
 	\caption{Comparison of the absolute extent of coral reefs between Pacific countries and territories, the relative extent of Pacific reefs and the relative extent of the world's reefs. Since the values for ``Kiribati" and ``Pacific Remote Island Area" rows corresponds to the sum of their associated EEZ, they were not used to calculate the totals.}
 	\input{../../figs/01_part-1/table-1.tex}
-	\label{part1:tbl-1}
+	\label{part1:chap1:tbl-1}
 \end{table}
+
+\newpage
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-1.png}
+	\caption{Map of the economic exclusive zones (EEZ) of the Pacific GCRMN region. The unnumbered economic exclusive zone represents the overlapping claimed area of Matthew and Hunter Islands, by France and Vanuatu.}
+	\label{part1:chap1:fig-2}
+\end{figure}
 
 \newpage
 
 \begin{multicols}{2}
 
-
 \section{Biodiversity}
+
+\lipsum[1-3]
 
 \section{Human population}
 
-\section{Ecosystem services}
-
-\chapter{Threats to coral reefs of the Pacific}
-
-\section{Thermal regime}
-
-\subsection{Long-term change in SST}
-
-\subsection{Marine heatwaves}
-
-\section{Cyclones}
-
-\section{Crown-of-Thorns Starfish}
-
-\section{Fishing}
-
-\section{Nutrients and sediments}
-
-\section{Pollution}
-
-\section{Invasive species}
-
-\subsection{Coral diseases}
-
-\subsection{Ocean acidification}
-
+\lipsum[1-3]
+	
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-3.png}
+	\captionof{figure}{Evolution of the human population living within 100 km from a coral reef between 2000 and 2020, for countries and territories of the Pacific region.}
+	\label{part1:chap1:fig-3}
+\end{figuremulticol}
 
 \lipsum[1]
 
-\chapter{Temporal trends in benthic cover}
+\end{multicols}
 
-\section{Spatio-temporal distribution of monitoring}
+\newpage
 
-\section{Trends in major benthic groups}
+\begin{table}[h!]
+	\caption{Human population in countries and territories}
+	\input{../../figs/01_part-1/table-2.tex}
+	\label{part1:chap1:tbl-2}
+\end{table}
 
-\section{Trends in major hard coral genera}
+\newpage
+
+\begin{multicols}{2}
+	
+\section{Ecosystem services}
+
+\lipsum[1-3]
+
+\end{multicols}
+
+\newpage
+
+\chapter{Threats to coral reefs of the Pacific}
+
+\setcounter{chaptercounter}{2}
+
+\begin{multicols}{2}
+
+\section{Thermal regime}
+
+\lipsum[1-3]
+
+\subsection{Long-term change in SST}
 
 \lipsum[1-2]
 
-\chapter{Recommandations}
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-4.png}
+	\captionof{figure}{Comparison of average changes in SST of coral reefs between Pacific countries and territories over the period 1980 to 2023. Points at the left (in blue) of the vertical black line correspond to territories with a decrease of SST over the period, whereas points at the right (in red) correspond to territories with an increase in SST. Values indicated near the points are annual warming rate (°C per year). See Table X for values.}
+	\label{part1:chap2:fig-4}
+\end{figuremulticol}
 
-\section{Reduction in greenhouse gas emissions}
+\lipsum[1-2]
 
-\section{Reduction of local threats}
+\subsection{Marine heatwaves}
 
-\section{Implementation of marine protected areas}
+\lipsum[1-2]
 
-\section{Reef rehabilitation}
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-5.png}
+	\captionof{figure}{El Nino Southern Oscillation Index (SOI) from 1980 to 2023. Negative values of the index indicate El Nino events whereas positive values indicate La Nina events. The colored area are 6-months moving average, and the grey bar indicates true values.}
+	\label{part1:chap2:fig-5}
+\end{figuremulticol}
 
-\section{Maintenance and development of monitoring}
+\lipsum[1-2]
+
+\section{Cyclones}
+
+\lipsum[1-2]
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-7.png}
+	\captionof{figure}{Comparison of the number of cyclones that passed within 100 km of a coral reef between countries and territories of the Pacific, from 1980 to 2023.}
+	\label{part1:chap2:fig-7}
+\end{figuremulticol}
+
+\lipsum[1-2]
+
+\end{multicols}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-6.png}
+	\caption{Trajectories of cyclones that passed within 100 km of a coral reef of the Pacific, between 1980 and 2023. Polygons represents economic exclusive zones.}
+	\label{part1:chap2:fig-6}
+\end{figure}
+
+\begin{multicols}{2}
+	
+\section{Ocean acidification}
+
+\lipsum[1-2]
+
+\section{Crown-of-Thorns Starfish}
+
+\lipsum[1]
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-8.jpg}
+	\captionof{figure}{Crown-of-Thorns Starfish eating hard corals on Nukutepipi atoll, French Polynesia (2021-05-22). Credit: Yannick Chancerelle.}
+	\label{part1:chap2:fig-8}
+\end{figuremulticol}
+
+\lipsum[1]
+
+\section{Fishing}
+
+\lipsum[1-2]
+
+\section{Nutrients and sediments}
+
+\lipsum[1-2]
+
+\section{Pollution}
+
+\lipsum[1-2]
+
+\section{Non-native species}
+
+\lipsum[1-2]
+
+\section{Diseases}
 
 \lipsum[1-2]
 
@@ -754,28 +855,94 @@
 
 \newpage
 
-\begin{figure}[h]
+\chapter{Temporal trends in benthic cover}
+
+\setcounter{chaptercounter}{3}
+
+\begin{multicols}{2}
+
+\section{Spatio-temporal distribution of monitoring}
+
+\lipsum[1-3]
+
+\begin{figuremulticol}
 	\centering
-	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-1.png}
-	\captionof{figure}{Map of the economic exclusive zones (EEZ) of the Pacific GCRMN region. The unnumbered economic exclusive zone represents the overlapping claimed area of Matthew and Hunter Islands, by France and Vanuatu.}
-	\label{part1:chap1:fig-0}
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-11.png}
+	\captionof{figure}{Percentage of total number of surveys conducted per year.}
+	\label{part1:chap2:fig-11}
+\end{figuremulticol}
+
+\lipsum[1]
+
+\end{multicols}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-9.png}
+	\caption{Spatio-temporal distribution of benthic cover monitoring sites across the Pacific region. Sites that were monitored for the longest period of time are represented on top of the sites monitored for fewer years. The grey polygon represents the overlapping claimed area of Matthew and Hunter Islands, by France and Vanuatu.}
+	\label{part1:chap1:fig-9}
 \end{figure}
 
 \newpage
 
-\begin{table}[]
-	\caption{Human population in countries and territories}
-	\input{../../figs/01_part-1/table-2.tex}
-	\label{part1:tbl-2}
+\begin{table}[h!]
+	\caption{Comparison of monitoring descriptors between the territories of the GCRMN Pacific region}
+	\input{../../figs/01_part-1/table-4.tex}
+	\label{part1:chap2:tbl-4}
 \end{table}
 
 \newpage
 
-\begin{table}[]
-	\caption{Human population in countries and territories}
-	\input{../../figs/01_part-1/table-4.tex}
-	\label{part1:tbl-4}
-\end{table}
+\begin{multicols}{2}
+	
+\section{Trends in major benthic groups}
+
+\lipsum[1-2]
+
+\begin{figuremulticol}
+	\centering
+	\includegraphics[width=\linewidth]{../../figs/01_part-1/fig-13.png}
+	\captionof{figure}{Percentage of total number of surveys conducted per year.}
+	\label{part1:chap2:fig-13}
+\end{figuremulticol}
+
+\lipsum[1-2]
+
+\section{Trends in major hard coral genera}
+
+\lipsum[1-2]
+
+\end{multicols}
+
+\newpage
+
+\chapter{Recommandations}
+
+\setcounter{chaptercounter}{4}
+
+\begin{multicols}{2}
+
+\section{Reduction in greenhouse gas emissions}
+
+\lipsum[1-2]
+
+\section{Reduction of local threats}
+
+\lipsum[1-2]
+
+\section{Implementation of marine protected areas}
+
+\lipsum[1-2]
+
+\section{Reef rehabilitation}
+
+\lipsum[1-2]
+
+\section{Maintenance and development of monitoring}
+
+\lipsum[1-2]
+
+\end{multicols}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -856,11 +1023,11 @@
 		\node[yshift=-2.5cm] at (current page.north west)
 		{\begin{tikzpicture}[remember picture, overlay]
 				(\paperwidth,3cm);
-				\fill[fill=secondcolor,color=secondcolor] ($(current page.north west)+(3cm,-2.5cm)$) rectangle ($(current page.north west)+(18.51cm,-4cm)$);
-				\node[anchor=north west,fill=firstcolor, minimum width=\textwidth, inner sep=10pt, align=left] at ($(current page.north west)+(2.5cm,-2.5cm)$)
+				\fill[fill=secondcolor,color=secondcolor] ($(current page.north west)+(2.75cm,-2.75cm)$) rectangle ($(current page.north west)+(18.51cm,-4cm)$);
+				\node[anchor=north west,fill=firstcolor, minimum width=15.8cm, inner sep=10pt, align=left] at ($(current page.north west)+(2.5cm,-2.5cm)$)
 				{\color{white}\uppercase{\filright#1}};
-				\fill[fill=white,color=white] ($(current page.north west)+(16.5cm,-5cm)$) circle (1.5cm);
-				\node[opacity=1,inner sep=0pt, scale=10.5] at ($(current page.north west)+(16.5cm,-5cm)$){\includegraphics[width=\paperwidth]{../../figs/02_part-2/fig-1/\territoryname.png}};
+				%\fill[fill=white,color=white] ($(current page.north west)+(16.75cm,-6cm)$) circle (1.5cm);
+				\node[opacity=1,inner sep=0pt, scale=10.5] at ($(current page.north west)+(16.75cm,-5.75cm)$){\includegraphics[width=\paperwidth]{../../figs/02_part-2/fig-1/\territoryname.png}};
 			\end{tikzpicture}
 		};
 	\end{tikzpicture}
@@ -880,13 +1047,17 @@
 
 \chapter{American Samoa}
 
+\vspace{0.2cm}
+
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{12cm}{0.4pt}
+\vspace{0.25cm}
+
+\par\noindent\rule{12.75cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
-\vspace{0.5cm}
+\vspace{0.75cm}
 
 \begin{multicols}{2}
 	
@@ -922,13 +1093,17 @@
 
 \addtocounter{chaptercounter}{1}
 
+\vspace{0.2cm}
+
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{12cm}{0.4pt}
+\vspace{0.25cm}
+
+\par\noindent\rule{12.75cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
-\vspace{0.4cm}
+\vspace{0.75cm}
 
 \begin{multicols}{2}
 	
@@ -936,21 +1111,32 @@
 			
 	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 
-\vspace{0.5cm}
+	\vspace{0.5cm}
+	
+	\lipsum[1-4]
+	
+		\section*{Disturbance regime}
+	
+	\subsection*{Thermal regime}
+	
+	\begin{figuremulticol}
+		\centering
+		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
+		\captionof{figure}{\titleFigureA{French Polynesia}}
+		\label{part2:chap2:fig-1}
+	\end{figuremulticol}
+	
+	\lipsum[1-3]
+	
+	\begin{figuremulticol}
+		\centering
+		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-4/\territoryname.png}
+		\captionof{figure}{\titleFigureB{French Polynesia}}
+		\label{part2:chap2:fig-2}
+	\end{figuremulticol}
 
-\lipsum[1-4]
-
-\lipsum[1]
-
-\begin{figuremulticol}
-	\centering
-	\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-3/\territoryname.png}
-	\captionof{figure}{\titleFigureA{French Polynesia}}
-	\label{part2:chap2:fig-1}
-\end{figuremulticol}
-
-\lipsum[1-3]
-
+	\lipsum[1-2]
+	
 \newpage
 
 \end{multicols}
@@ -973,17 +1159,23 @@
 
 \addtocounter{chaptercounter}{1}
 
+\vspace{0.2cm}
+
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{12cm}{0.4pt}
+\vspace{0.25cm}
+
+\par\noindent\rule{12.75cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
-\vspace{0.5cm}
+\vspace{0.75cm}
 
 \begin{multicols}{2}
 	
-		\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
+	\section*{Introduction}
+		
+	\input{../../figs/02_part-2/tbl-1/\territoryname.tex}
 	
 	\vspace{0.5cm}
 		
@@ -1052,13 +1244,17 @@ However, the level of these positive effects is directly related to the enforcem
 
 \addtocounter{chaptercounter}{1}
 
+\vspace{0.2cm}
+
 \colorbox{secondcolor}{\small \textbf{Authors}} \input{../../figs/02_part-2/tbl-3/authors.tex}
 
-\par\noindent\rule{12cm}{0.4pt}
+\vspace{0.25cm}
+
+\par\noindent\rule{12.75cm}{0.4pt}
 
 \input{../../figs/02_part-2/tbl-4/affiliations.tex}
 
-\vspace{0.5cm}
+\vspace{0.75cm}
 
 \begin{multicols}{2}
 	
@@ -1092,7 +1288,14 @@ However, the level of these positive effects is directly related to the enforcem
 			
 	\subsection*{Temporal trends}
 	
-	\lipsum[1-3]
+	\lipsum[1]
+	
+	\begin{figuremulticol}
+		\centering
+		\includegraphics[width=\linewidth]{../../figs/02_part-2/fig-8/\territoryname.png}
+		\captionof{figure}{testststs}
+		\label{part2:chap2:fig-2}
+	\end{figuremulticol}
 		
 \end{multicols} 
 

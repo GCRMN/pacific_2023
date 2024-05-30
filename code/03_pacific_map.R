@@ -159,11 +159,11 @@ plot_map <- ggplot() +
   geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "#363737", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 3.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
-               color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
+               color = "#363737", size = 3.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
-               color = "#1e517b", fontface = "italic", size = 3, family = font_choose_map) +
+               color = "#1e517b", fontface = "italic", size = 3.5, family = font_choose_map) +
   # Annotation (labels EEZ)
   geom_sf(data = data_text_labels, size = 4, color = "#1e517b") +
   geom_sf_text(data = data_text_labels, aes(label = number), color = "white", size = 2) +
@@ -220,4 +220,4 @@ plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
 
 # 14. Export the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 7.75, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 7.75, dpi = 300)

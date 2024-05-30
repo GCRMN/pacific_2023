@@ -175,11 +175,11 @@ ggplot() +
                      drop = FALSE, name = "Number of years with data") +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "#363737", size = 2.5, family = font_choose_map) +
+               color = "#363737", size = 3.5, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
-               color = "#363737", size = 2.5, family = font_choose_map, fontface = "italic") +
+               color = "#363737", size = 3.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
-               color = "#1e517b", fontface = "italic", size = 3, family = font_choose_map) +
+               color = "#1e517b", fontface = "italic", size = 3.5, family = font_choose_map) +
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
@@ -188,7 +188,7 @@ ggplot() +
 
 ## 3.11 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-8.png", width = 8, height = 5, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-9.png", width = 8, height = 5.5, dpi = 300)
 
 # 4. Plot of percentage of sites per interval_class ----
 
@@ -213,7 +213,7 @@ data_benthic %>%
 
 ## 4.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-9.png", width = 6, height = 4, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 4, dpi = 300)
 
 # 5. Plot of number of surveys per year ----
 
@@ -240,7 +240,7 @@ data_benthic %>%
 
 ## 5.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-10.png", width = 6, height = 4, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-11.png", width = 5, height = 4, dpi = 300)
 
 # 6. Plot of number of surveys per year ----
 
@@ -260,4 +260,4 @@ data_benthic %>%
 
 ## 6.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-11.png", width = 6, height = 4, dpi = 600)
+ggsave(filename = "figs/01_part-1/fig-12.png", width = 5, height = 4, dpi = 300)

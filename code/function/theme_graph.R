@@ -1,4 +1,4 @@
-theme_graph <- function(base_size = 12, base_family = font_choose_graph, base_line_size = base_size/22, base_rect_size = base_size/22){
+theme_graph <- function(base_size = 15, base_family = font_choose_graph, base_line_size = base_size/22, base_rect_size = base_size/22){
   
   half_line <- base_size/2
   
