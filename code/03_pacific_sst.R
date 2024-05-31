@@ -47,7 +47,7 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
 
 ## 3.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-4.png", height = 10, width = 5, dpi = 300)
+ggsave("figs/01_part-1/fig-4.png", height = 10, width = 5, dpi = fig_resolution)
 
 # 4. DHW ----
 
@@ -139,7 +139,7 @@ ggplot() +
 
 ## 5.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = 300)
+ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = fig_resolution)
 
 # 6. Comparison of SST distribution ----
 
@@ -164,4 +164,4 @@ ggplot(data = data_sst, aes(x = sst, y = fct_reorder(TERRITORY1, mean))) +
 
 ## 6.3 Save the plot ----
 
-ggsave("figs/05_additional/02_sst-distribution.png", height = 8, width = 6, dpi = 600)
+ggsave("figs/05_additional/02_sst-distribution.png", height = 8, width = 6, dpi = fig_resolution)

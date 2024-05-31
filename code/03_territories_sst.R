@@ -122,17 +122,15 @@ map_sst_month <- function(territory_i, color_decade){
                        labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
                                   "", "Oct.", "", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
-      theme(axis.text = element_text(size = 11),
-            legend.title.position = "top",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size = 11)) +
+      theme(legend.title.position = "top",
+            legend.title = element_text(hjust = 0.5)) +
       scale_color_manual(name = "Decade", values = palette_second) +
       guides(color = guide_legend(override.aes = list(linewidth = 1))) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
     ggsave(filename = paste0("figs/02_part-2/fig-3/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           width = 5.5, height = 4.5, dpi = 300)
+           width = 5, height = 4.5, dpi = fig_resolution)
     
   }else{
     
@@ -148,15 +146,13 @@ map_sst_month <- function(territory_i, color_decade){
                        labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
                                   "", "Oct.", "", "Dec.")) +
       labs(x = "Month", y = "SST (°C)") + 
-      theme(axis.text = element_text(size = 11),
-            legend.title.position = "top",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size = 11)) +
+      theme(legend.title.position = "top",
+            legend.title = element_text(hjust = 0.5)) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
     ggsave(filename = paste0("figs/02_part-2/fig-3/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           width = 6, height = 4, dpi = 300)
+           width = 5, height = 4, dpi = fig_resolution)
     
   }
   

@@ -44,4 +44,4 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
 
 # 5. Export the plot ----
 
-ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = 300)
+ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = fig_resolution)
