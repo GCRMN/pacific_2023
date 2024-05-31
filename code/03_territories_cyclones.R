@@ -387,6 +387,11 @@ ggsave(filename = "figs/02_part-2/fig-6/pria.png", plot = plot_i, dpi = fig_reso
 load("data/05_cyclones/02_cyclones_extracted.RData")
 
 data_cyclones <- data_cyclones %>% 
+  mutate(territory = case_when(territory %in% c("Gilbert Islands", "Line Group", "Phoenix Group") ~ "Kiribati",
+                               territory %in% c("Palmyra Atoll", "Johnston Atoll",
+                                                "Howland and Baker islands", "Wake Island",
+                                                "Jarvis Island") ~ "PRIA",
+                               TRUE ~ territory)) %>% 
   group_by(saffir) %>% 
   mutate(max_saffir = max(saffir)) %>% 
   ungroup() %>% 
@@ -430,7 +435,10 @@ map_cyclone_plot <- function(territory_i){
                        drop = FALSE) +
     guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, override.aes = list(size = 4))) +
     labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
-    theme_graph() 
+    theme_graph() +
+    theme(text = element_text(size = 13),
+          axis.title.x = element_text(size = 14),
+          axis.title.y = element_text(size = 14))
   
   # 3. Save the plot
   

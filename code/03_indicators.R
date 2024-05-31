@@ -161,10 +161,98 @@ rm(data_reefs, data_reef_area, data_maritime_area, data_land, data_elevation)
 
 map_tex <- function(territory_i){
   
-  data_i <- data_table_1 %>% 
-    filter(territory == territory_i)
-  
-  writeLines(c("\\begin{center}",
+  if(territory_i == "Kiribati"){
+    
+    data_i <- data_table_1 %>% 
+      filter(territory == "Kiribati" & subterritory != "All") %>% 
+      select(-territory, -reef_area_rel_pacific, -reef_area_rel_world)
+    
+    writeLines(c("\\begin{center}",
+                 "\\begin{tabular}{|>{\\raggedleft\\arraybackslash}m{3.75cm}|C{3.5cm}|C{3.5cm}|C{3.5cm}|}",
+                 "\\hline",
+                 paste0(" & ", 
+                        data_i[1, "subterritory"], " & ", 
+                        data_i[2, "subterritory"], " & ", 
+                        data_i[3, "subterritory"], "\\\\ \\hline"),
+                 "\\rowcolor{secondcolor}",
+                 paste0("Maritime area & ", 
+                        data_i[1, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[2, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[3, "maritime_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{white}",
+                 paste0("Land area & ", 
+                        data_i[1, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[2, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[3, "land_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{secondcolor}",
+                 paste0("Reef area & ", 
+                        data_i[1, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[2, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[3, "reef_area_abs"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{white}",
+                 paste0("Mean elevation & ", 
+                        data_i[1, "mean_elevation"], " m & ",
+                        data_i[2, "mean_elevation"], " m & ",
+                        data_i[3, "mean_elevation"], " m \\\\ \\hline"),
+                 "\\end{tabular}",
+                 "\\end{center}"),
+               paste0("figs/02_part-2/tbl-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+    
+  }else if (territory_i == "Pacific Remote Island Area"){
+      
+    data_i <- data_table_1 %>% 
+      filter(territory == "Pacific Remote Island Area" & subterritory != "All") %>% 
+      mutate(subterritory = str_replace_all(subterritory, "Howland and Baker Islands", "How. and Baker Isl."),
+             land_area = str_replace_all(land_area, "0", ">1")) %>% 
+      select(-territory, -reef_area_rel_pacific, -reef_area_rel_world)
+    
+    writeLines(c("\\begin{center}",
+                 "\\begin{tabular}{|>{\\raggedleft\\arraybackslash}m{3.75cm}|C{1.9cm}|C{1.9cm}|C{1.9cm}|C{1.9cm}|C{1.9cm}|}",
+                 "\\hline",
+                 paste0(" & ", 
+                        data_i[1, "subterritory"], " & ", 
+                        data_i[2, "subterritory"], " & ", 
+                        data_i[3, "subterritory"], " & ", 
+                        data_i[4, "subterritory"], " & ", 
+                        data_i[5, "subterritory"], "\\\\ \\hline"),
+                 "\\rowcolor{secondcolor}",
+                 paste0("Maritime area & ", 
+                        data_i[1, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[2, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[3, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[4, "maritime_area"], " km\\textsuperscript{2} & ",
+                        data_i[5, "maritime_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{white}",
+                 paste0("Land area & ", 
+                        data_i[1, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[2, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[3, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[4, "land_area"], " km\\textsuperscript{2} & ",
+                        data_i[5, "land_area"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{secondcolor}",
+                 paste0("Reef area & ", 
+                        data_i[1, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[2, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[3, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[4, "reef_area_abs"], " km\\textsuperscript{2} & ",
+                        data_i[5, "reef_area_abs"], " km\\textsuperscript{2} \\\\ \\hline"),
+                 "\\rowcolor{white}",
+                 paste0("Mean elevation & ", 
+                        data_i[1, "mean_elevation"], " m & ",
+                        data_i[2, "mean_elevation"], " m & ",
+                        data_i[3, "mean_elevation"], " m & ",
+                        data_i[4, "mean_elevation"], " m & ",
+                        data_i[5, "mean_elevation"], " m \\\\ \\hline"),
+                 "\\end{tabular}",
+                 "\\end{center}"),
+               paste0("figs/02_part-2/tbl-1/pria.tex"))
+    
+  }else{
+    
+    data_i <- data_table_1 %>% 
+      filter(territory == territory_i)
+    
+    writeLines(c("\\begin{center}",
                "\\begin{tabular}{|>{\\raggedleft\\arraybackslash}m{3.75cm}|m{2.75cm}|}",
                "\\hline",
                "\\rowcolor{secondcolor}",
@@ -178,12 +266,14 @@ map_tex <- function(territory_i){
                "\\end{tabular}",
                "\\end{center}"),
              paste0("figs/02_part-2/tbl-1/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".tex"))
+    
+    }
   
 }
 
 ## 2.12 Map over the function ----
 
-map(setdiff(unique(data_table_1$territory), "Entire Pacific region"),
+map(setdiff(unique(data_table_1$territory), c("Entire Pacific region")),
     ~map_tex(territory_i = .))
 
 # 3. Table 2 - Human population ----
