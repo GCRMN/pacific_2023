@@ -145,7 +145,7 @@ ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = fig_resolution)
 
 ## 6.1 Transform data ----
 
-load("data/07_data_sst.RData")
+load("data/09_misc/data-sst.RData")
 
 data_sst <- data_sst %>% 
   group_by(TERRITORY1) %>% 

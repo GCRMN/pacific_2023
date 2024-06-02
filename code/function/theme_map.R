@@ -48,7 +48,6 @@ theme_map <- function(base_size = 14, base_family = font_choose_map, base_line_s
         legend.text = element_text(size = base_size*0.8), 
         legend.text.align = NULL, 
         legend.title = element_text(hjust = 0), 
-        legend.title.align = 0.5, 
         legend.position = "top", 
         legend.direction = "horizontal", 
         legend.justification = "center", 

@@ -195,19 +195,37 @@ map(unique(data_sst$TERRITORY1), ~map_sst_anom(territory_i = .))
 
 # 8. SST (year) for each territory ----
 
-data_sst %>% 
+data_sst <- data_sst %>% 
   filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)) %>%  
   mutate(daymonth = str_sub(date, 6, 10),
-         year = year(date)) %>% 
-  ggplot(data = ., aes(x = date, y = sst)) +
+         year = year(date))
+
+ggplot(data = data_sst %>% 
+           filter(TERRITORY1 %in% sort(unique(data_sst$TERRITORY1))[1:15]),
+         aes(x = date, y = sst)) +
     geom_line(color = "#2c3e50", linewidth = 0.25) +
     geom_line(aes(x = date, y = sst_linear), color = palette_second[2], linewidth = 0.8) +
     geom_hline(aes(yintercept = mean_sst), color = palette_second[4], linewidth = 0.8) +
     labs(x = "Year", y = "Sea Surface Temperature (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) + 
-    facet_wrap(~TERRITORY1, ncol = 5, scales = "free") +
+    facet_wrap(~TERRITORY1, ncol = 3, scales = "free") +
     theme_graph() +
     theme(strip.text = element_text(hjust = 0.5),
           strip.background = element_blank())
 
-ggsave(filename = "figs/04_supp/03_indicators/02_sst.png", width = 15, height = 12, dpi = 600)
+ggsave(filename = "figs/04_supp/03_indicators/02_sst_a.png", width = 10, height = 12, dpi = 300)
+
+ggplot(data = data_sst %>% 
+         filter(TERRITORY1 %in% sort(unique(data_sst$TERRITORY1))[16:30]),
+       aes(x = date, y = sst)) +
+  geom_line(color = "#2c3e50", linewidth = 0.25) +
+  geom_line(aes(x = date, y = sst_linear), color = palette_second[2], linewidth = 0.8) +
+  geom_hline(aes(yintercept = mean_sst), color = palette_second[4], linewidth = 0.8) +
+  labs(x = "Year", y = "Sea Surface Temperature (°C)") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) + 
+  facet_wrap(~TERRITORY1, ncol = 3, scales = "free") +
+  theme_graph() +
+  theme(strip.text = element_text(hjust = 0.5),
+        strip.background = element_blank())
+
+ggsave(filename = "figs/04_supp/03_indicators/02_sst_b.png", width = 10, height = 12, dpi = 300)
