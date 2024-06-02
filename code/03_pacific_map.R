@@ -115,10 +115,27 @@ data_text_australia <- tibble(long = c(140),
 
 data_text_labels <- data_eez %>%
   st_drop_geometry() %>% 
-  select(number, lat, long) %>% 
+  select(number, TERRITORY1, lat, long) %>% 
   drop_na(lat) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
-  st_transform(crs_selected)
+  st_transform(crs_selected) %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Howland and Baker Islands" = "Ho.",
+                                                    "Palmyra Atoll" = "Pa.",
+                                                    "Jarvis Island" = "Ja.",
+                                                    "Johnston Atoll" = "Jo.",
+                                                    "American Samoa" = "Am.\nSamoa",
+                                                    "Samoa" = "Sa.",
+                                                    "Wallis and Futuna" = "WF",
+                                                    "Wake Island" = "Wa.",
+                                                    "Nauru" = "Na.",
+                                                    "Northern Mariana Islands" = "North.\nMariana\nIslands",
+                                                    "Federated States of Micronesia" = "Fed. St. of Micronesia",
+                                                    "Islands" = "Isl.",
+                                                    "Marshall Isl." = "Marshall\nIsl.",
+                                                    "French Polynesia" = "French\nPolynesia",
+                                                    "Line Group" = "Line\nGroup",
+                                                    "New Caledonia" = "New\nCaledonia",
+                                                    "Phoenix Group" = "Phoenix\nGroup")))
 
 # 10. Bbox for alpha on bathymetry ---
 
@@ -165,59 +182,13 @@ plot_map <- ggplot() +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
                color = "#1e517b", fontface = "italic", size = 3.5, family = font_choose_map) +
   # Annotation (labels EEZ)
-  geom_sf(data = data_text_labels, size = 4, color = "#1e517b") +
-  geom_sf_text(data = data_text_labels, aes(label = number), color = "white", size = 2) +
+  geom_sf_text(data = data_text_labels, aes(label = TERRITORY1),
+               color = "black", size = 2.8, family = font_choose_map) +
   # Graphical aspects
   coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE) +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
   theme_map()
 
-# 12. Create legend of EEZ names ----
+# 12. Export the plot ----
 
-# 12.1 Transform data --
-
-data_eez_text <- data_eez %>% 
-  st_drop_geometry() %>% 
-  select(TERRITORY1, number) %>% 
-  mutate(y_pos = -number,
-         x_pos = case_when(number %in% 1:10 ~ 1,
-                           number %in% 11:20 ~ 3,
-                           number %in% 21:30 ~ 5),
-         y_pos = case_when(number %in% 1:10 ~ y_pos,
-                           number %in% 11:20 ~ y_pos+10,
-                           number %in% 21:30 ~ y_pos+20))
-
-# 12.2 Make the plot --
-
-plot_eez <- ggplot() +
-  # Points
-  geom_point(data = tibble(x = 1, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
-  geom_point(data = tibble(x = 3, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
-  geom_point(data = tibble(x = 5, y = -1:-10), aes(x = x, y = y), size = 6, color = "#1e517b") +
-  # Text inside points
-  geom_text(aes(x = 1, y = -1:-10, label = as.character(1:10)), 
-            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
-  geom_text(aes(x = 3, y = -1:-10, label = as.character(11:20)), 
-            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
-  geom_text(aes(x = 5, y = -1:-10, label = as.character(21:30)), 
-            color = "white", vjust = 0.5, size = 2.5, family = font_choose_map) +
-  # Names of territories
-  geom_text(data = data_eez_text, aes(x = x_pos, y = y_pos, label = TERRITORY1),
-            hjust = 0, size = 3, nudge_x = 0.25, family = font_choose_map) +
-  # Graphical aspects
-  lims(x = c(0.75, 6.25), y = c(-11, 0)) +
-  coord_cartesian(expand = FALSE) +
-  theme(text = element_text(family = font_choose_map), 
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_blank(),
-        panel.grid = element_blank())
-
-# 13. Combine the plots ----
-
-plot_map + plot_eez + plot_layout(ncol = 1, heights =  c(1, 0.6))
-
-# 14. Export the plot ----
-
-ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 7.75, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 4.75, dpi = 300)
