@@ -110,7 +110,7 @@ data_text_pacific <- tibble(long = c(-115),
 
 data_text_australia <- tibble(long = c(140),
                               lat = c(-25),
-                              text = c("AUSTRALIA")) %>% 
+                              text = c("Australia")) %>% 
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>% 
   st_transform(crs_selected)
 
@@ -180,7 +180,7 @@ plot_map <- ggplot() +
                      drop = FALSE) +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
-               color = "#363737", size = 3.5, family = font_choose_map) +
+               color = "#363737", size = 3, family = font_choose_map) +
   geom_sf_text(data = data_text_tropics, aes(label = text), hjust = 1,
                color = "#363737", size = 3.5, family = font_choose_map, fontface = "italic") +
   geom_sf_text(data = data_text_pacific, aes(label = text), 
