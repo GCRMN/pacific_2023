@@ -128,7 +128,7 @@ map_sst_month <- function(territory_i, color_decade){
       guides(color = guide_legend(override.aes = list(linewidth = 1))) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-3/",
+    ggsave(filename = paste0("figs/02_part-2/fig-2/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            width = 5, height = 4.5, dpi = fig_resolution)
     
@@ -150,7 +150,7 @@ map_sst_month <- function(territory_i, color_decade){
             legend.title = element_text(hjust = 0.5)) +
       scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-3/",
+    ggsave(filename = paste0("figs/02_part-2/fig-2/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            width = 5, height = 4, dpi = fig_resolution)
     
@@ -183,7 +183,7 @@ map_sst_anom <- function(territory_i){
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
-  ggsave(filename = paste0("figs/02_part-2/fig-4/",
+  ggsave(filename = paste0("figs/02_part-2/fig-3/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          width = 6, height = 4, dpi = 600)
   

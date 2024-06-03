@@ -203,12 +203,12 @@ map_eez <- function(territory_i){
     geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
     geom_sf(data = data_ts_lines_i %>% filter(position <= 3), col = "#6c7a89", size = 0.25) +
     geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
-    geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
+    geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1, show.legend = TRUE) +
     geom_sf_label_repel(data = data_label_i %>% filter(position <= 3), aes(label = name),
                         alpha = 0.75, size = 2.5, label.size  = NA) +
     scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                        labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                       values = c(palette_5cols[1:5], "black"),
+                       values = c(palette_second[1:5], "black"),
                        name = "Saffir-Simpson category",
                        drop = FALSE) +
     coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
@@ -245,11 +245,13 @@ map_eez <- function(territory_i){
   
   # 6. Export the plot ----
   
-  ggsave(filename = paste0("figs/02_part-2/fig-6/",
+  ggsave(filename = paste0("figs/02_part-2/fig-5/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          plot = plot_i, dpi = fig_resolution)
   
 }
+
+map_eez(territory_i = "Pitcairn")
 
 ## 3.4 Map over the function (except PRIA) ----
 
@@ -352,7 +354,7 @@ plot_i <- ggplot() +
                       alpha = 0.75, size = 2.5, label.size  = NA) +
   scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
                      labels = c("Cat. 0", "Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
-                     values = c(palette_5cols[1:5], "black"),
+                     values = c(palette_second[1:5], "black"),
                      name = "Saffir-Simpson category",
                      drop = FALSE) +
   coord_sf(xlim = c(x_min - ((x_max - x_min)*percent_margin_ltr/100),
@@ -378,7 +380,7 @@ plot_i <- ggplot() +
 
 ### 3.5.6 Export the plot ----
 
-ggsave(filename = "figs/02_part-2/fig-6/pria.png", plot = plot_i, dpi = fig_resolution)
+ggsave(filename = "figs/02_part-2/fig-5/pria.png", plot = plot_i, dpi = fig_resolution)
 
 # 4. Plots of cyclone maximum wind speed over time ----
 
@@ -442,7 +444,7 @@ map_cyclone_plot <- function(territory_i){
   
   # 3. Save the plot
   
-  ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          plot = plot_i, height = 4, width = 8, dpi = fig_resolution)
   
 }

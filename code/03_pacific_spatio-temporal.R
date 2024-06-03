@@ -10,6 +10,7 @@ library(patchwork)
 source("code/function/graphical_par.R")
 source("code/function/theme_map.R")
 source("code/function/theme_graph.R")
+source("code/function/data_descriptors.R")
 
 # 3. Map of spatio-temporal distribution ----
 
@@ -188,7 +189,7 @@ ggplot() +
 
 ## 3.11 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-9.png", width = 8, height = 5.5, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-9.png", width = 8, height = 5.5, dpi = fig_resolution)
 
 # 4. Plot of percentage of sites per interval_class ----
 
@@ -213,7 +214,8 @@ data_benthic %>%
 
 ## 4.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 4, dpi = 300)
+ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_duration_all.png",
+       width = 5, height = 4, dpi = fig_resolution)
 
 # 5. Plot of number of surveys per year ----
 
@@ -240,7 +242,7 @@ data_benthic %>%
 
 ## 5.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-11.png", width = 5, height = 4, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 4, dpi = fig_resolution)
 
 # 6. Plot of number of surveys per year ----
 
@@ -260,4 +262,118 @@ data_benthic %>%
 
 ## 6.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-12.png", width = 5, height = 4, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-11.png", width = 5, height = 4, dpi = fig_resolution)
+
+# 7. Extract monitoring descriptors ----
+
+load("data/09_misc/data-benthic.RData")
+
+## 7.1 Add subterritories ----
+
+monitoring_descriptors <- data_benthic %>% 
+  group_by(territory) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  # Add missing territories (those with no data)
+  left_join(st_read("data/01_background-shp/03_eez/data_eez.shp") %>%
+              select(TERRITORY1) %>% 
+              st_drop_geometry() %>% 
+              rename(territory = TERRITORY1),
+            .) %>% 
+  mutate(across(c("nb_sites", "nb_surveys", "nb_datasets"), .fns = ~replace_na(.,0))) %>% 
+  # Add subterritory
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker Islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, subterritory) %>% 
+  relocate(subterritory, .after = territory)
+
+## 7.2 Add total ----
+
+monitoring_descriptors <- data_benthic %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(territory = "Entire Pacific region") %>% 
+  bind_rows(monitoring_descriptors, .)
+
+## 7.3 Add total for two territories ----
+
+monitoring_descriptors <- data_benthic %>% 
+  mutate(territory = case_when(territory %in% c("Line Group", "Phoenix Group", 
+                                                "Gilbert Islands") ~ "Kiribati",
+                               territory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                "Wake Island", "Howland and Baker Islands",
+                                                "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ territory)) %>% 
+  filter(territory %in% c("Kiribati", "Pacific Remote Island Area")) %>% 
+  group_by(territory) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(subterritory = "All") %>% 
+  bind_rows(monitoring_descriptors, .) %>% 
+  arrange(territory, subterritory) %>% 
+  arrange(., territory == "Entire Pacific region")
+
+## 7.4 Reformat the data and export the table ----
+
+monitoring_descriptors <- monitoring_descriptors %>% 
+  mutate(nb_sites = as.character(format(nb_sites, big.mark = ",", scientific = FALSE)),
+         nb_surveys = as.character(format(nb_surveys, big.mark = ",", scientific = FALSE)),
+         first_year = as.character(first_year),
+         first_year = replace_na(first_year, ""),
+         last_year = as.character(last_year),
+         last_year = replace_na(last_year, ""))
+
+## 7.5 Export the table ----
+
+### 7.5.1 In .xlsx format ---- 
+
+openxlsx::write.xlsx(monitoring_descriptors, file = "figs/01_part-1/table-4.xlsx")
+
+### 7.5.2 In .tex format ---- 
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", monitoring_descriptors[i, "territory"], "} &", monitoring_descriptors[i, "nb_sites"], "&",
+                     monitoring_descriptors[i, "nb_surveys"], "&", monitoring_descriptors[i, "nb_datasets"],
+                     "&", monitoring_descriptors[i, "first_year"], "&", monitoring_descriptors[i, "last_year"]," \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", monitoring_descriptors[i, "subterritory"], " &", monitoring_descriptors[i, "nb_sites"], "&",
+                     monitoring_descriptors[i, "nb_surveys"], "&", monitoring_descriptors[i, "nb_datasets"],
+                     "&", monitoring_descriptors[i, "first_year"], "&", monitoring_descriptors[i, "last_year"]," \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{1.5cm}|R{1.5cm}|R{1.5cm}|R{1.5cm}|R{1.5cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Sites} & \\textcolor{white}{Surveys}  & \\textcolor{white}{Datasets} & \\textcolor{white}{First year} & \\textcolor{white}{Last year}\\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", monitoring_descriptors[33, "territory"], "}} &", monitoring_descriptors[33, "nb_sites"], "&",
+                    monitoring_descriptors[33, "nb_surveys"], "&", monitoring_descriptors[33, "nb_datasets"],"&", monitoring_descriptors[33, "first_year"],
+                    "&", monitoring_descriptors[33, "last_year"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/01_part-1/table-4.tex"))
