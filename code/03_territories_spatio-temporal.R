@@ -121,10 +121,16 @@ map_territory <- function(territory_i){
   
   data_labels_i <- data_labels %>% 
     filter(territory == territory_i)
-
+  
+  data_buffer <- data_land %>% 
+    filter(TERRITORY1 == territory_i) %>% 
+    st_buffer(dist = 75000) %>% 
+    st_union()
+  
   plot_i <- ggplot() +
     geom_sf(data = data_reefs %>% filter(TERRITORY1 == territory_i),
             color = palette_first[2], fill = palette_first[2]) +
+    geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
     geom_sf(data = data_land %>% filter(TERRITORY1 == territory_i)) +
     geom_sf_text(data = data_labels %>% filter(territory == territory_i), aes(label = label),
                  family = font_choose_map, color = "#363737", size = 3) +
@@ -144,8 +150,8 @@ map_territory <- function(territory_i){
           panel.border = element_rect(color = 'black', fill = NA),
           plot.background = element_blank(),
           legend.background = element_rect(fill = "#ecf0f1"),
-          legend.title = element_text(size = 11),
-          legend.text = element_text(size = 10),
+          legend.title = element_text(size = 10),
+          legend.text = element_text(size = 9),
           legend.position = "inside",
           legend.position.inside = c(unique(data_labels_i$legend_x), unique(data_labels_i$legend_y)),
           legend.direction = "vertical") +
@@ -165,19 +171,13 @@ map_territory <- function(territory_i){
         coord_sf(xlim = c(165, 171), ylim = c(-22, -12))
 
     }else if (territory_i == "Palau"){
-      
-      data_buffer <- data_land %>% 
-        filter(TERRITORY1 == territory_i) %>% 
-        st_buffer(dist = 20000) %>% 
-        st_union()
-      
+
       plot_i <- plot_i +
-        geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
         scale_x_continuous(breaks = c(131, 133, 135)) +
-        coord_sf(xlim = c(130.15, 135.15), ylim = c(2, 9))
+        coord_sf(xlim = c(130.15, 135.35), ylim = c(2, 9))
       
     }else if (territory_i == "Tonga"){
-      
+
       plot_i <- plot_i +
         scale_x_continuous(breaks = c(-177, -176, -175, -174, -173)) +
         coord_sf(xlim = c(-177.5, -173.5))
@@ -189,20 +189,24 @@ map_territory <- function(territory_i){
         coord_sf(xlim = c(144, 145.2), ylim = c(12.3, 14))
       
     }else if (territory_i == "Northern Mariana Islands"){
-      
-      data_buffer <- data_land %>% 
-        filter(TERRITORY1 == territory_i) %>% 
-        st_buffer(dist = 20000) %>% 
-        st_union()
-      
+
       plot_i <- plot_i +
-        geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
         scale_x_continuous(breaks = c(144, 145, 146, 147)) +
         scale_y_continuous(breaks = c(13, 14, 15, 16, 17, 18, 19, 20, 21)) +
         coord_sf(xlim = c(143.8, 147), y = c(13.5, 21))
       
-    }
+    }else if (territory_i == "French Polynesia"){
   
+      plot_i <- plot_i +
+        coord_sf(xlim = c(-157.5, -132.5))
+      
+    }else if (territory_i == "Marshall Islands"){
+
+      plot_i <- plot_i +
+        coord_sf(xlim = c(160, 173))
+      
+    }
+
   ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          plot = plot_i,
          height = unique(data_labels_i$fig_height),
@@ -215,7 +219,8 @@ map_territory <- function(territory_i){
 
 map(c("Solomon Islands", "New Caledonia", "Vanuatu",
       "Papua New Guinea", "Palau", "Tonga", "Guam",
-      "Northern Mariana Islands"), ~map_territory(territory_i = .))
+      "Northern Mariana Islands", "French Polynesia",
+      "Marshall Islands", "Pitcairn", "Cook Islands"), ~map_territory(territory_i = .))
 
 # 6. Plots of number of sites per interval class ----
 

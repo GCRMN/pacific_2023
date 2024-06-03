@@ -349,7 +349,7 @@ plot_i <- ggplot() +
   geom_sf(data = data_alpha, fill = "white", alpha = 0.5) +
   geom_sf(data = data_ts_lines_i %>% filter(position <= 3), col = "#6c7a89", size = 0.25) +
   geom_sf(data = data_ts_lines_i %>% filter(position > 3), col = "#6c7a89", size = 0.25) +
-  geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1) +
+  geom_sf(data = data_ts_points_i %>% filter(position <= 3), aes(col = saffir), size = 1, show.legend = TRUE) +
   geom_sf_label_repel(data = data_label_i, aes(label = name),
                       alpha = 0.75, size = 2.5, label.size  = NA) +
   scale_color_manual(breaks = c("0", "1", "2", "3", "4", "5"),
