@@ -4,6 +4,7 @@ library(tidyverse) # Core tidyverse packages
 library(sf)
 sf_use_s2(FALSE)
 library(ggspatial) # For annotation_scale function
+library(patchwork)
 
 # 2. Source functions ----
 
@@ -40,22 +41,6 @@ load("data/01_background-shp/03_eez/data_eez.RData")
 data_eez <- data_eez %>% 
   st_transform(crs = crs_selected)
 
-data_eez_supp_a <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
-  filter(TERRITORY1 == "Australia") %>% 
-  st_transform(crs = 4326) %>% 
-  nngeo::st_remove_holes(.) %>% 
-  st_cast(., "POLYGON") %>% 
-  mutate(row = 1:8) %>% 
-  filter(row == 1)
-
-data_eez_supp <- read_sf("data/01_background-shp/03_eez/World_EEZ_v12_20231025/eez_v12.shp") %>% 
-  filter(TERRITORY1 %in% c("Indonesia", "Japan", "Philippines") | 
-           GEONAME == "Overlapping claim Matthew and Hunter Islands: France / Vanuatu") %>% 
-  st_transform(crs = 4326) %>% 
-  nngeo::st_remove_holes(.) %>% 
-  bind_rows(., data_eez_supp_a) %>% 
-  st_transform(crs = crs_selected) 
-
 ## 4.2 Land ----
 
 load("data/01_background-shp/02_princeton/data_land.RData")
@@ -73,7 +58,7 @@ data_land_supp <- map_dfr(list_shp, ~st_read(.)) %>%
   st_difference(correction_polygon) %>% 
   st_transform(crs_selected)
 
-rm(list_shp, data_eez_supp_a)
+rm(list_shp)
 
 ## 4.3 Regional capital ----
 
@@ -109,15 +94,14 @@ data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 ## 4.6 Labels ----
 
 data_labels <- read.csv2("data/09_misc/labels_pos_maps.csv") %>% 
-  mutate(across(c(legend_x, legend_y, fig_width, fig_height), ~as.numeric(.))) %>% 
   st_as_sf(coords = c("label_long", "label_lat"), crs = 4326) %>% 
   st_transform(crs = crs_selected)
   
 # 5. Map of monitoring sites ----
 
-## 5.1 Create the function ----
+## 5.1 Create the function for the base map ----
 
-map_territory <- function(territory_i){
+base_map <- function(territory_i, legend_x, legend_y, scalebar_pos){
   
   data_labels_i <- data_labels %>% 
     filter(territory == territory_i)
@@ -128,24 +112,30 @@ map_territory <- function(territory_i){
     st_union()
   
   plot_i <- ggplot() +
-    geom_sf(data = data_reefs %>% filter(TERRITORY1 == territory_i),
+    geom_sf(data = data_reefs %>% 
+              filter(TERRITORY1 == territory_i),
             color = palette_first[2], fill = palette_first[2]) +
     geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
-    geom_sf(data = data_land %>% filter(TERRITORY1 == territory_i)) +
-    geom_sf_text(data = data_labels %>% filter(territory == territory_i), aes(label = label),
+    geom_sf(data = data_land %>% 
+              filter(TERRITORY1 == territory_i)) +
+    geom_sf_text(data = data_labels %>% 
+                   filter(territory == territory_i),
+                 aes(label = label),
                  family = font_choose_map, color = "#363737", size = 3) +
-    geom_sf(data = data_benthic_sites %>% filter(territory == territory_i),
-            aes(color = interval_class), size = 1.5, show.legend = TRUE)  +
+    geom_sf(data = data_benthic_sites %>%
+              filter(territory == territory_i),
+            aes(color = interval_class), size = 1.5, show.legend = ifelse(is.na(legend_x) == TRUE, FALSE, TRUE))  +
     scale_color_manual(values = palette_second,
                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                        drop = FALSE,
                        name = "Number of years\nwith data") +
     guides(color = guide_legend(override.aes = list(size = 3.5))) +
-    geom_sf(data = data_place %>% filter(ADM0NAME == territory_i),
+    geom_sf(data = data_place %>%
+              filter(ADM0NAME == territory_i),
             fill = palette_first[2], color = "white", shape = 23, size = 3.5) +
     theme_map() +
-    theme(panel.grid.major = element_line(color = "#ecf0f1", linetype = "dashed", linewidth = 0.25),
+    theme(panel.grid.major = element_line(color = "#ecf0f1", linetype = "solid", linewidth = 0.25),
           panel.background = element_rect(fill = "white", color = "black"),
           panel.border = element_rect(color = 'black', fill = NA),
           plot.background = element_blank(),
@@ -153,74 +143,168 @@ map_territory <- function(territory_i){
           legend.title = element_text(size = 10),
           legend.text = element_text(size = 9),
           legend.position = "inside",
-          legend.position.inside = c(unique(data_labels_i$legend_x), unique(data_labels_i$legend_y)),
+          legend.position.inside = c(legend_x, legend_y),
           legend.direction = "vertical") +
-    annotation_scale(location = unique(data_labels_i$scalebar), width_hint = 0.25, text_family = font_choose_map, 
+    annotation_scale(location = scalebar_pos, width_hint = 0.25, text_family = font_choose_map, 
                      text_cex = 0.8, style = "bar", line_width = 1,  height = unit(0.045, "cm"),
                      pad_x = unit(0.5, "cm"), pad_y = unit(0.35, "cm"), bar_cols = c("black", "black"))
   
-  if(territory_i == "Papua New Guinea"){
-    
-    plot_i <- plot_i +
-      coord_sf(xlim = c(142, 161))
-    
-    }else if (territory_i == "Vanuatu"){
-      
-      plot_i <- plot_i +
-        scale_x_continuous(breaks = c(166, 168, 170)) +
-        coord_sf(xlim = c(165, 171), ylim = c(-22, -12))
-
-    }else if (territory_i == "Palau"){
-
-      plot_i <- plot_i +
-        scale_x_continuous(breaks = c(131, 133, 135)) +
-        coord_sf(xlim = c(130.15, 135.35), ylim = c(2, 9))
-      
-    }else if (territory_i == "Tonga"){
-
-      plot_i <- plot_i +
-        scale_x_continuous(breaks = c(-177, -176, -175, -174, -173)) +
-        coord_sf(xlim = c(-177.5, -173.5))
-      
-    }else if (territory_i == "Guam"){
-      
-      plot_i <- plot_i +
-        scale_x_continuous(breaks = c(144.2, 144.6, 145)) +
-        coord_sf(xlim = c(144, 145.2), ylim = c(12.3, 14))
-      
-    }else if (territory_i == "Northern Mariana Islands"){
-
-      plot_i <- plot_i +
-        scale_x_continuous(breaks = c(144, 145, 146, 147)) +
-        scale_y_continuous(breaks = c(13, 14, 15, 16, 17, 18, 19, 20, 21)) +
-        coord_sf(xlim = c(143.8, 147), y = c(13.5, 21))
-      
-    }else if (territory_i == "French Polynesia"){
-  
-      plot_i <- plot_i +
-        coord_sf(xlim = c(-157.5, -132.5))
-      
-    }else if (territory_i == "Marshall Islands"){
-
-      plot_i <- plot_i +
-        coord_sf(xlim = c(160, 173))
-      
-    }
-
-  ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         plot = plot_i,
-         height = unique(data_labels_i$fig_height),
-         width = unique(data_labels_i$fig_width),
-         dpi = fig_resolution)
+  return(plot_i)
   
 }
 
-## 5.2 Map over the function ----
+## 5.2 Create the function for to produce the maps ----
 
-map(c("Solomon Islands", "New Caledonia", "Vanuatu",
-      "Papua New Guinea", "Palau", "Tonga", "Guam",
-      "Northern Mariana Islands", "French Polynesia",
-      "Marshall Islands", "Pitcairn", "Cook Islands"), ~map_territory(territory_i = .))
+map_territory <- function(territory_i){
+  
+  if(territory_i == "Kiribati"){
+    
+    plot_a <- base_map(territory_i = "Gilbert Islands", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Gilbert Islands")
+    
+    plot_b <- base_map(territory_i = "Phoenix Group", legend_x = NA, legend_y = 0.8, scalebar_pos = "tr") +
+      labs(title = "Phoenix Group")
+    
+    plot_c <- base_map(territory_i = "Line Group", legend_x = 0.75, legend_y = 0.8, scalebar_pos = "bl") +
+      coord_sf(label_axes = "-NE-") +
+      labs(title = "Line Group")
+    
+    plot_i <- (plot_a / plot_b) | plot_c
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 7.5, width = 10, dpi = fig_resolution)
+    
+  }else if(territory_i == "PRIA"){
+    
+    plot_a <- base_map(territory_i = "Palmyra Atoll", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Palmyra Atoll")
+    
+    plot_b <- base_map(territory_i = "Johnston Atoll", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Johnston Atoll")
+    
+    plot_c <- base_map(territory_i = "Jarvis Island", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Jarvis Island")
+    
+    plot_d <- base_map(territory_i = "Howland and Baker Islands", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Howland and Baker Islands") +
+      coord_sf(xlim = c(-177, -176), ylim = c(0, 1))
+    
+    plot_e <- base_map(territory_i = "Wake Island", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Wake Island")
+
+    plot_i <- (plot_a + plot_b + plot_c) / (plot_d + plot_e)
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 7.5, width = 10, dpi = fig_resolution)
+    
+  }else if(territory_i == "French Polynesia"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.825, scalebar_pos = "br") +
+      coord_sf(xlim = c(-157.5, -132.5))
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6.5, width = 7, dpi = fig_resolution)
+    
+  }else if(territory_i == "New Caledonia"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.35, legend_y = 0.3, scalebar_pos = "tr")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
+    
+  }else if(territory_i == "Palau"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.275, legend_y = 0.8, scalebar_pos = "br")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6.25, width = 5, dpi = fig_resolution)
+    
+  }else if(territory_i == "Vanuatu"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.8, legend_y = 0.85, scalebar_pos = "bl") +
+      coord_sf(xlim = c(165.5, 171.5))
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 7, width = 5, dpi = fig_resolution)
+    
+  }else if(territory_i == "Solomon Islands"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.875, legend_y = 0.8, scalebar_pos = "br")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
+    
+  }else if(territory_i == "Cook Islands"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.75, legend_y = 0.55, scalebar_pos = "tl")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6.5, width = 5, dpi = fig_resolution)
+    
+  }else if(territory_i == "Tokelau"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.75, legend_y = 0.75, scalebar_pos = "bl")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6, width = 7.75, dpi = fig_resolution)
+    
+  }else if(territory_i == "Wallis and Futuna"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.825, scalebar_pos = "br")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6, width = 7.25, dpi = fig_resolution)
+    
+  }else if(territory_i == "Marshall Islands"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.175, scalebar_pos = "tl")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6, width = 7, dpi = fig_resolution)
+    
+  }else if(territory_i == "Papua New Guinea"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.875, legend_y = 0.3, scalebar_pos = "bl") +
+      coord_sf(xlim = c(142, 161))
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 5.75, width = 8.5, dpi = fig_resolution)
+    
+  }else if(territory_i == "Northern Mariana Islands"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.25, legend_y = 0.5, scalebar_pos = "br") +
+      scale_x_continuous(breaks = c(144, 145, 146, 147)) +
+      scale_y_continuous(breaks = c(13, 14, 15, 16, 17, 18, 19, 20, 21)) +
+      coord_sf(xlim = c(143.8, 147), y = c(13.5, 21))
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 9, width = 4, dpi = fig_resolution)
+    
+  }else if(territory_i == "Federated States of Micronesia"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.125, legend_y = 0.3, scalebar_pos = "tr")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 4, width = 10, dpi = fig_resolution)
+    
+  }else if(territory_i == "Tonga"){
+    
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.35, legend_y = 0.7, scalebar_pos = "br")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 6, width = 3.5, dpi = fig_resolution)
+    
+  }
+  
+}
+
+## 5.3 Map over the function ----
+
+map(c("Kiribati", "French Polynesia", "New Caledonia",
+      "Palau", "Vanuatu", "Solomon Islands", "Cook Islands",
+      "Tokelau", "Wallis and Futuna", "Marshall Islands",
+      "Papua New Guinea", "Northern Mariana Islands",
+      "Federated States of Micronesia", "Tonga", "PRIA"), ~map_territory(territory_i = .))
 
 # 6. Plots of number of sites per interval class ----
 
