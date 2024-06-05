@@ -104,63 +104,122 @@ data_sst_month_mean <- data_sst_month %>%
   ungroup() %>% 
   mutate(year = "all")
 
-## 6.2 Create the function ----
+## 6.2 Create the function for the base plot ----
 
-map_sst_month <- function(territory_i, color_decade){
+base_plot <- function(territory_i){
   
-  if(color_decade == TRUE){
+  ggplot() +
+    geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
+              aes(x = daymonth, y = sst, group = year, color = decade),
+              alpha = 0.75, linewidth = 0.5) +
+    geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
+              aes(x = daymonth, y = sst, group = year),
+              color = "black", linewidth = 1) +
+    scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
+                                "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
+                     labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
+                                "", "Oct.", "", "Dec.")) +
+    labs(x = "Month", y = "SST (°C)") + 
+    theme(legend.title.position = "top",
+          legend.title = element_text(hjust = 0.5)) +
+    scale_color_manual(name = "Decade", values = palette_second) +
+    guides(color = guide_legend(override.aes = list(linewidth = 1))) +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+  
+}
+
+## 6.3 Create the function to produce the plots ----
+
+map_sst_month <- function(territory_i){
+  
+  if(territory_i == "PRIA"){
     
-    ggplot() +
-      geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
-                aes(x = daymonth, y = sst, group = year, color = decade),
-                alpha = 0.75, linewidth = 0.5) +
-      geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
-                aes(x = daymonth, y = sst, group = year),
-                color = "black", linewidth = 1) +
-      scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
-                                  "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
-                       labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
-                                  "", "Oct.", "", "Dec.")) +
-      labs(x = "Month", y = "SST (°C)") + 
-      theme(legend.title.position = "top",
-            legend.title = element_text(hjust = 0.5)) +
-      scale_color_manual(name = "Decade", values = palette_second) +
-      guides(color = guide_legend(override.aes = list(linewidth = 1))) +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+    plot_a <- base_plot(territory_i = "Howland and Baker Islands") +
+      labs(title = "Howland and Baker Islands") +
+      theme(legend.direction = "vertical",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_b <- base_plot(territory_i = "Jarvis Island") + 
+      labs(title = "Jarvis Island") +
+      theme(legend.direction = "vertical",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15)) 
+    
+    plot_c <- base_plot(territory_i = "Johnston Atoll") +
+      labs(title = "Johnston Atoll") +
+      theme(legend.direction = "vertical",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_d <- base_plot(territory_i = "Palmyra Atoll") +
+      labs(title = "Palmyra Atoll") +
+      theme(legend.direction = "vertical",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))   
+    
+    plot_e <- base_plot(territory_i = "Wake Island") +
+      labs(title = "Wake Island") +
+      theme(legend.direction = "vertical",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_a + plot_b + plot_c + plot_d + plot_e + guide_area() + plot_layout(ncol = 3, guides = "collect")
+    
+    ggsave(filename = "figs/02_part-2/fig-2/pria.png", width = 14, height = 9, dpi = fig_resolution)
+    
+  }else if(territory_i == "Kiribati"){
+    
+    plot_a <- base_plot(territory_i = "Gilbert Islands") +
+      labs(title = "Gilbert Islands") +
+      theme(legend.direction = "horizontal",
+            legend.position = "bottom",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_b <- base_plot(territory_i = "Line Group") +
+      labs(title = "Line Group") +
+      theme(legend.direction = "horizontal",
+            legend.position = "bottom",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_c <- base_plot(territory_i = "Phoenix Group") +
+      labs(title = "Phoenix Group") +
+      theme(legend.direction = "horizontal",
+            legend.position = "bottom",
+            legend.title = element_text(size = 18),
+            legend.text = element_text(size = 15))
+    
+    plot_a + plot_b + plot_c + plot_layout(ncol = 3, guides = "collect")
+    
+    ggsave(filename = "figs/02_part-2/fig-2/kiribati.png", width = 16, height = 6, dpi = fig_resolution)
+    
+  }else{
+    
+    base_plot(territory_i = territory_i)
     
     ggsave(filename = paste0("figs/02_part-2/fig-2/",
                              str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            width = 5, height = 4.5, dpi = fig_resolution)
     
-  }else{
-    
-    ggplot() +
-      geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
-                aes(x = daymonth, y = sst, group = year),
-                color = "grey", alpha = 0.75, linewidth = 0.5) +
-      geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
-                aes(x = daymonth, y = sst, group = year),
-                color = "black", linewidth = 1) +
-      scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
-                                  "07-01", "08-01", "09-01", "10-01", "11-01", "12-01"), 
-                       labels = c("", "Feb.", "", "Apr.", "", "Jun.", "", "Aug.", 
-                                  "", "Oct.", "", "Dec.")) +
-      labs(x = "Month", y = "SST (°C)") + 
-      theme(legend.title.position = "top",
-            legend.title = element_text(hjust = 0.5)) +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
-    
-    ggsave(filename = paste0("figs/02_part-2/fig-2/",
-                             str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           width = 5, height = 4, dpi = fig_resolution)
-    
   }
   
 }
 
-## 6.3 Map over the function ----
+## 6.4 Map over the function ----
 
-map(unique(data_sst$TERRITORY1), ~map_sst_month(territory_i = ., color_decade = TRUE))
+map_sst_month(territory_i = "Kiribati")
+
+map(data_sst_month %>% 
+      select(TERRITORY1) %>% 
+      distinct() %>% 
+      filter(!(TERRITORY1 %in% c("Gilbert Islands", "Line Group", "Phoenix Group",
+                                 "Palmyra Atoll", "Howland and Baker Islands", "Johnston Atoll",
+                                 "Jarvis Island", "Wake Island"))) %>% 
+      bind_rows(., tibble(TERRITORY1 = c("PRIA", "Kiribati"))) %>% 
+      pull(),
+    ~map_sst_month(.))
 
 # 7. SST anomaly for each territory ----
 

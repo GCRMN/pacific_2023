@@ -147,7 +147,7 @@ base_map <- function(territory_i, legend_x, legend_y, scalebar_pos){
   
 }
 
-## 5.2 Create the function for to produce the maps ----
+## 5.2 Create the function to produce the maps ----
 
 map_territory <- function(territory_i){
   
@@ -283,10 +283,12 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "Tonga"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.35, legend_y = 0.7, scalebar_pos = "br")
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.2, legend_y = 0.6, scalebar_pos = "br") +
+      scale_x_continuous(breaks = c(-179, -177, -175, -173)) +
+      coord_sf(xlim = c(-179, -172), ylim = c(-23, -15))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_i, height = 6, width = 3.5, dpi = fig_resolution)
+           plot = plot_i, height = 6, width = 5, dpi = fig_resolution)
     
   }else if(territory_i == "Samoa"){
     
