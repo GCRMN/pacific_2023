@@ -83,7 +83,7 @@ data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 
 ## 4.5 Labels ----
 
-data_labels <- read.csv2("data/09_misc/labels_pos_maps.csv") %>% 
+data_labels <- read.csv2("data/09_misc/labels_pos_maps.csv", encoding = "latin1") %>% 
   st_as_sf(coords = c("label_long", "label_lat"), crs = 4326) %>% 
   st_transform(crs = crs_selected)
   
@@ -108,10 +108,15 @@ base_map <- function(territory_i, legend_x, legend_y, scalebar_pos){
     geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
     geom_sf(data = data_land %>% 
               filter(TERRITORY1 == territory_i)) +
-    geom_sf_text(data = data_labels %>% 
+    geom_sf_label(data = data_labels %>% 
                    filter(territory == territory_i),
                  aes(label = label),
-                 family = font_choose_map, color = "#363737", size = 3) +
+                 family = font_choose_map, color = "#ecf0f1",
+                 size = 3.5, fill = "#ecf0f1", alpha = 0.75) +
+    geom_sf_text(data = data_labels %>% 
+                    filter(territory == territory_i),
+                  aes(label = label),
+                  family = font_choose_map, color = "#363737", size = 3.5) +
     geom_sf(data = data_benthic_sites %>%
               filter(territory == territory_i) %>% 
               arrange(interval_class),
