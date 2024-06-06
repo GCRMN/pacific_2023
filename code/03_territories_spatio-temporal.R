@@ -81,6 +81,10 @@ data_benthic_sites <- data_benthic %>%
 
 data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 
+data_reefs_buffer <- data_reefs %>% 
+  st_transform(crs = crs_selected) %>% 
+  st_buffer(dist = 100000)
+
 ## 4.5 Labels ----
 
 data_labels <- read.csv2("data/09_misc/labels_pos_maps.csv", encoding = "latin1") %>% 
@@ -95,17 +99,13 @@ base_map <- function(territory_i, legend_x, legend_y, scalebar_pos){
   
   data_labels_i <- data_labels %>% 
     filter(territory == territory_i)
-  
-  data_buffer <- data_land %>% 
-    filter(TERRITORY1 == territory_i) %>% 
-    st_buffer(dist = 75000) %>% 
-    st_union()
-  
+
   plot_i <- ggplot() +
     geom_sf(data = data_reefs %>% 
               filter(TERRITORY1 == territory_i),
             color = palette_first[2], fill = palette_first[2]) +
-    geom_sf(data = data_buffer, fill = NA, linetype = "dashed") +
+    geom_sf(data = data_reefs_buffer %>% filter(TERRITORY1 == territory_i),
+            fill = NA, linetype = "dashed") +
     geom_sf(data = data_land %>% 
               filter(TERRITORY1 == territory_i)) +
     geom_sf_label(data = data_labels %>% 
@@ -170,26 +170,30 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "PRIA"){
     
-    plot_a <- base_map(territory_i = "Palmyra Atoll", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+    plot_a <- base_map(territory_i = "Palmyra Atoll", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
       labs(title = "Palmyra Atoll")
     
-    plot_b <- base_map(territory_i = "Johnston Atoll", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
-      labs(title = "Johnston Atoll")
+    plot_b <- base_map(territory_i = "Johnston Atoll", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Johnston Atoll") +
+      scale_x_continuous(breaks = c(-170.2, -169.8, -169.4, -169))
     
-    plot_c <- base_map(territory_i = "Jarvis Island", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
-      labs(title = "Jarvis Island")
+    plot_c <- base_map(territory_i = "Jarvis Island", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
+      labs(title = "Jarvis Island") +
+      scale_x_continuous(breaks = c(-160.6, -160.2, -159.8, -159.4))
     
-    plot_d <- base_map(territory_i = "Howland and Baker Islands", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+    plot_d <- base_map(territory_i = "Howland and Baker Islands", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
       labs(title = "Howland and Baker Islands") +
+      scale_x_continuous(breaks = c(-177, -176.6, -176.2)) +
       coord_sf(xlim = c(-177, -176), ylim = c(0, 1))
     
-    plot_e <- base_map(territory_i = "Wake Island", legend_x = NA, legend_y = 0.8, scalebar_pos = "bl") +
+    plot_e <- base_map(territory_i = "Wake Island", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
+      scale_x_continuous(breaks = c(166, 166.4, 166.8, 167.2)) +
       labs(title = "Wake Island")
 
-    plot_i <- (plot_a + plot_b + plot_c) / (plot_d + plot_e)
+    plot_i <- plot_a + plot_b + plot_c + plot_d + plot_e + guide_area() + plot_layout(guides = "collect", ncol = 3)
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_i, height = 7.5, width = 10, dpi = fig_resolution)
+           plot = plot_i, height = 8, width = 12, dpi = fig_resolution)
     
   }else if(territory_i == "French Polynesia"){
     
@@ -216,7 +220,7 @@ map_territory <- function(territory_i){
   }else if(territory_i == "Vanuatu"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.8, legend_y = 0.85, scalebar_pos = "bl") +
-      coord_sf(xlim = c(165.5, 171.5))
+      coord_sf(xlim = c(165, 171.5))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 7, width = 5, dpi = fig_resolution)
@@ -244,7 +248,9 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "Wallis and Futuna"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.825, scalebar_pos = "br")
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.825, scalebar_pos = "br") +
+      coord_sf(crs = crs_selected) +
+      scale_x_continuous(breaks = c(180, -179, -178, -177, -176, -175))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 7.25, dpi = fig_resolution)
