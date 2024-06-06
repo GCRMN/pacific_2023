@@ -4,7 +4,6 @@ library(tidyverse) # Core tidyverse packages
 library(lubridate)
 library(RcppRoll)
 library(sf)
-library(patchwork)
 library(scales)
 
 # 2. Source functions ----
@@ -17,8 +16,6 @@ theme_set(theme_graph())
 # 3. Load data ----
 
 load("data/09_misc/data-sst.RData")
-
-#load("data/01_background-shp/03_eez/data_eez.RData")
 
 # 4. Calculate SST anomaly ----
 
@@ -108,11 +105,11 @@ data_sst_month_mean <- data_sst_month %>%
 
 base_plot <- function(territory_i){
   
-  ggplot() +
-    geom_line(data = data_sst_month %>% filter(TERRITORY1 == territory_i),
+  plot_i <- ggplot() +
+    geom_line(data = data_sst_month %>% filter(TERRITORY1 %in% territory_i),
               aes(x = daymonth, y = sst, group = year, color = decade),
               alpha = 0.75, linewidth = 0.5) +
-    geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 == territory_i),
+    geom_line(data = data_sst_month_mean %>% filter(TERRITORY1 %in% territory_i),
               aes(x = daymonth, y = sst, group = year),
               color = "black", linewidth = 1) +
     scale_x_discrete(breaks = c("01-01", "02-01", "03-01", "04-01", "05-01", "06-01", 
@@ -121,86 +118,42 @@ base_plot <- function(territory_i){
                                 "", "Oct.", "", "Dec.")) +
     labs(x = "Month", y = "SST (°C)") + 
     theme(legend.title.position = "top",
-          legend.title = element_text(hjust = 0.5)) +
+          legend.title = element_text(hjust = 0.5),
+          strip.background = element_blank(),
+          strip.text = element_text(size = 14)) +
     scale_color_manual(name = "Decade", values = palette_second) +
     guides(color = guide_legend(override.aes = list(linewidth = 1))) +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+  
+  return(plot_i)
   
 }
 
 ## 6.3 Create the function to produce the plots ----
 
-map_sst_month <- function(territory_i){
+map_sst_month <- function(group_territory_i){
   
-  if(territory_i == "PRIA"){
+  if(group_territory_i == "PRIA"){
     
-    plot_a <- base_plot(territory_i = "Howland and Baker Islands") +
-      labs(title = "Howland and Baker Islands") +
-      theme(legend.direction = "vertical",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
+    base_plot(territory_i = c("Palmyra Atoll", "Howland and Baker Islands",
+                              "Johnston Atoll", "Jarvis Island", "Wake Island")) +
+      facet_wrap(~TERRITORY1, ncol = 3, scales = "free_x")
     
-    plot_b <- base_plot(territory_i = "Jarvis Island") + 
-      labs(title = "Jarvis Island") +
-      theme(legend.direction = "vertical",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15)) 
+    ggsave(filename = "figs/02_part-2/fig-2/pria.png", width = 15, height = 9, dpi = fig_resolution)
     
-    plot_c <- base_plot(territory_i = "Johnston Atoll") +
-      labs(title = "Johnston Atoll") +
-      theme(legend.direction = "vertical",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
+  }else if(group_territory_i == "Kiribati"){
     
-    plot_d <- base_plot(territory_i = "Palmyra Atoll") +
-      labs(title = "Palmyra Atoll") +
-      theme(legend.direction = "vertical",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))   
+    base_plot(territory_i = c("Gilbert Islands", "Line Group", "Phoenix Group")) +
+      facet_wrap(~TERRITORY1)
     
-    plot_e <- base_plot(territory_i = "Wake Island") +
-      labs(title = "Wake Island") +
-      theme(legend.direction = "vertical",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
-    
-    plot_a + plot_b + plot_c + plot_d + plot_e + guide_area() + plot_layout(ncol = 3, guides = "collect")
-    
-    ggsave(filename = "figs/02_part-2/fig-2/pria.png", width = 14, height = 9, dpi = fig_resolution)
-    
-  }else if(territory_i == "Kiribati"){
-    
-    plot_a <- base_plot(territory_i = "Gilbert Islands") +
-      labs(title = "Gilbert Islands") +
-      theme(legend.direction = "horizontal",
-            legend.position = "bottom",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
-    
-    plot_b <- base_plot(territory_i = "Line Group") +
-      labs(title = "Line Group") +
-      theme(legend.direction = "horizontal",
-            legend.position = "bottom",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
-    
-    plot_c <- base_plot(territory_i = "Phoenix Group") +
-      labs(title = "Phoenix Group") +
-      theme(legend.direction = "horizontal",
-            legend.position = "bottom",
-            legend.title = element_text(size = 18),
-            legend.text = element_text(size = 15))
-    
-    plot_a + plot_b + plot_c + plot_layout(ncol = 3, guides = "collect")
-    
-    ggsave(filename = "figs/02_part-2/fig-2/kiribati.png", width = 16, height = 6, dpi = fig_resolution)
+    ggsave(filename = "figs/02_part-2/fig-2/kiribati.png", width = 15, height = 6, dpi = fig_resolution)
     
   }else{
     
-    base_plot(territory_i = territory_i)
+    base_plot(territory_i = group_territory_i)
     
     ggsave(filename = paste0("figs/02_part-2/fig-2/",
-                             str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+                             str_replace_all(str_to_lower(group_territory_i), " ", "-"), ".png"),
            width = 5, height = 4.5, dpi = fig_resolution)
     
   }
@@ -208,8 +161,6 @@ map_sst_month <- function(territory_i){
 }
 
 ## 6.4 Map over the function ----
-
-map_sst_month(territory_i = "Kiribati")
 
 map(data_sst_month %>% 
       select(TERRITORY1) %>% 
@@ -221,17 +172,21 @@ map(data_sst_month %>%
       pull(),
     ~map_sst_month(.))
 
+## 6.5 Remove useless functions ----
+
+rm(base_plot, map_sst_month, extract_coeff)
+
 # 7. SST anomaly for each territory ----
 
-## 7.1 Create the function ----
+## 7.1 Create the function for the base plot ----
 
-map_sst_anom <- function(territory_i){
+base_plot <- function(territory_i){
   
   data_i <- data_sst %>% 
     filter(TERRITORY1 == territory_i) %>% 
     drop_na(sst_anom_mean)
   
-  ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
+  plot_i <- ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0, 0, sst_anom_mean)),
                 aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_first[3], alpha = 0.9) +
     geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0, 0, sst_anom_mean)),
@@ -239,18 +194,61 @@ map_sst_anom <- function(territory_i){
     geom_line(color = "black", linewidth = 0.3) +
     geom_hline(yintercept = 0, color = "black") +
     scale_fill_identity() +
+    theme(strip.background = element_blank(),
+          strip.text = element_text(size = 14)) +
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
-  ggsave(filename = paste0("figs/02_part-2/fig-3/",
-                           str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-         width = 6, height = 4, dpi = 600)
+  return(plot_i)
   
 }
 
-## 7.2 Map over the function ----
+## 7.2 Create the function to produce the plots ----
 
-map(unique(data_sst$TERRITORY1), ~map_sst_anom(territory_i = .))
+map_sst_anom <- function(group_territory_i){
+  
+  if(group_territory_i == "PRIA"){
+    
+    base_plot(territory_i = c("Palmyra Atoll", "Howland and Baker Islands",
+                              "Johnston Atoll", "Jarvis Island", "Wake Island")) +
+      facet_wrap(~TERRITORY1, ncol = 3, scales = "free_x")
+    
+    ggsave(filename = "figs/02_part-2/fig-3/pria.png", width = 15, height = 9, dpi = fig_resolution)
+    
+  }else if(group_territory_i == "Kiribati"){
+    
+    base_plot(territory_i = c("Gilbert Islands", "Line Group", "Phoenix Group")) +
+      facet_wrap(~TERRITORY1)
+    
+    ggsave(filename = "figs/02_part-2/fig-3/kiribati.png", width = 15, height = 6, dpi = fig_resolution)
+    
+  }else{
+    
+    base_plot(territory_i = group_territory_i)
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-3/",
+                             str_replace_all(str_to_lower(group_territory_i), " ", "-"), ".png"),
+           width = 6, height = 4, dpi = fig_resolution)
+    
+  }
+  
+}
+
+## 7.3 Map over the function ----
+
+map(data_sst_month %>% 
+      select(TERRITORY1) %>% 
+      distinct() %>% 
+      filter(!(TERRITORY1 %in% c("Gilbert Islands", "Line Group", "Phoenix Group",
+                                 "Palmyra Atoll", "Howland and Baker Islands", "Johnston Atoll",
+                                 "Jarvis Island", "Wake Island"))) %>% 
+      bind_rows(., tibble(TERRITORY1 = c("PRIA", "Kiribati"))) %>% 
+      pull(),
+    ~map_sst_anom(.))
+
+## 7.4 Remove useless functions ----
+
+rm(base_plot, map_sst_anom)
 
 # 8. SST (year) for each territory ----
 
