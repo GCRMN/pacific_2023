@@ -81,9 +81,7 @@ data_benthic_sites <- data_benthic %>%
 
 data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 
-data_reefs_buffer <- data_reefs %>% 
-  st_transform(crs = crs_selected) %>% 
-  st_buffer(dist = 100000)
+data_reefs_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp")
 
 ## 4.5 Labels ----
 
@@ -291,7 +289,7 @@ map_territory <- function(territory_i){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.2, legend_y = 0.6, scalebar_pos = "br") +
       scale_x_continuous(breaks = c(-179, -177, -175, -173)) +
-      coord_sf(xlim = c(-179, -172), ylim = c(-23, -15))
+      coord_sf(xlim = c(-178, -172), ylim = c(-24, -14))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 5, dpi = fig_resolution)
@@ -320,8 +318,7 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "Guam"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.1775, legend_y = 0.825, scalebar_pos = "br") +
-      coord_sf(xlim = c(143.5, 146), ylim = c(12, 15))
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.1775, legend_y = 0.825, scalebar_pos = "br")
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.5, width = 5.75, dpi = fig_resolution)
@@ -329,7 +326,8 @@ map_territory <- function(territory_i){
   }else if(territory_i == "Hawaii"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.16, legend_y = 0.3, scalebar_pos = "tr") +
-      coord_sf(xlim = c(-178, -154))
+      coord_sf(crs = crs_selected) +
+      scale_x_continuous(breaks = c(180, -175, -170, -165, -160, -155))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
@@ -347,7 +345,7 @@ map_territory <- function(territory_i){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.2, legend_y = 0.2, scalebar_pos = "tr") +
       coord_sf(crs = crs_selected) +
-      scale_x_continuous(breaks = c(177.5, 180))
+      scale_x_continuous(breaks = c(176, 178, 180, -178))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 5.25, dpi = fig_resolution)
@@ -363,7 +361,7 @@ map_territory <- function(territory_i){
   }else if(territory_i == "Niue"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.85, legend_y = 0.25, scalebar_pos = "tl") +
-      coord_sf(ylim = c(-20, -18), xlim = c(-171, -168))
+      scale_x_continuous(breaks = c(-170.5, -169.5, -168.5, -167.5))
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5.25, width = 7, dpi = fig_resolution)

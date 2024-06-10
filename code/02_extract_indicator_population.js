@@ -57,7 +57,7 @@ var data_pop = ee.ImageCollection("CIESIN/GPWv411/GPW_Population_Count")
 
 var ft = ee.FeatureCollection(ee.List([]));
 
-// 4. Create function to extract SST ----
+// 4. Create function to extract population ----
 
 var fill = function(img, ini) {
   // type cast
