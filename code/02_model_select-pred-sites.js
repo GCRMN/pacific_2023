@@ -1,43 +1,23 @@
-// 1. Use EEZ as the area of interest ----
+// 1. Import data ----
 
-var data_eez = ee.FeatureCollection("users/jeremywicquart/pacific_2023_eez");
+var data_reefs = ee.FeatureCollection("users/jeremywicquart/pacific_2023_reefs");
 
-// 2. Load and transform ACA data ----
+// 2. Create the random points over coral reefs ----
 
-// 2.1 Load and Allen Coral Atlas (ACA) data ----
+var site_coords = ee.FeatureCollection.randomPoints(
+    {region: data_reefs, points: 5000, seed: 0, maxError: 1});
+  
+// 3. Data vizualisation ----
 
-var aca_benthic = ee.Image("ACA/reef_habitat/v2_0").select('benthic').selfMask();
+Map.addLayer(data_reefs);
+Map.addLayer(site_coords.style({color: 'red'}));
 
-// 2.2 Create a layer of surface by pixel (in km2) ----
-
-var data_area = ee.Image.pixelArea().divide(1000000);
-
-// 2.3 Use this layer to mask ACA data ----
-
-var aca_area = data_area.mask(aca_benthic);
-
-// 3. Create the grid over coral reefs ----
-
-var reef_grid = aca_area.sample({
-  region: data_eez.geometry(),
-  geometries: true, // To have points
-  scale: 100, // In meters
-  seed: 10,
-  factor: 0.0025 // To reduce the number of sampled sites
-});
-
-// 4. Export sites coordinates ----
+// 4. Export the data ----
 
 Export.table.toDrive({
-  collection:reef_grid,
+  collection:site_coords,
   folder:"GEE",
   fileNamePrefix:"site-coords_pred",
   fileFormat:"SHP",
-  description:"site-coords_pred",
+  description:"site-coords_pred"
 });
-
-// 5. Visualise the results ----
-
-Map.addLayer(data_eez);
-Map.addLayer(reef_grid.style({color: 'red'}));
-//Map.addLayer(aca_area);
