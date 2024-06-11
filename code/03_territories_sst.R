@@ -17,25 +17,16 @@ theme_set(theme_graph())
 
 load("data/09_misc/data-sst.RData")
 
-# 4. Calculate SST anomaly ----
+# 4. Extract SST indicators ----
 
-data_sst <- data_sst %>% 
-  group_by(TERRITORY1) %>% 
-  mutate(mean_sst = mean(sst, na.rm = TRUE),
-         sst_anom = sst - mean_sst,
-         sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
-  ungroup()
-
-# 5. Extract SST indicators ----
-
-## 5.1 Calculate long-term average SST ----
+## 4.1 Calculate long-term average SST ----
 
 data_sst <- data_sst %>% 
   group_by(TERRITORY1) %>% 
   mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
   ungroup()
 
-## 5.2 Create the function ----
+## 4.2 Create the function ----
 
 extract_coeff <- function(data){
   
@@ -50,7 +41,7 @@ extract_coeff <- function(data){
   
 }
 
-## 5.3 Map over the function ----
+## 4.3 Map over the function ----
 
 data_warming <- data_sst %>% 
   # Convert date as numeric
@@ -71,19 +62,26 @@ data_warming <- data_sst %>%
               select(TERRITORY1, mean_sst) %>% 
               distinct())
 
-## 5.4 Export the data ----
+## 4.4 Export the data ----
 
 write.csv2(data_warming, file = "figs/01_part-1/table-3.csv", row.names = FALSE)
 
-## 5.5 Transform data ----
+## 4.5 Calculate SST anomaly and SST anomaly trended ----
 
 data_sst <- left_join(data_sst, data_warming) %>% 
   mutate(date_num = as.numeric(as_date(date)),
-         sst_linear = slope*date_num+intercept)
+         sst_linear = slope*date_num+intercept) %>% 
+  group_by(TERRITORY1) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE),
+         sst_anom = sst - mean_sst,
+         sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA),
+         sst_anom_trend = sst - sst_linear,
+         sst_anom_trend_mean = roll_mean(x = sst_anom_trend, n = 365, align = "center", fill = NA)) %>% 
+  ungroup()
 
-# 6. SST (month) for each territory ----
+# 5. SST (month) for each territory ----
 
-## 6.1 Transform data ----
+## 5.1 Transform data ----
 
 data_sst_month <- data_sst %>% 
   mutate(daymonth = str_sub(date, 6, 10),
@@ -101,7 +99,7 @@ data_sst_month_mean <- data_sst_month %>%
   ungroup() %>% 
   mutate(year = "all")
 
-## 6.2 Create the function for the base plot ----
+## 5.2 Create the function for the base plot ----
 
 base_plot <- function(territory_i){
   
@@ -129,7 +127,7 @@ base_plot <- function(territory_i){
   
 }
 
-## 6.3 Create the function to produce the plots ----
+## 5.3 Create the function to produce the plots ----
 
 map_sst_month <- function(group_territory_i){
   
@@ -160,7 +158,7 @@ map_sst_month <- function(group_territory_i){
   
 }
 
-## 6.4 Map over the function ----
+## 5.4 Map over the function ----
 
 map(data_sst_month %>% 
       select(TERRITORY1) %>% 
@@ -172,26 +170,25 @@ map(data_sst_month %>%
       pull(),
     ~map_sst_month(.))
 
-## 6.5 Remove useless functions ----
+## 5.5 Remove useless functions ----
 
 rm(base_plot, map_sst_month, extract_coeff)
 
-# 7. SST anomaly for each territory ----
+# 6. SST anomaly for each territory ----
 
-## 7.1 Create the function for the base plot ----
+## 6.1 Create the function for the base plot ----
 
 base_plot <- function(territory_i){
   
   data_i <- data_sst %>% 
-    filter(TERRITORY1 == territory_i) %>% 
+    filter(TERRITORY1 %in% territory_i) %>% 
     drop_na(sst_anom_mean)
   
-  plot_i <- ggplot(data = data_i, aes(x = date, y = sst_anom_mean)) +
-    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_first[3], alpha = 0.9) +
-    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0, 0, sst_anom_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_first[4], alpha = 0.9) +
-    geom_line(color = "black", linewidth = 0.3) +
+  plot_i <- ggplot(data = data_i, aes(x = date, y = sst_anom_trend_mean)) + 
+    geom_ribbon(data = data_i %>% mutate(sst_anom_trend_mean = if_else(sst_anom_trend_mean < 0, 0, sst_anom_trend_mean)),
+                aes(x = date, ymin = 0, ymax = sst_anom_trend_mean), fill = palette_second[3], alpha = 0.9) +
+    geom_ribbon(data = data_i %>% mutate(sst_anom_trend_mean = if_else(sst_anom_trend_mean > 0, 0, sst_anom_trend_mean)),
+                aes(x = date, ymin = 0, ymax = sst_anom_trend_mean), fill = palette_first[3], alpha = 0.9) +
     geom_hline(yintercept = 0, color = "black") +
     scale_fill_identity() +
     theme(strip.background = element_blank(),
@@ -199,11 +196,12 @@ base_plot <- function(territory_i){
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
+  
   return(plot_i)
   
 }
 
-## 7.2 Create the function to produce the plots ----
+## 6.2 Create the function to produce the plots ----
 
 map_sst_anom <- function(group_territory_i){
   
@@ -211,14 +209,14 @@ map_sst_anom <- function(group_territory_i){
     
     base_plot(territory_i = c("Palmyra Atoll", "Howland and Baker Islands",
                               "Johnston Atoll", "Jarvis Island", "Wake Island")) +
-      facet_wrap(~TERRITORY1, ncol = 3, scales = "free_x")
+      facet_wrap(~TERRITORY1, ncol = 3, scales = "free")
     
     ggsave(filename = "figs/02_part-2/fig-3/pria.png", width = 15, height = 9, dpi = fig_resolution)
     
   }else if(group_territory_i == "Kiribati"){
     
     base_plot(territory_i = c("Gilbert Islands", "Line Group", "Phoenix Group")) +
-      facet_wrap(~TERRITORY1)
+      facet_wrap(~TERRITORY1, scales = "free_x")
     
     ggsave(filename = "figs/02_part-2/fig-3/kiribati.png", width = 15, height = 6, dpi = fig_resolution)
     
@@ -234,7 +232,7 @@ map_sst_anom <- function(group_territory_i){
   
 }
 
-## 7.3 Map over the function ----
+## 6.3 Map over the function ----
 
 map(data_sst_month %>% 
       select(TERRITORY1) %>% 
@@ -246,11 +244,11 @@ map(data_sst_month %>%
       pull(),
     ~map_sst_anom(.))
 
-## 7.4 Remove useless functions ----
+## 6.4 Remove useless functions ----
 
 rm(base_plot, map_sst_anom)
 
-# 8. SST (year) for each territory ----
+# 7. SST (year) for each territory ----
 
 data_sst <- data_sst %>% 
   filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)) %>%  
