@@ -2,6 +2,7 @@
 
 library(tidyverse) # Core tidyverse packages
 library(sf)
+sf_use_s2(FALSE)
 
 # 2. Load gcrmndb_benthos data ----
 
@@ -26,6 +27,6 @@ save(data_benthic, file = "data/09_misc/data-benthic.RData")
 data_benthic %>% 
   select(decimalLatitude, decimalLongitude) %>% 
   distinct() %>% 
-  mutate(site_id = row_number(.)) %>% 
+  mutate(type = "obs") %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
   st_write(., dsn = "data/04_site-coords/site-coords_obs.shp", delete_dsn = TRUE)
