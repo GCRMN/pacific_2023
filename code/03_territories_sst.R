@@ -28,9 +28,9 @@ data_sst <- data_sst %>%
 
 ## 4.2 Create the function ----
 
-extract_coeff <- function(data){
+extract_coeff <- function(data, var){
   
-  model <- lm(sst ~ date, data = data)
+  model <- lm(get(var) ~ date, data = data)
   
   results <- summary(model)$coefficients
   
@@ -48,7 +48,7 @@ data_warming <- data_sst %>%
   mutate(date = as.numeric(as_date(date))) %>% 
   # Extract linear model coefficients
   group_by(TERRITORY1) %>% 
-  group_modify(~extract_coeff(data = .x)) %>% 
+  group_modify(~extract_coeff(data = .x, var = "sst")) %>% 
   ungroup() %>% 
   # Calculate increase in SST over the period
   mutate(min_date = as.numeric(as_date(min(data_sst$date))),
@@ -62,9 +62,74 @@ data_warming <- data_sst %>%
               select(TERRITORY1, mean_sst) %>% 
               distinct())
 
-## 4.4 Export the data ----
+## 4.4 Export the table ----
 
-write.csv2(data_warming, file = "figs/01_part-1/table-3.csv", row.names = FALSE)
+### 4.4.1 Transform the table ----
+
+data_table_3 <- data_warming %>% 
+  rename(territory = TERRITORY1) %>% 
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker Islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, !is.na(subterritory)) %>% 
+  relocate(subterritory, .after = territory) %>% 
+  filter(territory != "Entire Pacific region") %>% 
+  bind_rows(., data_warming %>% 
+              filter(TERRITORY1 == "Entire Pacific region") %>% 
+              rename(territory = TERRITORY1)) %>% 
+  select(territory, subterritory, mean_sst, sst_increase, warming_rate) %>% 
+  mutate(mean_sst = format(round(mean_sst, 2), nsmall = 2),
+         sst_increase = format(round(sst_increase, 4), nsmall = 2),
+         warming_rate = format(round(warming_rate, 2), nsmall = 2))
+
+### 4.4.2 Export as .xlsx ----
+
+openxlsx::write.xlsx(data_table_3, file = "figs/01_part-1/table-3.xlsx")
+
+### 4.4.3 Export as LaTeX ----
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", data_table_3[i, "territory"], "} &", data_table_3[i, "mean_sst"], "&",
+                     data_table_3[i, "sst_increase"], "&", data_table_3[i, "warming_rate"]," \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", data_table_3[i, "subterritory"], " &", data_table_3[i, "mean_sst"], "&",
+                     data_table_3[i, "sst_increase"], "&", data_table_3[i, "warming_rate"]," \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{2.85cm}|R{2.85cm}|R{2.85cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Mean SST ($^\\circ$C)} & \\textcolor{white}{SST change 1985-2023 ($^\\circ$C)}  & \\textcolor{white}{Warming rate ($^\\circ$C.year\\textsuperscript{-1})} \\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", data_table_3[33, "territory"], "}} &", data_table_3[33, "mean_sst"], "&",
+                    data_table_3[33, "sst_increase"], "&", data_table_3[33, "warming_rate"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/01_part-1/table-3.tex"))
 
 ## 4.5 Calculate SST anomaly and SST anomaly trended ----
 
@@ -77,7 +142,8 @@ data_sst <- left_join(data_sst, data_warming) %>%
          sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA),
          sst_anom_trend = sst - sst_linear,
          sst_anom_trend_mean = roll_mean(x = sst_anom_trend, n = 365, align = "center", fill = NA)) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(!(TERRITORY1 %in% c("Entire Pacific region", "Pacific Remote Island Area", "Kiribati")))
 
 # 5. SST (month) for each territory ----
 
