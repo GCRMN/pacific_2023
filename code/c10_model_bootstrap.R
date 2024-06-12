@@ -106,8 +106,8 @@ model_bootstrap <- function(category_i, bootstrap_i, pdp){
                                 variables = c("year", "decimalLongitude", "decimalLatitude", "nb_cyclones",
                                               "wind_speed_y5", "nb_cyclones_y5", "pred_elevation", "pred_reefextent",
                                               "pred_land", "pred_gravity", "pred_enso", "pred_sst_sd", "pred_sst_skewness",
-                                              "pred_sst_kurtosis", "pred_sst_max", "pred_sst_max_y1", "pred_sst_mean",
-                                              "pred_sst_mean_y1", "pred_sst_min", "pred_dhw_max", "pred_dhw_max_y1",
+                                              "pred_sst_max", "pred_sst_max_y1", "pred_sst_mean",
+                                              "pred_sst_mean_y1", "pred_dhw_max", "pred_dhw_max_y1",
                                               "pred_chla_mean", "pred_chla_sd", "pred_population", "verbatimDepth"),
                                 variable_splits_type = "uniform") %>% 
       .$agr_profiles %>% 

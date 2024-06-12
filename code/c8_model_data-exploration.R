@@ -421,15 +421,3 @@ data_pred_distri <- wrap_plots(data_pred_distri, ncol = 5)
 ggsave(plot = data_pred_distri,
        filename = "figs/04_supp/01_data-explo/03_predictors-distribution.png",
        dpi = 600, height = 12, width = 15)
-
-## 5.3 Correlation between predictors ----
-
-data_correlation <- round(cor(data_predictors_pred %>% 
-                                select(-territory, -datasetID, -month, -day,
-                                       -verbatimDepth, -parentEventID, -eventID),
-                                use = "complete.obs"), 2) %>% # "complete.obs" to not use NA
-  as_tibble() %>% 
-  mutate(predictor_a = colnames(.)) %>% 
-  pivot_longer(1:ncol(.)-1, names_to = "predictor_b", values_to = "coefficient") %>% 
-  filter(predictor_a != predictor_b) %>% 
-  arrange(coefficient)

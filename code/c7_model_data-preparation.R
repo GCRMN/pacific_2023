@@ -139,15 +139,35 @@ data_predictors <- data_predictors %>%
                   pred_sst_max_y1, pred_sst_mean_y1),
                 ~ round(.x, digits = 2)))
 
-# 4. Split predictors in observed and to predict data ----
+# 4. Feature selection (remove correlated predictors) ----
 
-## 4.1 Predictors values for sites with observed data ----
+## 4.1 Find correlation coefficients between predictors ----
+
+data_correlation <- data_predictors %>% 
+  select(-site_id, -year, -type, -territory) %>% 
+  cor(., use = "complete.obs") %>% 
+  round(., 2) %>% 
+  as_tibble(.) %>% 
+  mutate(predictor_a = colnames(.)) %>% 
+  pivot_longer(1:ncol(.)-1, names_to = "predictor_b", values_to = "coefficient") %>% 
+  filter(predictor_a != predictor_b) %>% 
+  arrange(coefficient) %>% 
+  filter(row_number(.) %% 2 == 0)
+
+## 4.2 Remove useless predictors based on correlation ----
+
+data_predictors <- data_predictors %>% 
+  select(-pred_sst_min)
+
+# 5. Split predictors in observed and to predict data ----
+
+## 5.1 Predictors values for sites with observed data ----
 
 data_predictors_obs <- data_predictors %>% 
   filter(type == "obs") %>% 
   select(-type, -site_id, -territory)
 
-## 4.2 Predictors values for sites to predict ----
+## 5.2 Predictors values for sites to predict ----
 
 data_predictors_pred <- data_predictors %>% 
   filter(type == "pred") %>% 
@@ -161,9 +181,9 @@ data_predictors_pred <- data_predictors %>%
 
 save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData")
 
-# 5. Summarize data and add predictors ----
+# 6. Summarize data and add predictors ----
 
-## 5.1 Transform the data ----
+## 6.1 Transform the data ----
 
 data_benthic <- data_benthic %>% 
   # 1. Sum of benthic cover per sampling unit (site, transect, quadrat) and category
@@ -192,6 +212,6 @@ data_benthic <- data_benthic %>%
   # 6. Add predictors
   left_join(., data_predictors_obs)
 
-## 5.2 Export the data ----
+## 6.2 Export the data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")
