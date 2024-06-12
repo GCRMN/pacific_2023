@@ -1,31 +1,20 @@
 // A. Population within 5 km from coral reefs ---------------------------------------------------
 
-// 1. Load and Allen Coral Atlas (ACA) data ----
+// 1. Import data ----
 
-var aca_benthic = ee.Image("ACA/reef_habitat/v2_0").select('benthic').selfMask();
+var data_reefs = ee.FeatureCollection("users/jeremywicquart/pacific_2023_reefs");
 
-// 2. Create a buffer around coral reefs (5 km) ----
+// 2. Create 5 km reef buffer ----
 
-var buffer_function = ee.Image(1)
-    .cumulativeCost({
-      source: aca_benthic, 
-      maxDistance: 5000,
-    }).lt(10000);
-    
-var aca_buffer = buffer_function.mask(buffer_function);
+var reef_buffer = function(feature) {
+  return feature.buffer(5000); // 5 km  
+};
 
-// 3. Convert the pixel buffer (image) to polygon ----
-
-var buffer_reef = aca_buffer.reduceToVectors({
-  reducer: ee.Reducer.countEvery(), 
-  geometry: ee.Geometry.Rectangle([-179.9, -50, 179.9, 50], null, false),
-  scale: 500,
-  maxPixels: 10e10,
-});
+var buffer_reef = data_reefs.map(reef_buffer).union();
 
 //Map.addLayer(buffer_reef);
 
-// 4. Join with EEZ ----
+// 3. Join with EEZ ----
 
 var data_eez = ee.FeatureCollection("users/jeremywicquart/pacific_2023_eez");
 
@@ -48,16 +37,16 @@ var data_eez_reef = ee.FeatureCollection(ee.List(data_eez_reef).flatten());
 
 //Map.addLayer(data_eez_reef);
 
-// 2. Import GPW count ----
+// 4. Import GPW count ----
 
 var data_pop = ee.ImageCollection("CIESIN/GPWv411/GPW_Population_Count")
                   .select('population_count');
 
-// 3. Empty Collection to fill ----
+// 5. Empty Collection to fill ----
 
 var ft = ee.FeatureCollection(ee.List([]));
 
-// 4. Create function to extract population ----
+// 6. Create function to extract population ----
 
 var fill = function(img, ini) {
   // type cast
@@ -80,11 +69,11 @@ var fill = function(img, ini) {
   return inift.merge(ft3);
 };
 
-// 5. Apply the function ----
+// 7. Apply the function ----
 
 var data_results = ee.FeatureCollection(data_pop.iterate(fill, ft));
 
-// 6. Export the data ----
+// 8. Export the data ----
 
 Export.table.toDrive({
   collection:data_results,
