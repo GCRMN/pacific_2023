@@ -411,7 +411,7 @@ Export.table.toDrive({
   selectors:["site_id", "type", "pred_sst_sd"]
 });
 
-// 11. Extract predictor "sst kurtosis" /////////////////////////////////////////////////////////
+// 11. Extract predictor "sst skewness" /////////////////////////////////////////////////////////
 
 // 11.1 Import data ----
 
@@ -419,42 +419,11 @@ var data_sst = ee.ImageCollection('NOAA/CDR/OISST/V2_1')
                   .filter(ee.Filter.date('1981-01-01', '2023-12-31'))
                   .select('sst');
 
-// 11.2 Kurtosis between the dates ----
-
-var data_sst_kurtosis = data_sst.reduce(ee.Reducer.kurtosis());
-
-// 11.3 Extract SST kurtosis for each site ----
-
-var result_sst_kurtosis = data_sst_kurtosis.reduceRegions({
-  reducer: ee.Reducer.first().setOutputs(["pred_sst_kurtosis"]),
-  collection: site_coords,
-  scale: 10000
-});
-
-// 11.4 Export the data ----
-
-Export.table.toDrive({
-  collection:result_sst_kurtosis,
-  folder:"GEE",
-  fileNamePrefix:"pred_sst_kurtosis",
-  fileFormat:"CSV",
-  description:"pred_sst_kurtosis",
-  selectors:["site_id", "type", "pred_sst_kurtosis"]
-});
-
-// 12. Extract predictor "sst skewness" /////////////////////////////////////////////////////////
-
-// 12.1 Import data ----
-
-var data_sst = ee.ImageCollection('NOAA/CDR/OISST/V2_1')
-                  .filter(ee.Filter.date('1981-01-01', '2023-12-31'))
-                  .select('sst');
-
-// 12.2 Skewness between the dates ----
+// 11.2 Skewness between the dates ----
 
 var data_sst_skew = data_sst.reduce(ee.Reducer.skew());
 
-// 12.3 Extract SST skewness for each site ----
+// 11.3 Extract SST skewness for each site ----
 
 var result_sst_skew = data_sst_skew.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_sst_skewness"]),
@@ -462,7 +431,7 @@ var result_sst_skew = data_sst_skew.reduceRegions({
   scale: 10000
 });
 
-// 12.4 Export the data ----
+// 11.4 Export the data ----
 
 Export.table.toDrive({
   collection:result_sst_skew,
@@ -473,9 +442,9 @@ Export.table.toDrive({
   selectors:["site_id", "type", "pred_sst_skewness"]
 });
 
-// 13. Extract predictor "reef extent" ///////////////////////////////////////////////////////////
+// 12. Extract predictor "reef extent" ///////////////////////////////////////////////////////////
 
-// 13.1 Create a function to create a buffer around a point ----
+// 12.1 Create a function to create a buffer around a point ----
 
 function bufferPoints(radius, bounds) {
   return function(pt) {
@@ -484,23 +453,23 @@ function bufferPoints(radius, bounds) {
   };
 }
 
-// 13.2 Apply the function (here 10 km radius) ----
+// 12.2 Apply the function (here 10 km radius) ----
 
 var site_buffer = site_coords.map(bufferPoints(10000, false));
 
-// 13.3 Load and Allen Coral Atlas (ACA) data ----
+// 12.3 Load and Allen Coral Atlas (ACA) data ----
 
 var aca_benthic = ee.Image("ACA/reef_habitat/v2_0").select('benthic').selfMask();
 
-// 13.4 Create a layer of surface by pixel (in km2) ----
+// 12.4 Create a layer of surface by pixel (in km2) ----
 
 var data_area = ee.Image.pixelArea().divide(1000000);
 
-// 13.5 Use this layer to mask ACA data ----
+// 12.5 Use this layer to mask ACA data ----
 
 var aca_area = data_area.mask(aca_benthic);
 
-// 13.6 Calculate reef area within each buffer ----
+// 12.6 Calculate reef area within each buffer ----
 
 var reef_extent = aca_area.reduceRegions({
   collection: site_buffer,
@@ -508,7 +477,7 @@ var reef_extent = aca_area.reduceRegions({
   scale:5
 });
 
-// 13.7 Export the data ----
+// 12.7 Export the data ----
 
 Export.table.toDrive({
   collection:reef_extent,
