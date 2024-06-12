@@ -62,6 +62,8 @@
 - `c6_extract_predictor_dhw-year.R`
 - `c7_model_data-preparation.R`
 - `c8_model_data-exploration.R`
+- `c9_model_tuning.R`
+- `c10_model_bootstrap.R`
 
 ### Figures and tables (`d_`)
 

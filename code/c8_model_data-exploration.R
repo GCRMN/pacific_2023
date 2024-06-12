@@ -374,11 +374,9 @@ data_nb_0_territory <- data_benthic %>%
 
 # 5. Predictors ----
 
-## 5.1 Load data ----
+## 5.1 Percentage of NA per predictor ----
 
 load("data/11_model-data/data_predictors_pred.RData")
-
-## 5.2 Percentage of NA per predictor ----
 
 data_pred_na <- data_predictors_pred %>% 
   select(-datasetID, -month, -verbatimDepth, -parentEventID, -eventID) %>% 
@@ -387,9 +385,15 @@ data_pred_na <- data_predictors_pred %>%
   mutate(n = nrow(data_predictors_pred),
          percent = (na*100)/n)
 
-## 5.3 Distribution ----
+data_obs_na <- data_benthic %>% 
+  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
+  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
+  mutate(n = nrow(data_predictors_pred),
+         percent = (na*100)/n)
 
-### 5.3.1 Create the function ----
+## 5.2 Distribution ----
+
+### 5.2.1 Create the function ----
 
 plot_distri <- function(variable){
   
@@ -401,24 +405,24 @@ plot_distri <- function(variable){
   
 }
 
-### 5.3.2 Map over the function ----
+### 5.2.2 Map over the function ----
 
 data_pred_distri <- map(data_predictors_pred %>% 
                           select(-territory, -datasetID, -month, -verbatimDepth, -parentEventID, -eventID) %>% 
                           colnames(.),
          ~plot_distri(variable = .))
 
-### 5.3.3 Combine plots ----
+### 5.2.3 Combine plots ----
 
 data_pred_distri <- wrap_plots(data_pred_distri, ncol = 5)
 
-### 5.3.4 Export the plots ----
+### 5.2.4 Export the plots ----
 
 ggsave(plot = data_pred_distri,
        filename = "figs/04_supp/01_data-explo/03_predictors-distribution.png",
        dpi = 600, height = 12, width = 15)
 
-## 5.4 Correlation between predictors ----
+## 5.3 Correlation between predictors ----
 
 data_correlation <- round(cor(data_predictors_pred %>% 
                                 select(-territory, -datasetID, -month, -day,

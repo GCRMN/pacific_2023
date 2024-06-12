@@ -108,11 +108,8 @@ data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_sst_skewness.csv") %>% 
   left_join(data_predictors, .)
 
-#data_predictors <- read.csv("data/10_predictors/pred_sst_sd.csv") %>% 
-#  left_join(data_predictors, .)
-
-#data_predictors <- read.csv("data/10_predictors/pred_sst_kurtosis.csv") %>% 
-#  left_join(data_predictors, .)
+data_predictors <- read.csv("data/10_predictors/pred_sst_sd.csv") %>% 
+  left_join(data_predictors, .)
 
 data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
   arrange(site_id, type, year) %>% 
@@ -137,7 +134,7 @@ data_predictors <- data_predictors %>%
                 ~ round(.x, digits = 3))) %>% 
   # Round to 2 digits
   mutate(across(c(pred_sst_sd, pred_sst_skewness,
-                  pred_sst_kurtosis, pred_sst_max, pred_sst_mean,
+                  pred_sst_max, pred_sst_mean,
                   pred_sst_min, pred_dhw_max, pred_dhw_max_y1,
                   pred_sst_max_y1, pred_sst_mean_y1),
                 ~ round(.x, digits = 2)))
@@ -149,8 +146,6 @@ data_predictors <- data_predictors %>%
 data_predictors_obs <- data_predictors %>% 
   filter(type == "obs") %>% 
   select(-type, -site_id, -territory)
-
-save(data_predictors_obs, file = "data/11_model-data/data_predictors_obs.RData")
 
 ## 4.2 Predictors values for sites to predict ----
 
