@@ -336,7 +336,7 @@ ggplot(data = data_sst %>%
     theme(strip.text = element_text(hjust = 0.5),
           strip.background = element_blank())
 
-ggsave(filename = "figs/04_supp/03_indicators/02_sst_a.png", width = 10, height = 12, dpi = 300)
+ggsave(filename = "figs/04_supp/03_indicators/02_sst_a.png", width = 10, height = 12, dpi = fig_resolution)
 
 ggplot(data = data_sst %>% 
          filter(TERRITORY1 %in% sort(unique(data_sst$TERRITORY1))[16:30]),
@@ -351,4 +351,29 @@ ggplot(data = data_sst %>%
   theme(strip.text = element_text(hjust = 0.5),
         strip.background = element_blank())
 
-ggsave(filename = "figs/04_supp/03_indicators/02_sst_b.png", width = 10, height = 12, dpi = 300)
+ggsave(filename = "figs/04_supp/03_indicators/02_sst_b.png", width = 10, height = 12, dpi = fig_resolution)
+
+# 8. SST anomaly ----
+
+data_sst %>%
+  filter(!is.na(sst_anom_trend_mean)) %>% 
+  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Islands" = "Isl.",
+                                                    "Federated States of Micronesia" = "Fed. Sts. Micronesia",
+                                                    "Northern" = "North.",
+                                                    "Howland" = "How."))) %>% 
+  ggplot(data = ., aes(x = date, y = TERRITORY1, fill = sst_anom_trend_mean)) +
+  geom_tile() +
+  scale_y_discrete(limits = rev) +
+  scale_fill_gradientn(breaks = c(-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2),
+                       colors = c(palette_first[4], palette_first[3], palette_first[2],
+                                  "white", palette_second[2], palette_second[3], palette_second[4]),
+                       name = "SST anomaly (°C)",
+                       guide = guide_colorbar(ticks.colour = "black", frame.colour = "black", 
+                                              frame.linewidth = 0.5, ticks.linewidth = 0.5)) +
+  labs(x = "Year", y = NULL) +
+  theme_graph() +
+  theme(legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        legend.key.width=unit(2,"cm"))
+  
+ggsave(filename = "figs/A.png", width = 12, height = 9, dpi = fig_resolution)
