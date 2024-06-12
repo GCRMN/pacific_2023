@@ -8,8 +8,7 @@ sf_use_s2(FALSE)
 # 2. Load site coordinates data ----
 
 site_coords <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
-  arrange(type, site_id) %>% 
-  select(-territory)
+  arrange(type, site_id)
 
 # 3. List of ncdf files ----
 

@@ -2,20 +2,40 @@
 
 library(tidyverse)
 library(sf)
+sf_use_s2(FALSE)
 
 # 2. Load benthic cover data ----
 
 load("data/09_misc/data-benthic.RData")
 
-# 3. Estimate human population for missing years ----
+# 3. Load and combine predictors ----
 
-## 3.1 Load the data ----
+## 3.1 Add territory for each site ----
+
+data_eez <- st_read("data/01_background-shp/03_eez/data_eez.shp") %>% 
+  select(TERRITORY1) %>% 
+  rename(territory = TERRITORY1) %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
+
+data_predictors <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
+  st_intersection(., data_eez) %>% 
+  mutate(decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry() %>% 
+  mutate(year = 2000) %>% 
+  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type, territory, decimalLongitude, decimalLatitude))
+
+## 3.2 Estimate human population for missing years ----
+
+### 3.2.1 Load the data ----
 
 pred_human_pop <- read.csv("data/10_predictors/pred_human-pop.csv") %>% 
   rename(year = system.index) %>% 
   mutate(year = as.numeric(str_split_fixed(year, "_", 9)[,6]))
 
-## 3.2 Create the function ----
+### 3.2.2 Create the function ----
 
 extract_coeff <- function(data){
   
@@ -30,7 +50,7 @@ extract_coeff <- function(data){
   
 }
 
-## 3.3 Map over the function ----
+### 3.2.3 Map over the function ----
 
 pred_human_pop <- pred_human_pop %>% 
   # Extract linear model coefficients
@@ -44,63 +64,18 @@ pred_human_pop <- pred_human_pop %>%
   select(-intercept, -slope) %>% 
   mutate(pred_population = round(pred_population))
 
-# 4. Load and combine predictors ----
+data_predictors <- left_join(data_predictors, pred_human_pop)
 
-data_predictors <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
-  mutate(decimalLongitude = st_coordinates(.)[,"X"],
-         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
-  st_drop_geometry() %>% 
-  mutate(year = 2000) %>% 
-  tidyr::complete(year = seq(1980, 2023), nesting(site_id, type, territory, decimalLongitude, decimalLatitude))
-
-data_predictors <- read.csv("data/10_predictors/pred_cyclones.csv") %>% 
-  left_join(data_predictors, .) %>% 
-  mutate(across(c(wind_speed_y5, nb_cyclones, nb_cyclones_y5), ~replace_na(.x, 0)))
+## 3.3 Add other predictors ----
 
 data_predictors <- read.csv("data/10_predictors/pred_elevation.csv") %>% 
   mutate(pred_elevation = replace_na(pred_elevation, 0)) %>% 
   left_join(data_predictors, .)
 
-data_predictors <- read.csv("data/10_predictors/pred_reef-extent.csv") %>% 
-  left_join(data_predictors, .)
-
 data_predictors <- read.csv("data/10_predictors/pred_land.csv") %>% 
   left_join(data_predictors, .)
 
-data_predictors <- read.csv("data/10_predictors/pred_gravity.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_enso.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_sd.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_skewness.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_kurtosis.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_max.csv") %>% 
-  arrange(site_id, type, year) %>% 
-  group_by(site_id, type) %>% 
-  mutate(pred_sst_max_y1 = lag(pred_sst_max, n = 1)) %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_mean.csv") %>% 
-  arrange(site_id, type, year) %>% 
-  group_by(site_id, type) %>% 
-  mutate(pred_sst_mean_y1 = lag(pred_sst_mean, n = 1)) %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>% 
-  left_join(data_predictors, .)
-
-data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
-  arrange(site_id, type, year) %>% 
-  group_by(site_id, type) %>% 
-  mutate(pred_dhw_max_y1 = lag(pred_dhw_max, n = 1)) %>% 
+data_predictors <- read.csv("data/10_predictors/pred_reef-extent.csv") %>% 
   left_join(data_predictors, .)
 
 data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>% 
@@ -109,9 +84,47 @@ data_predictors <- read.csv("data/10_predictors/pred_chla_mean.csv") %>%
 data_predictors <- read.csv("data/10_predictors/pred_chla_sd.csv") %>% 
   left_join(data_predictors, .)
 
-data_predictors <- left_join(data_predictors, pred_human_pop)
+data_predictors <- read.csv("data/10_predictors/pred_gravity.csv") %>% 
+  left_join(data_predictors, .)
 
-# 5. Round values of predictors ----
+data_predictors <- read.csv("data/10_predictors/pred_enso.csv") %>% 
+  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_sst_mean.csv") %>% 
+  arrange(site_id, type, year) %>% 
+  group_by(site_id, type) %>% 
+  mutate(pred_sst_mean_y1 = lag(pred_sst_mean, n = 1)) %>% 
+  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_sst_max.csv") %>% 
+  arrange(site_id, type, year) %>% 
+  group_by(site_id, type) %>% 
+  mutate(pred_sst_max_y1 = lag(pred_sst_max, n = 1)) %>% 
+  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_sst_min.csv") %>% 
+  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_sst_skewness.csv") %>% 
+  left_join(data_predictors, .)
+
+#data_predictors <- read.csv("data/10_predictors/pred_sst_sd.csv") %>% 
+#  left_join(data_predictors, .)
+
+#data_predictors <- read.csv("data/10_predictors/pred_sst_kurtosis.csv") %>% 
+#  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_dhw_max.csv") %>% 
+  arrange(site_id, type, year) %>% 
+  group_by(site_id, type) %>% 
+  mutate(pred_dhw_max_y1 = lag(pred_dhw_max, n = 1)) %>% 
+  left_join(data_predictors, .)
+
+data_predictors <- read.csv("data/10_predictors/pred_cyclones.csv") %>% 
+  left_join(data_predictors, .) %>% 
+  mutate(across(c(wind_speed_y5, nb_cyclones, nb_cyclones_y5), ~replace_na(.x, 0)))
+
+# 3.4 Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
   # Change unit for SST (°C)
@@ -129,9 +142,9 @@ data_predictors <- data_predictors %>%
                   pred_sst_max_y1, pred_sst_mean_y1),
                 ~ round(.x, digits = 2)))
 
-# 6. Split predictors in observed and to predict tibbles ----
+# 4. Split predictors in observed and to predict data ----
 
-## 6.1 Predictors values for sites with observed data ----
+## 4.1 Predictors values for sites with observed data ----
 
 data_predictors_obs <- data_predictors %>% 
   filter(type == "obs") %>% 
@@ -139,7 +152,7 @@ data_predictors_obs <- data_predictors %>%
 
 save(data_predictors_obs, file = "data/11_model-data/data_predictors_obs.RData")
 
-## 6.2 Predictors values for sites to predict ----
+## 4.2 Predictors values for sites to predict ----
 
 data_predictors_pred <- data_predictors %>% 
   filter(type == "pred") %>% 
@@ -153,9 +166,9 @@ data_predictors_pred <- data_predictors %>%
 
 save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData")
 
-# 7. Summarize data and add predictors ----
+# 5. Summarize data and add predictors ----
 
-## 7.1 Transform the data ----
+## 5.1 Transform the data ----
 
 data_benthic <- data_benthic %>% 
   # 1. Sum of benthic cover per sampling unit (site, transect, quadrat) and category
@@ -184,6 +197,6 @@ data_benthic <- data_benthic %>%
   # 6. Add predictors
   left_join(., data_predictors_obs)
 
-## 7.2 Export the data ----
+## 5.2 Export the data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")

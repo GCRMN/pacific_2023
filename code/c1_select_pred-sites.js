@@ -5,10 +5,10 @@ var data_reefs = ee.FeatureCollection("users/jeremywicquart/pacific_2023_reefs")
 // 2. Create the random points over coral reefs ----
 
 var site_coords = ee.FeatureCollection.randomPoints(
-    {region: data_reefs, points: 1000, seed: 0, maxError: 1})
+    {region: data_reefs, points: 10000, seed: 0, maxError: 1})
     .map(function (feature) {
       return feature.set("type", "pred"); // add type of points (pred = prediction)
-      });
+    });
   
 // 3. Data vizualisation ----
 

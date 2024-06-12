@@ -9,11 +9,43 @@ library(furrr)
 
 plan(multisession, workers = 4) # Set parallelization with 4 cores
 
-# 2. Load file of coral reefs EEZ ----
+# 2. Load and transform coral reefs EEZ ----
+
+## 2.1 Load file ----
 
 data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>% 
   select(TERRITORY1) %>% 
   mutate(TERRITORY1 = as.character(TERRITORY1))
+
+## 2.2 Add Entire Pacific region ----
+
+data_reef <- data_reef %>% 
+  st_union() %>% 
+  as_tibble() %>% 
+  st_as_sf(crs = 4326) %>% 
+  mutate(TERRITORY1 = "Entire Pacific region") %>% 
+  bind_rows(data_reef, .)
+
+## 2.3 Add Kiribati ----
+
+data_reef <- data_reef %>% 
+  filter(TERRITORY1 %in% c("Gilbert Islands", "Phoenix Group", "Line Group")) %>% 
+  st_union() %>% 
+  as_tibble() %>% 
+  st_as_sf(crs = 4326) %>% 
+  mutate(TERRITORY1 = "Kiribati") %>% 
+  bind_rows(data_reef, .)
+
+## 2.4 Add PRIA ----
+
+data_reef <- data_reef %>% 
+  filter(TERRITORY1 %in% c("Johnston Atoll", "Palmyra Atoll", "Wake Island",
+                           "Howland and Baker Islands", "Jarvis Island")) %>% 
+  st_union() %>% 
+  as_tibble() %>% 
+  st_as_sf(crs = 4326) %>% 
+  mutate(TERRITORY1 = "Pacific Remote Island Area") %>% 
+  bind_rows(data_reef, .)
 
 # 3. List files of SST to download ----
 
@@ -65,12 +97,27 @@ extract_sst <- function(row_nb, data_reef = data_reef){
 
 # 5. Map over the function ----
 
-data_sst <- future_map_dfr(1:nrow(list_url), ~extract_sst(row_nb = ., data_reef = data_reef)) %>% 
+start <- Sys.time()
+
+data_sst <- future_map_dfr(4601:5000, ~extract_sst(row_nb = ., data_reef = data_reef)) %>% 
   rename(sst = analysed_sst) %>% 
   left_join(., data_reef %>% 
               st_drop_geometry() %>% 
               mutate(ID = row_number())) %>% 
   select(-ID)
+
+end <- Sys.time()
+
+end - start
+  
+
+
+
+load("data/09_misc/data-sst.RData")
+
+data_sst_new <- data_sst
+
+data_sst <- bind_rows(data_sst, data_sst_new)
 
 # 6. Export the data ----
 

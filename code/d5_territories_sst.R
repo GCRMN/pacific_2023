@@ -62,6 +62,8 @@ data_warming <- data_sst %>%
               select(TERRITORY1, mean_sst) %>% 
               distinct())
 
+write.csv(data_warming, "data/09_misc/data_warming.csv", row.names = FALSE)
+
 ## 4.4 Export the table ----
 
 ### 4.4.1 Transform the table ----

@@ -20,82 +20,58 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 ## 2. Code
 
-### A. Cleaning and selection (`01_`)
-
-* `01_benthic_data_sources.R` Extract data sources from [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos).
-* `01_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
-* `01_clean_cyclones.R` Clean cyclone dataset from [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive).
-* `01_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
-* `01_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
-* `01_clean-reef-distribution.R` Select Pacific coral reefs distribution from the [Tropical Coral Reefs of the World](https://datasets.wri.org/dataset/tropical-coral-reefs-of-the-world-500-m-resolution-grid) World Resources Institute (WRI).
-* `01_download_coraltemp.R` Download [CoralTemp](https://coralreefwatch.noaa.gov/index.php) NetCDF4+ files for SST and DHW.
-* `01_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
-
-### B. Extraction and models (`02_`)
-
-#### B1. Indicators
-
-* `02_extract_indicator_cyclones` Extract cyclones for each EEZ.
-* `02_extract_dhw-percent.R` Extract percent of coral reefs under DHW for each EEZ.
-* `02_extract_dhw-time-series.R` Extract maximum DHW within each EEZ.
-* `02_extract_elevation.js` Extract mean land elevation for each territory using Google Earth Engine (GEE). Estimated values are used as geographic information's.
-* `02_extract_land-area.js` Extract total land area for each territory using GEE. Estimated values are used as geographic information's.
-* `02_extract_map-dhw.R` Create raster with the mean annual DHW for each cell.
-* `02_extract_population.R` Extract human population for each territory. Estimated values are used as geographic information's.
-* `02_reef-buffer.js` Create coral reef distribution buffer of 100 km. Used to extract cyclones occurrence.
-* `02_extract_sst-time-series.R` Extract SST and SST anomaly on coral reefs of each EEZ.
-
-#### B2. Predictors
-
-* `02_extract_predictor_chla.js` Extract chlorophyll _a_ as a predictor, using GEE.
-* `02_extract_predictor_population.js` Extract total human population within 10 km from each site as a predictor, using GEE.
-* `02_extract_predictor_elevation.js` Extract mean land elevation within 10 km from each site as a predictor, using GEE.
-* `02_extract_predictor_reef-extent.js` Extract total coral reef extent within 10 km from each site as a predictor, using GEE.
-* `02_extract_predictor_land.js` Extract total land area within 10 km from each site as a predictor, using GEE.
-* `02_extract_predictor_gravity.R` Extract gravity as a predictor.
-* `02_extract_predictor_sst.js` Extract SST mean from each site as a predictor, using GEE.
-
-#### B3. Models
-
-* `02_model_site-coordinates.R` Extract site coordinates for coral reefs sites to predict.
-* `02_model_data-preparation.R` Combine predictors and prepare benthic data for the models.
-* `02_model_data-exploration.Rmd` Data exploration for benthic cover.
-* `02_model.R` Models for the estimation of temporal trends of benthic cover.
-
-### C. Figures and tables (`03_`)
-
-* `03_benthic-cover-trends.Rmd` Produce figures of hard coral and algae cover trends.
-* `03_indicators.R` Combine and export indicators' values.
-* `03_materials-and-methods.R` Produce figures for the Materials and Methods section of the report.
-
-#### C1. Pacific region
-
-* `03_pacific_cyclones.R` Produce figure and map of cyclones that occurred over the Pacific region.
-* `03_pacific_map.R` Produce map of the entire Pacific GCRMN region with description of EEZ.
-* `03_pacific_map-dhw.R` Produce map of DHW for each year.
-* `03_pacific_population.R` Produce figure of human population change between 2000 and 2020.
-* `03_pacific_rel-reef-area.R` Produce figure of relative reef area of Pacific territories.
-* `03_pacific_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for the Pacific region.
-* `03_pacific_sst.R` Produce figures of maximum DHW and DHW percent for the Pacific region.
-
-#### C2. Countries and territories
-
-* `03_territories_cyclones.R` Produce figures and maps of cyclones that occurred on each EEZ.
-* `03_territories_map.R` Produce maps for each EEZ.
-* `03_territories_map-sphere.R` Produce hemisphere maps for each EEZ.
-* `03_territories_spatio-temporal.R` Produce figure and map of spatio-temporal distribution of benthic cover monitoring for each EEZ.
-* `03_territories_sst.R` Produce figures of SST, SST anomaly and DHW for each EEZ.
-
-#### C3. Case studies
-
-* `03_case-studies.R` Produce figures and maps for case studies.
-
-### D. Functions
+### Functions
 
 * `data_descriptors.R` Get number of sites, surveys, datasets, first and last year of monitoring.
 * `graphical_par.R` Graphical parameters, including colors and fonts.
 * `theme_graph.R` Main ggplot theme for the plots of the reports.
 * `theme_map.R` Main ggplot theme for the maps of the reports.
+
+### Cleaning and selection (`a_`)
+
+* `a1_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
+* `a2_benthic_data_sources.R` Extract data sources from [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos).
+* `a3_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
+* `a4_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
+* `a5_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).
+* `a6_clean-reef-distribution.R` Select Pacific coral reefs distribution from the [Tropical Coral Reefs of the World](https://datasets.wri.org/dataset/tropical-coral-reefs-of-the-world-500-m-resolution-grid) World Resources Institute (WRI).
+* `a7_reef-buffer.js` Create 100 km reef buffer using Google Earth Engine (GEE). 
+* `a8_clean_cyclones.R` Clean cyclone dataset from [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive).
+* `a9_extract_dhw-year.R` Create TIFF files of maximum DHW per year using [Coral Reef Watch data](https://coralreefwatch.noaa.gov/product/5km/index_5km_dhw.php).
+
+### Extract indicators (except benthic cover) (`b_`)
+
+* `b1_extract_indicator_land.js` Extract total land area for each EEZ using GEE.
+* `b2_extract_indicator_elevation.js` Extract mean land elevation for each EEZ using GEE.
+* `b3_extract_indicator_population.js` Extract human population for each EEZ using GEE. 
+* `b4_extract_indicator_sst.R` Extract SST on coral reefs for each EEZ.
+* `b5_extract_indicator_cyclones.R` Extract cyclones on coral reefs for each EEZ.
+
+### Models (benthic cover) (`c_`)
+
+* `c1_select_pred-sites.js`
+* `c2_extract_predictor_gee.js`
+* `c3_extract_predictor_gravity.R`
+* `c4_extract_predictor_enso.R`
+* `c5_extract_predictor_cyclones.R`
+* `c6_extract_predictor_dhw-year.R`
+* `c7_model_data-preparation.R` 
+* `c8_model_data-exploration.R`
+
+### Figures and tables (`d_`)
+
+* `d1_materials-and-methods.R`
+* `d2_pacific_map.R`        
+* `d3_territories_map.R`
+* `d4_pacific_sst.R`
+* `d5_territories_sst.R`              
+* `d6_pacific_cyclones.R`
+* `d7_territories_cyclones.R`
+* `d8_pacific_spatio-temporal.R`      
+* `d9_territories_spatio-temporal.R`
+* `d10_benthic-cover_trends.R`  
+* `d11_other-indicators.R`
+* `d12_case-studies.R`
 
 ## 3. Reproducibility parameters
 

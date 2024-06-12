@@ -2,8 +2,15 @@
 
 // 1.1 Load sites with observed data and sites to predict ----
 
-var site_obs = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords_obs");
-var site_pred = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords_pred");
+var site_obs = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords_obs")
+  .map(function (feature) {
+      return feature.set({'site_id': feature.id()}); // add row id
+  });
+    
+var site_pred = ee.FeatureCollection("users/jeremywicquart/pacific_2023_site-coords_pred")
+  .map(function (feature) {
+      return feature.set({'site_id': feature.id()}); // add row id
+  });
 
 // 1.2 Data vizualisation ----
 
@@ -63,7 +70,7 @@ Export.table.toDrive({
   fileNamePrefix:"pred_human-pop",
   fileFormat:"CSV",
   description:"pred_human-pop",
-  selectors:["system:index", "type", "pred_population"]
+  selectors:["system:index", "site_id", "type", "pred_population"]
 });
 
 // 3. Extract predictor "land extent around 10 km radius from the site" ////////////////////////////////

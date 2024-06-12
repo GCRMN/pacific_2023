@@ -8,10 +8,7 @@ sf_use_s2(FALSE)
 
 # 2.1 Coral reef distribution --
 
-data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>% 
-  st_transform(crs = 4326) %>% 
-  st_wrap_dateline() %>% 
-  st_make_valid()
+data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 
 # 2.2 Cyclones lines --
 
@@ -41,14 +38,19 @@ data_eez <- data_eez %>%
 data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
   st_transform(crs = 4326) %>% 
   st_wrap_dateline() %>% 
-  st_make_valid() %>% 
-  st_intersection(., data_eez) %>% 
-  select(TERRITORY1) %>% 
-  rename(territory = TERRITORY1)
+  st_make_valid()
 
-# 3. Extract tropical storms ----
+# 3. Visual check ----
 
-# 3.1 Create a function to extract tropical storm for a given EEZ --
+ggplot() +
+  geom_sf(data = data_reef) +
+  geom_sf(data = data_reef_buffer, alpha = 0.1) +
+  geom_sf(data = data_eez, alpha = 0.1) +
+  geom_sf(data = data_ts_lines)
+
+# 4. Extract tropical storms ----
+
+# 4.1 Create a function to extract tropical storm for a given EEZ --
 
 map_event <- function(ts_id_i, data_reef_i){
   
@@ -72,12 +74,12 @@ map_event <- function(ts_id_i, data_reef_i){
   
 }
 
-# 3.2 Create a function to extract tropical storms within 100 km from a reef --
+# 4.2 Create a function to extract tropical storms within 100 km from a reef --
 
 map_cyclone <- function(territory_i){
   
   data_reef_buffer_i <- data_reef_buffer %>% 
-    filter(territory == territory_i)
+    filter(TERRITORY1 == territory_i)
   
   data_reef_i <- data_reef %>% 
     filter(TERRITORY1 == territory_i)
@@ -93,11 +95,11 @@ map_cyclone <- function(territory_i){
   
 }
 
-# 3.3 Map over the function --
+# 4.3 Map over the function --
 
 data_cyclones <- map_dfr(unique(data_eez$TERRITORY1), ~map_cyclone(territory_i = .)) %>% 
   filter(dist < 100) # Remove rows with dist > 100, due to two particular cases (see notebook)
 
-# 4. Export the results ----
+# 5. Export the results ----
 
 save(data_cyclones, file = "data/05_cyclones/02_cyclones_extracted.RData")

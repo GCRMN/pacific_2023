@@ -402,15 +402,31 @@ plot_trends <- function(category_i, data_trends_i){
   data_trends_j <- data_trends_i %>% 
     filter(category == category_i)
   
-  plot_j <- ggplot(data = data_trends_j) +
-    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
-    geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
-    geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
-    scale_fill_identity() +
-    scale_color_identity() +
-    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-    labs(x = "Year", y = "Cover (%)", title = unique(data_trends_j$text_title)) +
-    theme(plot.title = element_markdown(size = 12))
+  if(category_i == "Turf algae"){
+    
+    plot_j <- ggplot(data = data_trends_j) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+      geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+      scale_fill_identity() +
+      scale_color_identity() +
+      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+      labs(x = "Year", y = "Cover (%)", title = unique(data_trends_j$text_title)) +
+      theme(plot.title = element_markdown())
+    
+  }else{
+  
+    plot_j <- ggplot(data = data_trends_j) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+      geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+      scale_fill_identity() +
+      scale_color_identity() +
+      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+      labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
+      theme(plot.title = element_markdown())
+  
+  }
   
   return(plot_j)
   
@@ -430,12 +446,12 @@ combine_plot_trends <- function(territory_i){
   
   if(territory_i == "All"){
     
-    ggsave(filename = "figs/01_part-1/fig-12.png", plot = plot_i, height = 12, width = 4, dpi = 600)  
+    ggsave(filename = "figs/01_part-1/fig-12.png", plot = plot_i, height = 12, width = 5, dpi = fig_resolution)  
     
   }else{
     
-    ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
-           plot = plot_i, height = 12, width = 4, dpi = 600)
+    ggsave(filename = paste0("figs/02_part-2/fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+           plot = plot_i, height = 12, width = 5, dpi = fig_resolution)
     
   }
   
@@ -455,7 +471,7 @@ plot_a <- data_trends %>%
   geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
   scale_fill_identity() +
   scale_color_identity() +
-  lims(y = c(0, 100), x = c(1980, 2023)) +
+  lims(x = c(1975, 2023)) +
   labs(x = "Year", y = "Hard coral cover (%)", title = "GCRMN 2024 Pacific report")
 
 plot_b <- read.csv("data/09_misc/ModelledTrends.all.sum_gcrmn-2020.csv") %>% 
@@ -464,10 +480,13 @@ plot_b <- read.csv("data/09_misc/ModelledTrends.all.sum_gcrmn-2020.csv") %>%
   geom_ribbon(aes(ymin = .lower_0.95, ymax = .upper_0.95, x = Year), fill = palette_second[2], alpha = 0.3) +
   geom_ribbon(aes(ymin = .lower_0.8, ymax = .upper_0.8, x = Year), fill = palette_second[2], alpha = 0.4) +
   geom_line(aes(x = Year, y = value), color = palette_second[2], linewidth = 1) +
-  labs(x = "Year", y = "Hard coral cover (%)", title = "GCRMN 2020 global report") +
-  lims(y = c(0, 100), x = c(1980, 2023))
+  lims(x = c(1975, 2023)) +
+  labs(x = "Year", y = "Hard coral cover (%)", title = "GCRMN 2020 global report")
 
-plot_a + plot_b + plot_layout(ncol = 2)
+plot_a + plot_b + plot_layout(ncol = 1)
 
-ggsave("figs/04_supp/02_model/comparison_2020_trends.png", height = 4, width = 10)
+ggsave("figs/04_supp/02_model/comparison_2020_trends_free.png", height = 8, width = 8)
 
+(plot_a + lims(y = c(0, 100))) + (plot_b + lims(y = c(0, 100))) + plot_layout(ncol = 2)
+
+ggsave("figs/04_supp/02_model/comparison_2020_trends_fixed.png", height = 4, width = 10)

@@ -38,4 +38,4 @@ ggplot() +
 
 # 4. Export the data ----
 
-st_write(data_reef, "data/03_reefs-area_wri/clean/pacific_reef.shp", append = FALSE) # Export for Earth Engine
+st_write(data_reef, "data/03_reefs-area_wri/clean/pacific_reef.shp", append = FALSE)

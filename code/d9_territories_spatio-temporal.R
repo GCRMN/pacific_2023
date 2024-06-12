@@ -81,7 +81,10 @@ data_benthic_sites <- data_benthic %>%
 
 data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 
-data_reefs_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp")
+data_reefs_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
 
 ## 4.5 Labels ----
 
