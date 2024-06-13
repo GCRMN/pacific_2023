@@ -85,8 +85,8 @@ data_table_3 <- data_warming %>%
               rename(territory = TERRITORY1)) %>% 
   select(territory, subterritory, mean_sst, sst_increase, warming_rate) %>% 
   mutate(mean_sst = format(round(mean_sst, 2), nsmall = 2),
-         sst_increase = format(round(sst_increase, 4), nsmall = 2),
-         warming_rate = format(round(warming_rate, 2), nsmall = 2))
+         sst_increase = format(round(sst_increase, 2), nsmall = 2),
+         warming_rate = format(round(warming_rate, 3), nsmall = 2))
 
 ### 4.4.2 Export as .xlsx ----
 
