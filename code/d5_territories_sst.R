@@ -28,9 +28,9 @@ data_sst <- data_sst %>%
 
 ## 4.2 Create the function ----
 
-extract_coeff <- function(data, var){
+extract_coeff <- function(data, var_y, var_x){
   
-  model <- lm(get(var) ~ date, data = data)
+  model <- lm(get(var_y) ~ get(var_x), data = data)
   
   results <- summary(model)$coefficients
   
@@ -48,7 +48,7 @@ data_warming <- data_sst %>%
   mutate(date = as.numeric(as_date(date))) %>% 
   # Extract linear model coefficients
   group_by(TERRITORY1) %>% 
-  group_modify(~extract_coeff(data = .x, var = "sst")) %>% 
+  group_modify(~extract_coeff(data = .x, var_y = "sst", var_x = "date")) %>% 
   ungroup() %>% 
   # Calculate increase in SST over the period
   mutate(min_date = as.numeric(as_date(min(data_sst$date))),
@@ -133,18 +133,9 @@ writeLines(c("\\begin{center}",
              "\\end{center}"),
            paste0("figs/01_part-1/table-3.tex"))
 
-## 4.5 Calculate SST anomaly and SST anomaly trended ----
+## 4.5 Remove grouped territories ----
 
-data_sst <- left_join(data_sst, data_warming) %>% 
-  mutate(date_num = as.numeric(as_date(date)),
-         sst_linear = slope*date_num+intercept) %>% 
-  group_by(TERRITORY1) %>% 
-  mutate(mean_sst = mean(sst, na.rm = TRUE),
-         sst_anom = sst - mean_sst,
-         sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA),
-         sst_anom_trend = sst - sst_linear,
-         sst_anom_trend_mean = roll_mean(x = sst_anom_trend, n = 365, align = "center", fill = NA)) %>% 
-  ungroup() %>% 
+data_sst <- data_sst %>% 
   filter(!(TERRITORY1 %in% c("Entire Pacific region", "Pacific Remote Island Area", "Kiribati")))
 
 # 5. SST (month) for each territory ----
@@ -240,36 +231,60 @@ map(data_sst_month %>%
 
 ## 5.5 Remove useless functions ----
 
-rm(base_plot, map_sst_month, extract_coeff)
+rm(base_plot, map_sst_month, latex_table_line,
+   data_sst_month, data_sst_month_mean, data_table_3)
 
 # 6. SST anomaly for each territory ----
 
-## 6.1 Create the function for the base plot ----
+## 6.1 Calculate SST anomaly ----
+
+data_sst_anom <- data_sst %>% 
+  group_by(TERRITORY1) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE),
+         sst_anom = sst - mean_sst,
+         sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
+  ungroup()
+
+data_sst_anom <- data_sst_anom %>% 
+  mutate(date = as.numeric(as_date(date))) %>% 
+  group_by(TERRITORY1) %>% 
+  # Extract linear model coefficients
+  group_modify(~extract_coeff(data = .x, var_y = "sst_anom_mean", var_x = "date")) %>% 
+  ungroup() %>% 
+  left_join(data_sst_anom, .) %>% 
+  mutate(date_num = as.numeric(as_date(date)),
+         sst_anom_mean_linear = slope*date_num+intercept,
+         sst_anom_null = 0)
+
+## 6.2 Create the function for the base plot ----
 
 base_plot <- function(territory_i){
   
-  data_i <- data_sst %>% 
+  data_i <- data_sst_anom %>% 
     filter(TERRITORY1 %in% territory_i) %>% 
     drop_na(sst_anom_mean)
   
-  plot_i <- ggplot(data = data_i, aes(x = date, y = sst_anom_trend_mean)) + 
-    geom_ribbon(data = data_i %>% mutate(sst_anom_trend_mean = if_else(sst_anom_trend_mean < 0, 0, sst_anom_trend_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_trend_mean), fill = palette_second[3], alpha = 0.9) +
-    geom_ribbon(data = data_i %>% mutate(sst_anom_trend_mean = if_else(sst_anom_trend_mean > 0, 0, sst_anom_trend_mean)),
-                aes(x = date, ymin = 0, ymax = sst_anom_trend_mean), fill = palette_first[3], alpha = 0.9) +
-    geom_hline(yintercept = 0, color = "black") +
-    scale_fill_identity() +
+  plot_i <- ggplot(data = data_i) +
+    #geom_line(aes(x = date, y = sst_anom_null)) +
+    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean < sst_anom_mean_linear,
+                                                                 sst_anom_mean_linear,
+                                                                 sst_anom_mean)),
+                aes(x = date, ymin = sst_anom_mean_linear, ymax = sst_anom_mean), fill = palette_second[3], alpha = 0.9) +
+    geom_ribbon(data = data_i %>% mutate(sst_anom_mean = if_else(sst_anom_mean > sst_anom_mean_linear,
+                                                                 sst_anom_mean_linear,
+                                                                 sst_anom_mean)),
+                aes(x = date, ymin = sst_anom_mean_linear, ymax = sst_anom_mean), fill =  palette_first[3], alpha = 0.9) +
+    geom_line(aes(x = date, y = sst_anom_mean_linear)) +
     theme(strip.background = element_blank(),
           strip.text = element_text(size = 14)) +
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
   
-  
   return(plot_i)
   
 }
 
-## 6.2 Create the function to produce the plots ----
+## 6.3 Create the function to produce the plots ----
 
 map_sst_anom <- function(group_territory_i){
   
@@ -300,9 +315,9 @@ map_sst_anom <- function(group_territory_i){
   
 }
 
-## 6.3 Map over the function ----
+## 6.4 Map over the function ----
 
-map(data_sst_month %>% 
+map(data_sst_anom %>% 
       select(TERRITORY1) %>% 
       distinct() %>% 
       filter(!(TERRITORY1 %in% c("Gilbert Islands", "Line Group", "Phoenix Group",
@@ -312,13 +327,16 @@ map(data_sst_month %>%
       pull(),
     ~map_sst_anom(.))
 
-## 6.4 Remove useless functions ----
+## 6.5 Remove useless functions ----
 
 rm(base_plot, map_sst_anom)
 
 # 7. SST (year) for each territory ----
 
 data_sst <- data_sst %>% 
+  left_join(., data_warming) %>% 
+  mutate(date_num = as.numeric(as_date(date)),
+         sst_linear = slope*date_num+intercept) %>% 
   filter(TERRITORY1 %in% unique(data_sst$TERRITORY1)) %>%  
   mutate(daymonth = str_sub(date, 6, 10),
          year = year(date))
@@ -353,15 +371,16 @@ ggplot(data = data_sst %>%
 
 ggsave(filename = "figs/04_supp/03_indicators/02_sst_b.png", width = 10, height = 12, dpi = fig_resolution)
 
-# 8. SST anomaly ----
+# 8. Comparison of SST anomaly mean detrented between territories ----
 
-data_sst %>%
-  filter(!is.na(sst_anom_trend_mean)) %>% 
-  mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Islands" = "Isl.",
+data_sst_anom %>%
+  drop_na(sst_anom_mean) %>% 
+  mutate(sst_anom_mean_detrented = sst_anom_mean - sst_anom_mean_linear,
+         TERRITORY1 = str_replace_all(TERRITORY1, c("Islands" = "Isl.",
                                                     "Federated States of Micronesia" = "Fed. Sts. Micronesia",
                                                     "Northern" = "North.",
                                                     "Howland" = "How."))) %>% 
-  ggplot(data = ., aes(x = date, y = TERRITORY1, fill = sst_anom_trend_mean)) +
+  ggplot(data = ., aes(x = date, y = TERRITORY1, fill = sst_anom_mean_detrented)) +
   geom_tile() +
   scale_y_discrete(limits = rev) +
   scale_fill_gradientn(breaks = c(-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2),

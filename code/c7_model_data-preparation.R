@@ -152,6 +152,7 @@ data_correlation <- data_predictors %>%
   pivot_longer(1:ncol(.)-1, names_to = "predictor_b", values_to = "coefficient") %>% 
   filter(predictor_a != predictor_b) %>% 
   arrange(coefficient) %>% 
+  # Remove odd row number to remove duplicated pairs of predictors
   filter(row_number(.) %% 2 == 0)
 
 ## 4.2 Remove useless predictors based on correlation ----
