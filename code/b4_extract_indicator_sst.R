@@ -63,33 +63,35 @@ list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2023-12-31
 
 extract_sst <- function(row_nb, data_reef = data_reef){
   
-  # 1. Download file ----
+  # 1. Download file
   
   list_url_i <- list_url %>% 
     filter(row_number(.) == row_nb)
   
   # Use mode "wb" for windows otherwise issue to read the file with terra
   download.file(url = list_url_i[1, "url"],
-                destfile = paste0("data/06_sst/", list_url_i[1, "filename"]), mode = "wb")
+                destfile = paste0("data/06_sst/", list_url_i[1, "filename"]),
+                mode = "wb",
+                timeout = max(300, getOption("timeout"))) # 300 seconds to download the file, else error message
   
-  # 2. Load the raster ----
+  # 2. Load the raster
   
   ncdf <- terra::rast(paste0("data/06_sst/", list_url_i[1, "filename"]))$analysed_sst
   
   crs(ncdf) <- "epsg:4326"
   
-  # 3. Extract SST ----
+  # 3. Extract SST
   
   sst_i <- terra::extract(x = ncdf, y = data_reef, fun = mean, na.rm = TRUE) %>% 
     as_tibble() %>% 
     dplyr::select("ID", "analysed_sst") %>% 
     dplyr::mutate(date = unique(time(ncdf)))
   
-  # 4. Delete raw file ----
+  # 4. Delete raw file
   
   file.remove(paste0("data/06_sst/", list_url_i[1, "filename"]))
   
-  # 5. Return the results ----
+  # 5. Return the results
   
   return(sst_i)
   
@@ -97,27 +99,12 @@ extract_sst <- function(row_nb, data_reef = data_reef){
 
 # 5. Map over the function ----
 
-start <- Sys.time()
-
-data_sst <- future_map_dfr(4601:5000, ~extract_sst(row_nb = ., data_reef = data_reef)) %>% 
+data_sst <- future_map_dfr(1:nrow(list_url), ~extract_sst(row_nb = ., data_reef = data_reef)) %>% 
   rename(sst = analysed_sst) %>% 
   left_join(., data_reef %>% 
               st_drop_geometry() %>% 
               mutate(ID = row_number())) %>% 
   select(-ID)
-
-end <- Sys.time()
-
-end - start
-  
-
-
-
-load("data/09_misc/data-sst.RData")
-
-data_sst_new <- data_sst
-
-data_sst <- bind_rows(data_sst, data_sst_new)
 
 # 6. Export the data ----
 
