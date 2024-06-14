@@ -24,7 +24,8 @@ data_predictors <- st_read("data/04_site-coords/site-coords_all.shp") %>%
   mutate(decimalLongitude = st_coordinates(.)[,"X"],
          decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
   st_drop_geometry() %>% 
-  mutate(year = 2000) %>% 
+  mutate(site_id = as.numeric(site_id),
+         year = 2000) %>% 
   tidyr::complete(year = seq(1980, 2023), nesting(site_id, type, territory, decimalLongitude, decimalLatitude))
 
 ## 3.2 Estimate human population for missing years ----
@@ -160,15 +161,7 @@ data_correlation <- data_predictors %>%
 data_predictors <- data_predictors %>% 
   select(-pred_sst_min)
 
-# 5. Split predictors in observed and to predict data ----
-
-## 5.1 Predictors values for sites with observed data ----
-
-data_predictors_obs <- data_predictors %>% 
-  filter(type == "obs") %>% 
-  select(-type, -site_id, -territory)
-
-## 5.2 Predictors values for sites to predict ----
+# 5. Export predictors for data to predict ----
 
 data_predictors_pred <- data_predictors %>% 
   filter(type == "pred") %>% 
@@ -185,6 +178,12 @@ save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData
 # 6. Summarize data and add predictors ----
 
 ## 6.1 Transform the data ----
+
+data_site_coords_obs <- st_read("data/04_site-coords/site-coords_obs.shp") %>% 
+  mutate(site_id = as.numeric(site_id),
+         decimalLongitude = st_coordinates(.)[,"X"],
+         decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
+  st_drop_geometry()
 
 data_benthic <- data_benthic %>% 
   # 1. Sum of benthic cover per sampling unit (site, transect, quadrat) and category
@@ -210,9 +209,24 @@ data_benthic <- data_benthic %>%
   select(-higherGeography, -country, -locality, -habitat, -eventDate) %>% 
   # 5. Convert to factors
   mutate_if(is.character, factor) %>% 
-  # 6. Add predictors
-  left_join(., data_predictors_obs)
+  # 6. Add site_id and type (to join on step 7)
+  left_join(., data_site_coords_obs) %>% 
+  # 7. Add predictors
+  left_join(., data_predictors %>%
+              filter(type == "obs") %>% 
+              # Remove lat and long because GEE slightly modify these, which break the join
+              select(-decimalLongitude, -decimalLatitude),
+            by = c("site_id", "year", "territory", "type")) %>% 
+  select(-site_id, -type)
 
-## 6.2 Export the data ----
+## 6.2 Check the number of NA per variable ----
+
+data_benthic_na <- data_benthic %>% 
+  summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
+  pivot_longer(1:ncol(.), names_to = "predictor", values_to = "na") %>% 
+  mutate(n = nrow(data_benthic),
+         percent = (na*100)/n)
+
+## 6.3 Export the data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")
