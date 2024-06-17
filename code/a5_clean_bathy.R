@@ -5,20 +5,11 @@ library(RcppRoll)
 library(sf)
 sf_use_s2(FALSE)
 
-# 2. Load EEZ data ----
-
-load("data/01_background-shp/03_eez/data_eez.RData")
-
-data_eez <- data_eez %>% 
-  st_transform(crs = 4326) %>% 
-  st_wrap_dateline() %>% 
-  st_make_valid()
-
-# 3 List path of shapefiles ----
+# 2 List path of shapefiles ----
 
 list_shp <- list.files(path = "data/01_background-shp/01_ne/ne_10m_bathymetry_all/", pattern = ".shp", full.names = TRUE)
 
-# 4 Combine shapefiles ----
+# 3 Combine shapefiles ----
 
 data_bathy <- map_dfr(list_shp, ~st_read(., quiet = TRUE)) %>% 
   mutate(fill_color = case_when(depth == 0 ~ "#e1f5fe",
@@ -39,6 +30,6 @@ data_bathy <- map_dfr(list_shp, ~st_read(., quiet = TRUE)) %>%
   st_make_valid() %>% 
   select(depth, fill_color)
 
-# 5. Export the data ----
+# 4. Export the data ----
 
 save(data_bathy, file = "data/01_background-shp/01_ne/ne_10m_bathymetry_all.RData") # RData

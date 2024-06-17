@@ -45,7 +45,7 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
   scale_fill_identity() +
   scale_color_identity() +
   geom_vline(xintercept = 0) +
-  labs(x = "Change in SST (°C)\nbetween 1980 and 2023", y = NULL) +
+  labs(x = "Change in SST (°C)\nbetween 1985 and 2023", y = NULL) +
   theme_graph() +
   theme(axis.text.y = element_markdown()) +
   coord_cartesian(clip = "off") +

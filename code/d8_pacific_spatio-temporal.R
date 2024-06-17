@@ -244,7 +244,7 @@ data_benthic %>%
 
 ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 4, dpi = fig_resolution)
 
-# 6. Plot of number of surveys per year ----
+# 6. Plot of number of surveys per depth ----
 
 ## 6.1 Make the plot ----
 
