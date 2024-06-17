@@ -4,6 +4,7 @@ library(tidyverse) # Core tidyverse packages
 library(patchwork)
 library(glue)
 library(ggtext)
+library(scales)
 
 # 2. Source functions ----
 
@@ -121,7 +122,7 @@ data_perf_mean_ter <- data_perf %>%
 ggplot(data = data_perf, aes(x = reorder(territory, desc(territory)), color = color, y = rmse)) +
   geom_hline(data = data_perf_mean_all, aes(yintercept = mean_rmse_all)) +
   geom_segment(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
-                                                y = rmse_mean, yend = mean_rmse_all),
+                                              y = rmse_mean, yend = mean_rmse_all),
                color = "black") +
   geom_point(data = data_perf_mean_ter, aes(x = reorder(territory, desc(territory)),
                                             fill = color, y = rmse_mean),
@@ -252,7 +253,7 @@ plot_residuals <- function(category_i, all = FALSE){
       labs(x = "Residual (ŷ - y)", y = "Percentage") +
       theme(strip.text = element_markdown(hjust = 0.5),
             strip.background = element_blank())
-
+    
     ggsave(plot_i, filename = paste0("figs/04_supp/02_model/03_distri-residuals_", 
                                      str_replace_all(str_to_lower(category_i), " ", "-"),
                                      ".png"),
@@ -402,31 +403,16 @@ plot_trends <- function(category_i, data_trends_i){
   data_trends_j <- data_trends_i %>% 
     filter(category == category_i)
   
-  if(category_i == "Turf algae"){
-    
-    plot_j <- ggplot(data = data_trends_j) +
-      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
-      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
-      geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
-      scale_fill_identity() +
-      scale_color_identity() +
-      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-      labs(x = "Year", y = "Cover (%)", title = unique(data_trends_j$text_title)) +
-      theme(plot.title = element_markdown())
-    
-  }else{
-  
-    plot_j <- ggplot(data = data_trends_j) +
-      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
-      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
-      geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
-      scale_fill_identity() +
-      scale_color_identity() +
-      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-      labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
-      theme(plot.title = element_markdown())
-  
-  }
+  plot_j <- ggplot(data = data_trends_j) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+    geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
+    scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
+    labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
+    theme(plot.title = element_markdown())
   
   return(plot_j)
   
