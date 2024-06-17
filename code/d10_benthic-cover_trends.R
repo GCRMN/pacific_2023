@@ -394,9 +394,49 @@ data_trends <- model_results$result_trends %>%
             upper_ci_80 = quantile(cover, 0.80)) %>% 
   ungroup()
 
+## 7.2 Add a variable to know if observed data were available for the year ----
+
+load("data/09_misc/data-benthic.RData")
+
+### 7.2.1 For territories ----
+
+data_benthic_obs <- data_benthic %>% 
+  mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
+                              subcategory == "Turf algae" ~ "Turf algae",
+                              subcategory == "Coralline algae" ~ "Coralline algae",
+                              TRUE ~ category)) %>% 
+  filter(category %in% c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae")) %>% 
+  select(year, territory, category) %>% 
+  distinct() %>% 
+  mutate(region = "Pacific",
+         data_obs = 1)
+
+### 7.2.2 For the Pacific ----
+
+data_benthic_obs <- data_benthic %>% 
+  mutate(category = case_when(subcategory == "Macroalgae" ~ "Macroalgae",
+                              subcategory == "Turf algae" ~ "Turf algae",
+                              subcategory == "Coralline algae" ~ "Coralline algae",
+                              TRUE ~ category)) %>% 
+  filter(category %in% c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae")) %>% 
+  select(year, category) %>% 
+  distinct() %>% 
+  mutate(region = "Pacific",
+         territory = "All",
+         data_obs = 1) %>% 
+  bind_rows(., data_benthic_obs)
+
+### 7.2.3 Join with trends ----
+
+data_trends <- left_join(data_trends, data_benthic_obs) %>% 
+  mutate(data_obs = replace_na(data_obs, 0),
+         category = as.factor(category),
+         category = fct_expand(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"),
+         category = fct_relevel(category, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))
+
 save(data_trends, file = "data/12_model-output/model_results_trends.RData")
 
-## 7.2 Create the function to make a plot ----
+## 7.3 Create the function to make a plot ----
 
 plot_trends <- function(category_i, data_trends_i){
   
@@ -418,7 +458,7 @@ plot_trends <- function(category_i, data_trends_i){
   
 }
 
-## 7.3 Create the function to combine the plots ----
+## 7.4 Create the function to combine the plots ----
 
 combine_plot_trends <- function(territory_i){
   
@@ -443,7 +483,7 @@ combine_plot_trends <- function(territory_i){
   
 }
 
-## 7.4 Map over the function ----
+## 7.5 Map over the function ----
 
 map(unique(data_trends$territory), ~combine_plot_trends(territory_i = .))
 
