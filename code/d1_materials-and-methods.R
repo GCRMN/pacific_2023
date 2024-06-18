@@ -121,13 +121,13 @@ plot_a + plot_b + plot_c + plot_layout(ncol = 3)
 
 ## 3.4. Export the plot ----
 
-ggsave("figs/03_methods/fig-1.png", height = 5, width = 15, dpi = 600)
+ggsave("figs/03_methods/fig-1.png", height = 5, width = 15, dpi = fig_resolution)
 
 # 4. SST change and warming rate ----
 
 ## 4.1. Load data ----
 
-load("data/07_data_sst.RData")
+load("data/09_misc/data-sst.RData")
 load("data/01_background-shp/03_eez/data_eez.RData")
 
 data_sst <- data_eez %>% 
@@ -186,17 +186,17 @@ ggplot(data = data_sst) +
   geom_line(aes(x = date, y = sst_linear), color = "red") +
   geom_point(data = data_sst_point, aes(x = date, y = sst_linear), size = 3, color = "red") +
   annotate(geom = "text", x = as_date("1983-11-01"),
-           y = as.numeric(data_sst_point[1,"sst_linear"]), size = 5,
+           y = as.numeric(data_sst_point[1,"sst_linear"]), size = 5, hjust = 1,
            label = "A", family = font_choose_graph, color = "red") +
   annotate(geom = "text", x = as_date("2024-12-01"),
-           y = as.numeric(data_sst_point[2,"sst_linear"]), size = 5,
+           y = as.numeric(data_sst_point[2,"sst_linear"]), size = 5, hjust = -0.25,
            label = "B", family = font_choose_graph, color = "red") +
   labs(x = "Year", y = "SST (°C)") +
   theme_graph()
   
 ## 4.5 Export the plot ----
-  
-ggsave("figs/03_methods/fig-2.png", height = 5, width = 8)
+
+ggsave("figs/03_methods/fig-2.png", height = 4.5, width = 5, dpi = fig_resolution)
 
 # 5. Grid for ML predictions ----
 
@@ -204,8 +204,12 @@ ggsave("figs/03_methods/fig-2.png", height = 5, width = 8)
 
 data_land <- st_read("data/01_background-shp/02_princeton/palau/PLW_adm0.shp")
 
-data_pred <- st_read("data/04_site-coords/site-coords_all.shp") %>% 
-  filter(territory == "Palau", type == "pred")
+load("data/11_model-data/data_predictors_pred.RData")
+
+data_predictors_pred <- data_predictors_pred %>% 
+  filter(territory == "Palau") %>% 
+  select(decimalLongitude, decimalLatitude) %>% 
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
 load("data/09_misc/data-benthic.RData")
 
@@ -220,7 +224,7 @@ data_benthic <- data_benthic %>%
 plot_a <- ggplot() +
   geom_sf(data = data_land, fill = "darkgrey") +
   geom_sf(data = data_benthic, size = 0.75, col = "red") +
-  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.15)) +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.25)) +
   theme_minimal() +
   labs(title = "Sites with observed data") +
   theme(plot.title = element_text(hjust = 0.5),
@@ -235,8 +239,8 @@ plot_a <- ggplot() +
 
 plot_b <- ggplot() +
   geom_sf(data = data_land, fill = "darkgrey") +
-  geom_sf(data = data_pred, size = 0.75, col = "red") +
-  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.15)) +
+  geom_sf(data = data_predictors_pred, size = 0.75, col = "red") +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.25)) +
   theme_minimal() +
   labs(title = "Sites for making predictions") +
   theme(plot.title = element_text(hjust = 0.5),
@@ -253,4 +257,4 @@ plot_a + plot_spacer() + plot_b
 
 ## 5.5 Export the plot ----
 
-ggsave("figs/03_methods/fig-3.png", dpi = 600)
+ggsave("figs/03_methods/fig-3.png", height = 5, width = 8, dpi = fig_resolution)
