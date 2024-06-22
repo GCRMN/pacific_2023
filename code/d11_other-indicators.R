@@ -481,7 +481,7 @@ data_population <- read.csv("data/02_indicators/ind_human-pop_5km.csv") %>%
   rename(territory = TERRITORY1) %>% 
   select(-date) %>% 
   mutate(population = population*1e-06, # Convert to million
-         territory_type = if_else(territory %in% c("Papua New Guinea", "Fiji", "Hawaii"),
+         territory_type = if_else(territory %in% c("Papua New Guinea", "Solomon Islands", "Hawaii", "Fiji"),
                                   territory, 
                                   "Other territories")) %>% 
   group_by(territory_type, year) %>% 
@@ -494,17 +494,17 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
   geom_area(show.legend = FALSE) +
   scale_fill_manual(values = rev(palette_first)) +
   labs(x = "Year", y = "Inhabitants (millions)") +
-  annotate(geom = "text", label = "Papua New Guinea", x = 2003, y = 0.45, 
-           family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Other territories", x = 2003, y = 1.75, 
-           family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Hawaii", x = 2003, y = 3.1, 
-           family = font_choose_graph, color = "white", hjust = 0) +
-  annotate(geom = "text", label = "Fiji", x = 2003, y = 3.8, 
-           family = font_choose_graph, color = "white", hjust = 0) +
-  theme_graph() + 
-  lims(y = c(0, 6)) +
-  scale_x_continuous(expand = expansion(mult = c(0.025, 0.025)), limits = c(2000, 2020))
+  annotate(geom = "text", label = "Solomon Islands", x = 2019, y = 0.22, 
+           family = font_choose_graph, color = "white", hjust = 1) +
+  annotate(geom = "text", label = "Papua New Guinea", x = 2019, y = 0.9, 
+           family = font_choose_graph, color = "white", hjust = 1) +
+  annotate(geom = "text", label = "Other territories", x = 2019, y = 2, 
+           family = font_choose_graph, color = "white", hjust = 1) +
+  annotate(geom = "text", label = "Hawaii", x = 2019, y = 3.3, 
+           family = font_choose_graph, color = "white", hjust = 1) +
+  annotate(geom = "text", label = "Fiji", x = 2019, y = 4.05, 
+           family = font_choose_graph, color = "white", hjust = 1) +
+  theme_graph()
 
 ## 6.3 Export the plot ----
 

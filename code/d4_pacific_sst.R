@@ -84,21 +84,21 @@ data_enso <- read_table("data/09_misc/enso-soi.txt", skip = 87) %>%
 ## 4.2 Make the plot ----
 
 ggplot() +
-  geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
+  #geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
               aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[3], alpha = 0.9) +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll > 0, 0, soi_roll)),
               aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_second[3], alpha = 0.9) +
-  geom_line(data = data_enso, aes(x = date, y = soi_roll), linewidth = 0.3) +
+  #geom_line(data = data_enso, aes(x = date, y = soi_roll), linewidth = 0.3) +
   labs(x = "Year", y = "Southern Oscillation Index") +
   # Annotation
-  annotate(geom = "rect", xmin = ym("1986-06"), xmax = ym("1993-08"),
-           ymin = 2.3, ymax = 2.7, fill = palette_first[3], color = NA) +
+  annotate(geom = "rect", xmin = ym("1985-06"), xmax = ym("1994-08"),
+           ymin = 2.2, ymax = 2.8, fill = palette_first[3], color = NA) +
   annotate(geom = "text", x = ym("1990-01"), y = 2.5, color = "white",
            label = "La Niña", family = font_choose_graph, size = 5) +
-  annotate(geom = "rect", xmin = ym("2011-07"), xmax = ym("2018-06"),
-           ymin = -3.2, ymax = -2.775, fill = palette_second[3], color = NA) +  
-  annotate(geom = "text", x = ym("2015-01"), y = -3, color = "white",
+  annotate(geom = "rect", xmin = ym("2010-07"), xmax = ym("2019-06"),
+           ymin = -2.2, ymax = -2.8, fill = palette_second[3], color = NA) +  
+  annotate(geom = "text", x = ym("2015-01"), y = -2.5, color = "white",
            label = "El Niño", family = font_choose_graph, size = 5) +
   scale_y_continuous(limits = c(-3.5, 3.5), breaks = c(-3, -2, -1, 0, 1, 2, 3)) +
   coord_cartesian(clip = "off")
