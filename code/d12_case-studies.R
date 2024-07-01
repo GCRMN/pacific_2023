@@ -13,11 +13,11 @@ colors <- c(palette_first[5], palette_first[3])
 
 load("data/01_background-shp/02_princeton/data_land.RData")
 
-# 3. Case study for New Caledonia (Laurent Wantiez) ----
+# 3. Case study for New Caledonia ----
 
 ## 3.1 Load and transform data ----
 
-data_ouano <- read_xlsx("data/13_boxes/BACI Poissons Ouano 04_20.xlsx", sheet = 1) %>% 
+data_ouano <- read_xlsx("data/13_case-studies/BACI Poissons Ouano 04_20.xlsx", sheet = 1) %>% 
   rename(year = "Année") %>% 
   group_by(year, Protection) %>% 
   summarise(biomass_mean = mean(B_Com),
@@ -99,7 +99,7 @@ plot_a + plot_b &
   plot_annotation(theme = theme(plot.background = element_rect(fill = "transparent", colour = NA_character_),
                                 panel.border = element_rect(fill = NA, color = NA)))
 
-ggsave("figs/02_part-2/case-studies/01_new-caledonia_2.png",
+ggsave("figs/02_part-2/case-studies/new-caledonia_2.png",
        bg = "transparent", width = 10, height = 4.5, dpi = 300)
 
 ## 3.5 Map ----
@@ -122,15 +122,28 @@ ggplot() +
         plot.background = element_rect(fill = "transparent", color = NA)) +
   coord_sf(x = c(163, 168.6), y = c(-23, -19))
 
-ggsave("figs/02_part-2/case-studies/01_new-caledonia_1.png", bg = "transparent")
+ggsave("figs/02_part-2/case-studies/new-caledonia_1.png", bg = "transparent")
 
 ## 3.6 Remove useless objects ----
 
 rm(data_land_ouano, data_ouano, plot_a, plot_b)
 
-# 4. Case study for Guam (Mary Allen) ----
+# 4. Case study for Guam ----
 
-## 4.1 Map ----
+## 4.1 Figure ----
+
+data_guam <- read_xlsx("data/13_case-studies/socmon_guam.xlsx", sheet = 1) %>% 
+  mutate(question = str_wrap(question, width = 25))
+
+ggplot(data = data_guam, aes(x = question, y = percentage, fill = reply)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  scale_fill_manual(breaks = c("Never", "Rarely", "Sometimes/Frequently"),
+                    values = c("#ce6693", "#f8a07e", "#2C5D96")) +
+  labs(x = NULL, y = "Percentage of respondants") +
+  theme_graph()
+
+## 4.2 Map ----
 
 data_land_guam <- data_land %>% 
   filter(TERRITORY1 == "Guam")
@@ -143,30 +156,86 @@ ggplot() +
         axis.title = element_blank(),
         plot.background = element_rect(fill = "transparent", color = NA))
 
-ggsave("figs/02_part-2/case-studies/02_guam_1.png", bg = "transparent")
+ggsave("figs/02_part-2/case-studies/guam_1.png", bg = "transparent")
 
-## 4.2 Remove useless objects ----
+## 4.3 Remove useless objects ----
 
-rm(data_land_guam)
+rm(data_land_guam, data_guam)
 
-# 5. Case study for Yap (Mary Allen) ----
+# 5. Case study for Yap ----
 
-## 5.1 Map ----
+## 5.1 Figure ----
 
-data_land_yap <- data_land %>% 
-  filter(TERRITORY1 == "Federated States of Micronesia")
+data_yap <- read.csv("data/13_case-studies/FSM_Weloy_CSV.csv") %>% 
+  select("Questionnaire_ID", "condition_coral", "condition_fish",
+         "condition_shell", "condition_invertebrate",
+         "condition_crabs", "condition_salt_water") %>% 
+  pivot_longer(2:ncol(.), names_to = "question", values_to = "value") %>% 
+  mutate(question = str_remove_all(question, "condition_|_"),
+         question = str_replace_all(question, c("coral" = "Hard corals",
+                                                "fish" = "Fishes",
+                                                "shell" = "Shells",
+                                                "invertebrate" = "Invertebrates",
+                                                "crabs" = "Crabs",
+                                                "saltwater" = "Sea water")),
+         value = as.character(value),
+         # Codes taken from the file "FSM_Weloy_codebook.xlsx"
+         value = str_replace_all(value, c("1" = "A lot worse",
+                                          "2" = "Somewhat worse",
+                                          "3" = "Stayed the same",
+                                          "4" = "Somewhat better",
+                                          "5" = "A lot better",
+                                          "8" = "Don't know"))) %>% 
+  group_by(question, value) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(question) %>% 
+  mutate(perc = (n*100)/sum(n)) %>% 
+  ungroup() %>% 
+  mutate(value = factor(value, c("A lot worse", "Somewhat worse",
+                                 "Stayed the same", "Somewhat better",
+                                 "A lot better", "Don't know")),
+         perc_label = round(perc, 0),
+         perc_label = if_else(perc_label < 5, "", as.character(perc_label)))
+
+ggplot(data = data_yap, aes(x = question, y = perc, fill = value, label = perc_label)) +
+  geom_bar(stat = "identity", width = 0.75,
+           position = position_stack(reverse = TRUE)) +
+  geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
+            family = font_choose_graph, size = 3) + 
+  coord_flip() +
+  scale_fill_manual(breaks = c("A lot worse", "Somewhat worse",
+                               "Stayed the same", "Somewhat better",
+                               "A lot better", "Don't know"),
+                    values = c("#ce6693", "#f8a07e", "#B2BBCC", "#7393C9", "#2C5D96", "#efeff0")) +
+  scale_x_discrete(limits = rev) +
+  labs(x = NULL, y = "Percentage of respondents", fill = "Perceived\ncondition") +
+  theme_graph() +
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("figs/02_part-2/case-studies/federated-states-of-micronesia_2.png",
+       width = 10, height = 4, bg = "transparent")
+
+## 5.2 Map ----
+
+data_land_yap <- st_read("data/13_case-studies/yap_municipality_poly_approximate.shp") %>% 
+  mutate(color = if_else(Name == "Weloy", colors[2], "lightgrey"))
 
 ggplot() +
-  geom_sf(data = data_land_yap) +
+  geom_sf(data = data_land_yap, aes(fill = color)) +
+  geom_sf_label(data = data_land_yap %>% filter(Name == "Weloy"),
+                aes(label = "WELOY"), fill = colors[2], size = 7, label.padding = unit(7, "pt"),
+                color = "white", family = font_choose_graph, nudge_x = -4000, nudge_y = 2000) +
   theme_minimal() +
+  scale_fill_identity() +
   theme(panel.grid = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
-        plot.background = element_rect(fill = "transparent", color = NA)) +
-  coord_sf(x = c(138, 138.25), y = c(9.4, 9.67))
+        plot.background = element_rect(fill = "transparent", color = NA))
 
-ggsave("figs/02_part-2/case-studies/03_yap_1.png", bg = "transparent")
+ggsave("figs/02_part-2/case-studies/federated-states-of-micronesia_1.png", bg = "transparent")
 
-## 5.2 Remove useless objects ----
+## 5.3 Remove useless objects ----
 
 rm(data_land_yap)
