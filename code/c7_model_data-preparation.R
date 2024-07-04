@@ -177,13 +177,46 @@ save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData
 
 # 6. Summarize data and add predictors ----
 
-## 6.1 Transform the data ----
-
 data_site_coords_obs <- st_read("data/04_site-coords/site-coords_obs.shp") %>% 
   mutate(site_id = as.numeric(site_id),
          decimalLongitude = st_coordinates(.)[,"X"],
          decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
   st_drop_geometry()
+
+## 6.1 Major hard coral families ----
+
+data_benthic_hc <- data_benthic %>% 
+  # 1. Sum of benthic cover per sampling unit (site, transect, quadrat) and category
+  filter(family %in% c("Acroporidae", "Pocilloporidae", "Poritidae")) %>% 
+  mutate(category = family) %>% 
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, eventID, category) %>% 
+  summarise(measurementValue = sum(measurementValue)) %>% 
+  ungroup() %>% 
+  # 2. Summarise data at the transect level (i.e. mean of photo-quadrats)
+  # This avoid getting semi-quantitative data (e.g. when there is only 10 points per photo-quadrat)
+  # This is the case for datasets "0011", "0012", "0013", "0014", and "0043" at least
+  group_by(datasetID, higherGeography, country, territory, locality, habitat, parentEventID,
+           decimalLatitude, decimalLongitude, verbatimDepth, year, month, day, eventDate, category) %>% 
+  summarise(measurementValue = mean(measurementValue)) %>% 
+  ungroup() %>% 
+  # 3. Remove values greater than 100 (unlikely but included to avoid any issues later)
+  filter(measurementValue <= 100) %>% 
+  # 4. Remove useless variables
+  select(-higherGeography, -country, -locality, -habitat, -eventDate) %>% 
+  # 5. Convert to factors
+  mutate_if(is.character, factor) %>% 
+  # 6. Add site_id and type (to join on step 7)
+  left_join(., data_site_coords_obs) %>% 
+  # 7. Add predictors
+  left_join(., data_predictors %>%
+              filter(type == "obs") %>% 
+              # Remove lat and long because GEE slightly modify these, which break the join
+              select(-decimalLongitude, -decimalLatitude),
+            by = c("site_id", "year", "territory", "type")) %>% 
+  select(-site_id, -type)
+
+## 6.2 Major benthic categories ----
 
 data_benthic <- data_benthic %>% 
   # 1. Sum of benthic cover per sampling unit (site, transect, quadrat) and category
@@ -217,9 +250,10 @@ data_benthic <- data_benthic %>%
               # Remove lat and long because GEE slightly modify these, which break the join
               select(-decimalLongitude, -decimalLatitude),
             by = c("site_id", "year", "territory", "type")) %>% 
-  select(-site_id, -type)
+  select(-site_id, -type) %>% 
+  bind_rows(., data_benthic_hc)
 
-## 6.2 Check the number of NA per variable ----
+## 6.3 Check the number of NA per variable ----
 
 data_benthic_na <- data_benthic %>% 
   summarise(across(1:ncol(.), ~sum(is.na(.x)))) %>% 
@@ -227,6 +261,6 @@ data_benthic_na <- data_benthic %>%
   mutate(n = nrow(data_benthic),
          percent = (na*100)/n)
 
-## 6.3 Export the data ----
+## 6.4 Export the data ----
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")

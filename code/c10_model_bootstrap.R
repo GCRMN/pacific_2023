@@ -16,7 +16,7 @@ load("data/11_model-data/data_predictors_pred.RData")
 load("data/12_model-output/model_tuning.RData")
 
 model_hyperparams <- tuning_results$model_hyperparams
-  
+
 # 3. Create the function ----
 
 model_bootstrap <- function(category_i, bootstrap_i, pdp){
@@ -168,42 +168,76 @@ model_bootstrap <- function(category_i, bootstrap_i, pdp){
 
 # 4. Map over the function ----
 
-## 4.1 Hard coral ----
+## 4.1 Major benthic categories ----
 
-model_results <- map(1:5, ~model_bootstrap(category_i = "Hard coral",
-                                           bootstrap_i = .,
-                                           pdp = FALSE)) %>% 
+### 4.1.1 Hard coral ----
+
+model_results <- map(1:100, ~model_bootstrap(category_i = "Hard coral",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_hard-coral.RData")
 
-## 4.2 Macroalgae ----
+### 4.1.2 Macroalgae ----
 
-model_results <- map(1:30, ~model_bootstrap(category_i = "Macroalgae",
-                                           bootstrap_i = .,
-                                           pdp = FALSE)) %>% 
+model_results <- map(1:100, ~model_bootstrap(category_i = "Macroalgae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_macroalgae.RData")
 
-## 4.3 Turf algae ----
+### 4.1.3 Turf algae ----
 
-model_results <- map(1:10, ~model_bootstrap(category_i = "Turf algae",
-                                           bootstrap_i = .,
-                                           pdp = FALSE)) %>% 
+model_results <- map(1:100, ~model_bootstrap(category_i = "Turf algae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_turf-algae.RData")
 
-## 4.4 Coralline algae ----
+### 4.1.4 Coralline algae ----
 
-model_results <- map(1:10, ~model_bootstrap(category_i = "Coralline algae",
-                                           bootstrap_i = .,
-                                           pdp = FALSE)) %>% 
+model_results <- map(1:100, ~model_bootstrap(category_i = "Coralline algae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_coralline-algae.RData")
+
+## 4.2 Major hard coral families ----
+
+### 4.2.1 Acroporidae ----
+
+model_results <- map(1:100, ~model_bootstrap(category_i = "Acroporidae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_acroporidae.RData")
+
+### 4.2.2 Poritidae ----
+
+model_results <- map(1:100, ~model_bootstrap(category_i = "Poritidae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_poritidae.RData")
+
+### 4.2.3 Pocilloporidae ----
+
+model_results <- map(1:100, ~model_bootstrap(category_i = "Pocilloporidae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_pocilloporidae.RData")

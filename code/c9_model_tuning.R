@@ -43,7 +43,7 @@ hyperparam_tuning <- function(category_i){
   
   boosted_recipe <- recipe(measurementValue ~ ., data = data_train) %>% 
     step_dummy(all_nominal_predictors())
-
+  
   ## 2.2 Define the model
   
   boosted_model <- boost_tree(learn_rate = tune(),
@@ -129,7 +129,8 @@ hyperparam_tuning <- function(category_i){
 
 # 4. Map over the function ----
 
-tuning_results <- future_map(unique(data_benthic$category),
+tuning_results <- future_map(c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae",
+                               "Acroporidae", "Poritidae", "Pocilloporidae"),
                              ~hyperparam_tuning(category_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
