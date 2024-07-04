@@ -78,6 +78,8 @@ hyperparam_tuning <- function(category_i){
   model_hyperparams <- select_best(tuned_results, metric = "rmse") %>% 
     select(-".config") %>% 
     as_tibble(.) %>%
+    mutate(nb_training = nrow(data_train),
+           nb_testing = nrow(data_test)) %>% 
     mutate(category = category_i)
   
   # 3. Predicted vs observed
