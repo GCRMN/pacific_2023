@@ -18,10 +18,10 @@
 ### Cleaning and selection (`a_`)
 
 - `a1_select_benthic-data.R` Select
-  [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data
-  to use in the analyses.
+  [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos) data to
+  use in the analyses.
 - `a2_benthic_data_sources.R` Extract data sources from
-  [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos).
+  [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos).
 - `a3_clean_eez.R` Select and clean economic exclusive zones (EEZ) from
   [marineregions](https://marineregions.org/downloads.php).
 - `a4_clean_land.R` Clean Pacific land data (high spatial resolution)
@@ -92,7 +92,7 @@
      collate  French_France.utf8
      ctype    French_France.utf8
      tz       Europe/Paris
-     date     2024-06-12
+     date     2024-07-04
      pandoc   3.1.11 @ C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
     ─ Packages ───────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@
      colorspace      2.1-0      2023-01-23 [1] CRAN (R 4.4.0)
      conflicted      1.2.0      2023-02-01 [1] CRAN (R 4.4.0)
      cpp11           0.4.7      2023-12-02 [1] CRAN (R 4.4.0)
-     crayon          1.5.2      2022-09-29 [1] CRAN (R 4.4.0)
+     crayon          1.5.3      2024-06-20 [1] CRAN (R 4.4.1)
      curl            5.2.1      2024-03-01 [1] CRAN (R 4.4.0)
      data.table      1.15.4     2024-03-30 [1] CRAN (R 4.4.0)
      DBI             1.2.3      2024-06-02 [1] CRAN (R 4.4.0)

@@ -29,8 +29,8 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 ### Cleaning and selection (`a_`)
 
-* `a1_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos) data to use in the analyses.
-* `a2_benthic_data_sources.R` Extract data sources from [gcrmndb_benthos](https://github.com/JWicquart/gcrmndb_benthos).
+* `a1_select_benthic-data.R` Select [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos) data to use in the analyses.
+* `a2_benthic_data_sources.R` Extract data sources from [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos).
 * `a3_clean_eez.R` Select and clean economic exclusive zones (EEZ) from [marineregions](https://marineregions.org/downloads.php).
 * `a4_clean_land.R` Clean Pacific land data (high spatial resolution) from [Princeton University](https://maps.princeton.edu/).
 * `a5_clean_bathy.R` Clean bathymetry data from [Natural Earth Data](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).

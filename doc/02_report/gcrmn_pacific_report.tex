@@ -919,7 +919,7 @@
 
 \begin{multicols}{2}
 	
-\section{Trends in major benthic groups}
+\section{Trends in major benthic categories}
 
 \lipsum[1-2]
 
@@ -934,7 +934,7 @@
 
 \newpage
 
-\section{Trends in major hard coral genera}
+\section{Trends in major hard coral families}
 
 \lipsum[1-2]
 
@@ -1252,7 +1252,7 @@
 \begin{tikzpicture}[remember picture,overlay]
 	\fill[anchor=west, secondcolor!30!white] ($(current page.north west)$) rectangle ($(current page.south east)$);
 	\node[anchor=north west, fill=firstcolor, inner sep=8pt] at ($(current page.north west)+(2.5cm,-2.5cm)$) {{\fontsize{20pt}{40pt}\selectfont \color{white}{\textbf{CASE STUDY 1}}}};
-	\node[] at ($(current page.north east)+(-6cm,-5cm)$){\includegraphics[width=8cm]{../../figs/02_part-2/case-studies/01_new-caledonia_1.png}};
+	\node[] at ($(current page.north east)+(-6cm,-5cm)$){\includegraphics[width=8cm]{../../figs/02_part-2/case-studies/new-caledonia_1.png}};
 \end{tikzpicture}
 
 \vspace*{1.5cm}
@@ -1287,7 +1287,7 @@ The first significant MPAs effects were detected in 2009, three years after enfo
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\linewidth]{../../figs/02_part-2/case-studies/01_new-caledonia_2.png}
+	\includegraphics[width=\linewidth]{../../figs/02_part-2/case-studies/new-caledonia_2.png}
 	\caption[Comparison of the temporal trends of biomass (A) and species richness (B) of commercial coral reef fish species within and outside the Marine Protected Area (MPA) of Ouano, in New Caledonia.]{Comparison of the temporal trends of biomass (A) and species richness (B) of commercial coral reef fish species within and outside the Marine Protected Area (MPA) of Ouano, in New Caledonia. Points represent the mean between stations within (\textit{n} = 18) and outside (\textit{n} = 12) the MPA, and error bars represent the mean $\pm$ standard error. The lines between the points are only intended to show the temporal trends and do not rely on data.}
 	\label{box:1}
 \end{figure}
@@ -2023,6 +2023,17 @@ Spatial resolution:
 	\caption[Illustration of the data integration workflow used for the creation of the gcrmndb benthos synthetic dataset]{Main steps of the machine learning modelling approach used to estimate the temporal trends of percentage cover of the four benthic categories (hard coral, macroalgae, turf algae, coralline algae). $y$ are the observed values of percentage cover (\textit{i.e.} ``measurementValue") for a given benthic category, $pred.$ is the set of predictors used to in the ML model, $\hat{y}$ are the predicted values of percentage cover for a given benthic category over coral reef sites.}
 	\label{metm:fig-4}
 \end{figure}
+
+\newpage
+
+
+\begin{table}[h!]
+	\caption{Values of the tuned parameters of the model for each of the four major benthic categories and the three major hard coral families. ``Nb trees" is the number of trees, ``Min. obs." is the minimum observation per leaf.}
+	\input{../../figs/03_methods/table-3.tex}
+	\label{part3:tbl-4}
+\end{table}
+
+
 
 \newpage
 \clearpage
