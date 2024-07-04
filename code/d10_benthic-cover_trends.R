@@ -242,7 +242,8 @@ rm(data_trends, plot_trends, combine_plot_trends)
 ## 5.1 Transform data ----
 
 data_imp_summary <- model_results$result_vip %>% 
-  mutate(predictor = str_remove_all(predictor, "pred_"),
+  mutate(importance = importance*100,
+         predictor = str_remove_all(predictor, "pred_"),
          predictor = str_replace_all(predictor, "ID_X", "ID_")) %>% 
   group_by(predictor, category, color) %>% 
   summarise(mean = mean(importance),
@@ -257,7 +258,8 @@ data_imp_summary <- model_results$result_vip %>%
   ungroup()
 
 data_imp_raw <- model_results$result_vip %>% 
-  mutate(predictor = str_remove_all(predictor, "pred_"),
+  mutate(importance = importance*100,
+         predictor = str_remove_all(predictor, "pred_"),
          predictor = str_replace_all(predictor, "ID_X", "ID_")) %>% 
   left_join(data_imp_summary, .) %>% 
   group_by(category)
