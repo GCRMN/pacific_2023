@@ -222,17 +222,7 @@ model_results <- map(1:100, ~model_bootstrap(category_i = "Acroporidae",
 
 save(model_results, file = "data/12_model-output/model_results_acroporidae.RData")
 
-### 4.2.2 Poritidae ----
-
-model_results <- map(1:100, ~model_bootstrap(category_i = "Poritidae",
-                                             bootstrap_i = .,
-                                             pdp = FALSE)) %>% 
-  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows)
-
-save(model_results, file = "data/12_model-output/model_results_poritidae.RData")
-
-### 4.2.3 Pocilloporidae ----
+### 4.2.2 Pocilloporidae ----
 
 model_results <- map(1:100, ~model_bootstrap(category_i = "Pocilloporidae",
                                              bootstrap_i = .,
@@ -241,3 +231,13 @@ model_results <- map(1:100, ~model_bootstrap(category_i = "Pocilloporidae",
   map(., bind_rows)
 
 save(model_results, file = "data/12_model-output/model_results_pocilloporidae.RData")
+
+### 4.2.3 Poritidae ----
+
+model_results <- map(1:100, ~model_bootstrap(category_i = "Poritidae",
+                                             bootstrap_i = .,
+                                             pdp = FALSE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows)
+
+save(model_results, file = "data/12_model-output/model_results_poritidae.RData")

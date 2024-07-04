@@ -313,7 +313,7 @@ data_traintest <- tuning_results[["model_hyperparams"]] %>%
 ### 6.1.2 Export the table in .tex format ----
 
 writeLines(c("\\begin{center}",
-             "\\begin{tabular}{|ll|C{2.5cm}|C{2.5cm}|}",
+             "\\begin{tabular}{|ll|C{5cm}|C{5cm}|}",
              "\\hline",
              "\\rowcolor{firstcolor}",
              "\\multicolumn{2}{|l|}{\\textcolor{white}{}} & \\textcolor{white}{Training} & \\textcolor{white}{Testing} \\\\ \\hline",
@@ -390,6 +390,10 @@ writeLines(c("\\begin{center}",
              "\\end{tabular}",
              "\\end{center}"),
            paste0("figs/03_methods/table-4.tex"))
+
+## 6.3 Remove useless objects ----
+
+rm(data_hyper, data_traintest)
 
 # 7. RMSE and R2 ----
 
