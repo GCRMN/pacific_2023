@@ -196,14 +196,17 @@ data_yap <- read.csv("data/13_case-studies/FSM_Weloy_CSV.csv") %>%
                                  "Stayed the same", "Somewhat better",
                                  "A lot better", "Don't know")),
          perc_label = round(perc, 0),
-         perc_label = if_else(perc_label < 5, "", as.character(perc_label)))
+         perc_label = if_else(perc_label < 8, "", paste0(as.character(perc_label), "%")),
+         text_color = ifelse(value %in% c("A lot worse", "Somewhat better",
+                                          "A lot better"), "white", "black"))
 
-ggplot(data = data_yap, aes(x = question, y = perc, fill = value, label = perc_label)) +
+ggplot(data = data_yap, aes(x = question, y = perc, fill = value, label = perc_label, color = text_color)) +
   geom_bar(stat = "identity", width = 0.75,
-           position = position_stack(reverse = TRUE)) +
+           position = position_stack(reverse = TRUE), color = "white", linewidth = 0.05) +
   geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
             family = font_choose_graph, size = 3) + 
   coord_flip() +
+  scale_color_identity() +
   scale_fill_manual(breaks = c("A lot worse", "Somewhat worse",
                                "Stayed the same", "Somewhat better",
                                "A lot better", "Don't know"),

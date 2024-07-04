@@ -491,7 +491,7 @@ data_population <- read.csv("data/02_indicators/ind_human-pop_5km.csv") %>%
 ## 6.2 Make the plot ----
 
 ggplot(data = data_population, aes(x = year, y = population, fill = territory_type)) +
-  geom_area(show.legend = FALSE) +
+  geom_area(show.legend = FALSE, color = "white", linewidth = 0.25) +
   scale_fill_manual(values = rev(palette_first)) +
   labs(x = "Year", y = "Inhabitants (millions)") +
   annotate(geom = "text", label = "Solomon Islands", x = 2019, y = 0.22, 
