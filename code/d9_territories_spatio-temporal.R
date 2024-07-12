@@ -2,7 +2,7 @@
 
 library(tidyverse) # Core tidyverse packages
 library(sf)
-sf_use_s2(FALSE)
+sf_use_s2(TRUE)
 library(ggspatial) # For annotation_scale function
 library(patchwork)
 
@@ -84,7 +84,12 @@ data_reefs <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp")
 data_reefs_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
   st_transform(crs = 4326) %>% 
   st_wrap_dateline() %>% 
-  st_make_valid()
+  st_make_valid() %>% 
+  st_transform(crs_selected) %>% 
+  group_by(TERRITORY1) %>% 
+  st_buffer(dist = 0.000025) %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  ungroup()
 
 ## 4.5 Labels ----
 
@@ -206,7 +211,7 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "New Caledonia"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.35, legend_y = 0.3, scalebar_pos = "tr")
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.39, legend_y = 0.2, scalebar_pos = "tr")
     
     ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
