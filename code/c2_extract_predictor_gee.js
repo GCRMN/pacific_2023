@@ -151,7 +151,7 @@ Export.table.toDrive({
   selectors:["site_id", "type", "pred_elevation"]
 });
 
-// 5. Extract predictor "mean chl a around 5 km radius from the site" ////////////////////////////////
+// 5. Extract predictor "mean chl a around 10 km radius from the site" ////////////////////////////////
 
 // 5.1 Create a function to create a buffer around a point ----
 
@@ -162,9 +162,9 @@ function bufferPoints(radius, bounds) {
   };
 }
 
-// 5.2 Apply the function (here 5 km radius) ----
+// 5.2 Apply the function (here 10 km radius) ----
 
-var site_buffer = site_coords.map(bufferPoints(5000, false));
+var site_buffer = site_coords.map(bufferPoints(10000, false));
 
 // 5.3 Load chlorophyll a data ----
 
@@ -195,7 +195,7 @@ Export.table.toDrive({
   selectors:["site_id", "type", "pred_chla_mean"]
 });
 
-// 6. Extract predictor "sd chl a around 5 km radius from the site" ////////////////////////////////////
+// 6. Extract predictor "sd chl a around 10 km radius from the site" ////////////////////////////////////
 
 // 6.1 Create a function to create a buffer around a point ----
 
@@ -206,9 +206,9 @@ function bufferPoints(radius, bounds) {
   };
 }
 
-// 6.2 Apply the function (here 5 km radius) ----
+// 6.2 Apply the function (here 10 km radius) ----
 
-var site_buffer = site_coords.map(bufferPoints(5000, false));
+var site_buffer = site_coords.map(bufferPoints(10000, false));
 
 // 6.3 Load chlorophyll a data ----
 
