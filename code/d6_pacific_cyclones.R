@@ -237,3 +237,36 @@ ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill 
 ## 4.3 Save the plot ----
 
 ggsave(filename = "figs/01_part-1/fig-7.png", width = 5, height = 10, dpi = 300)
+
+# 5. Key numbers ----
+
+load("data/05_cyclones/02_cyclones_extracted.RData")
+
+data_cyclones <- data_cyclones %>% 
+  group_by(saffir) %>% 
+  mutate(max_saffir = max(saffir)) %>% 
+  ungroup() %>% 
+  filter(max_saffir >= 1)
+
+## 5.1 Total number of cyclones ----
+
+nrow(data_cyclones)
+
+## 5.2 Max number of cyclones ----
+
+data_cyclones <- data_cyclones %>% 
+  select(ts_id, territory) %>% 
+  distinct() %>% 
+  group_by(territory) %>% 
+  count() %>% 
+  ungroup() %>% 
+  filter(n == max(n))
+
+## 5.3 Highest windspeed ----
+
+load("data/05_cyclones/02_cyclones_extracted.RData")
+
+data_cyclones <- data_cyclones %>% 
+  group_by(saffir) %>% 
+  mutate(max_saffir = max(saffir)) %>% 
+  arrange(desc(wind_speed))
