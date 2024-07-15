@@ -38,7 +38,10 @@ data_eez <- data_eez %>%
 data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
   st_transform(crs = 4326) %>% 
   st_wrap_dateline() %>% 
-  st_make_valid()
+  st_make_valid() %>% 
+  group_by(TERRITORY1) %>% 
+  summarise(geometry = st_union(geometry)) %>% 
+  ungroup()
 
 # 3. Visual check ----
 
@@ -86,7 +89,7 @@ map_cyclone <- function(territory_i){
   
   # Extract tropical storms passing within 100 km from a reef ----
   
-  data_ts_lines_i <- st_filter(data_ts_lines, data_reef_buffer_i, join = st_intersects)
+  data_ts_lines_i <- st_filter(data_ts_lines, data_reef_buffer_i, .predicate = st_intersects)
   
   results <- map_dfr(unique(data_ts_lines_i$ts_id), ~map_event(ts_id_i = ., data_reef_i)) %>% 
     mutate(territory = territory_i)

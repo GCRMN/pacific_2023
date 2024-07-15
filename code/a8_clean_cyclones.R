@@ -2,7 +2,7 @@
 
 library(tidyverse) # Core tidyverse packages
 library(sf) # To plot maps
-sf_use_s2(FALSE) # Switch from S2 to GEOS
+sf_use_s2(TRUE) # Switch from S2 to GEOS
 
 # 2. Load and modify data tropical storms data (TS) ----
 
@@ -61,35 +61,12 @@ data_ts_lines <- data_ts_points %>%
   filter(n > 1) %>% 
   select(-n) %>% 
   st_make_valid() %>% 
-  st_wrap_dateline(options = c("WRAPDATELINE=YES"))
+  st_wrap_dateline(options = c("WRAPDATELINE=YES")) %>% 
+  st_make_valid()
 
-# 4.2 Visual check --
-
-ggplot() +
-  geom_sf(data = data_ts_lines)
-
-# 4.3 Create a polygon to extract incorrect line --
-
-polygon_for_intersect <- tibble(lat = c(-60, 60), long = c(20, 20)) %>% 
-  st_as_sf(coords = c("long", "lat"), crs = "EPSG:4326") %>% 
-  dplyr::summarise(do_union = TRUE) %>%
-  st_cast("LINESTRING")
-
-# 4.4 Extract incorrect line --
-
-incorrect_line <- st_filter(data_ts_lines, polygon_for_intersect, join = st_intersects)
-
-# 4.5 Visual check --
-
-ggplot() +
-  geom_sf(data = data_ts_lines) +
-  geom_sf(data = polygon_for_intersect) +
-  geom_sf(data = incorrect_line, col = "red")
-
-# 4.6 Apply the correction ----
+# 4.2 Apply the correction ----
 
 data_ts_lines_corrected <- data_ts_points %>%
-  filter(ts_id %in% unique(incorrect_line$ts_id)) %>%
   mutate(long = unlist(map(.$geometry,1)),
          lat = unlist(map(.$geometry,2))) %>% 
   st_drop_geometry() %>% 
@@ -103,13 +80,10 @@ data_ts_lines_corrected <- data_ts_points %>%
   filter(n > 1) %>% 
   select(-n) %>% 
   st_make_valid() %>% 
-  st_wrap_dateline(options = c("WRAPDATELINE=YES"))
-
-data_ts_lines <- data_ts_lines %>% 
-  filter(!(ts_id %in% unique(incorrect_line$ts_id))) %>%
-  bind_rows(., data_ts_lines_corrected)
-
-# 4.7 Visual check --
+  st_wrap_dateline(options = c("WRAPDATELINE=YES")) %>% 
+  st_make_valid()
+  
+# 4.3 Visual check --
 
 ggplot() +
   geom_sf(data = data_ts_lines)

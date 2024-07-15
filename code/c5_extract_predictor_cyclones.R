@@ -29,7 +29,10 @@ data_ts_points <- data_ts_points %>%
 
 # 2.4 Coral reef distribution 100 km buffer --
 
-data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp")
+data_reef_buffer <- st_read("data/03_reefs-area_wri/clean_buffer/reef_buffer.shp") %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
 
 # 3. Extract cyclones passing within 100 km from coral reefs ----
 
