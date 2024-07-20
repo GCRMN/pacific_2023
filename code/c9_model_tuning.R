@@ -65,7 +65,7 @@ hyperparam_tuning <- function(category_i){
                                 trees(),
                                 tree_depth(),
                                 min_n(),
-                                size = 20)
+                                size = 30)
   
   ## 2.5 Run the hyperparameters tuning
   
