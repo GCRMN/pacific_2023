@@ -436,22 +436,45 @@ data_surveys <- data_benthic %>%
   mutate(percent = n*100/sum(n)) %>% 
   ungroup()
 
-## 7.2 Make the plot ----
+## 7.2 Add territories with no surveys ----
+
+data_surveys <- data_eez %>% 
+  st_drop_geometry() %>% 
+  select(TERRITORY1) %>% 
+  rename(territory = TERRITORY1) %>% 
+  distinct() %>% 
+  left_join(., data_surveys)
+
+## 7.3 Make the plots ----
 
 data_surveys %>% 
-  filter(territory %in% unique(data_surveys$territory)) %>%  
+  filter(territory %in% sort(unique(data_surveys$territory))[1:15]) %>% 
+  ggplot(data = ., aes(x = year, y = percent)) +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
+    labs(x = "Year", y = "Surveys (%)") +
+    theme_graph() +
+    coord_cartesian(clip = "off") +
+    facet_wrap(~territory, scales = "free", ncol = 3) +
+    theme_graph() +
+    theme(strip.text = element_text(hjust = 0.5),
+          strip.background = element_blank()) +
+    scale_x_continuous(limits = c(1985, 2025)) +
+  scale_y_continuous(breaks = c(0, 25, 50, 75, 100), limits = c(0, 100))
+
+ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_year_a.png", width = 10, height = 12, dpi = fig_resolution)
+
+data_surveys %>% 
+  filter(territory %in% sort(unique(data_surveys$territory))[16:30]) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
   geom_bar(stat = "identity", show.legend = FALSE, width = 0.8, fill = palette_second[5]) +
   labs(x = "Year", y = "Surveys (%)") +
   theme_graph() +
   coord_cartesian(clip = "off") +
-  facet_wrap(~territory, scales = "free", ncol = 5) +
+  facet_wrap(~territory, scales = "free", ncol = 3) +
   theme_graph() +
   theme(strip.text = element_text(hjust = 0.5),
         strip.background = element_blank()) +
-  scale_x_continuous(limits = c(1985, 2025))
+  scale_x_continuous(limits = c(1985, 2025)) +
+  scale_y_continuous(breaks = c(0, 25, 50, 75, 100), limits = c(0, 100))
 
-## 7.3 Save the plot ----
-
-ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_year.png",
-       width = 15, height = 12, dpi = 600)
+ggsave(filename = "figs/04_supp/01_data-explo/04_surveys_year_b.png", width = 10, height = 12, dpi = fig_resolution)
