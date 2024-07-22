@@ -455,7 +455,6 @@ data_surveys %>%
     theme_graph() +
     coord_cartesian(clip = "off") +
     facet_wrap(~territory, scales = "free", ncol = 3) +
-    theme_graph() +
     theme(strip.text = element_text(hjust = 0.5),
           strip.background = element_blank()) +
     scale_x_continuous(limits = c(1985, 2025)) +
@@ -471,7 +470,6 @@ data_surveys %>%
   theme_graph() +
   coord_cartesian(clip = "off") +
   facet_wrap(~territory, scales = "free", ncol = 3) +
-  theme_graph() +
   theme(strip.text = element_text(hjust = 0.5),
         strip.background = element_blank()) +
   scale_x_continuous(limits = c(1985, 2025)) +
