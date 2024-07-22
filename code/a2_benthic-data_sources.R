@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(readxl)
+library(sf)
 
 # 2. Load data ----
 
@@ -40,3 +41,21 @@ data_benthic %>%
   write.csv2(., file = "figs/04_supp/contributors-territory.csv",
              row.names = FALSE)
   
+# 6. DatasetID per territory ----
+
+data_eez <- st_read("data/01_background-shp/03_eez/data_eez.shp") %>% 
+  st_drop_geometry() %>% 
+  select(TERRITORY1) %>% 
+  rename(territory = TERRITORY1)
+
+data_benthic %>% 
+  select(territory, datasetID) %>% 
+  distinct() %>% 
+  # Add territories with no data
+  left_join(data_eez, .) %>% 
+  group_by(territory) %>% 
+  summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
+  ungroup() %>% 
+  arrange(territory, datasetID) %>% 
+  write.csv2(., file = "figs/04_supp/datasetid-territory.csv",
+             row.names = FALSE)
