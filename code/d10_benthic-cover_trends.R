@@ -5,6 +5,7 @@ library(patchwork)
 library(glue)
 library(ggtext)
 library(scales)
+library(zoo)
 
 # 2. Source functions ----
 
@@ -60,9 +61,9 @@ add_colors <- function(data){
                              category == "Coralline algae" ~ palette_second[3],
                              category == "Macroalgae" ~ palette_second[4],
                              category == "Turf algae" ~ palette_second[5],
-                             category == "Acroporidae" ~ palette_first[1],
-                             category == "Poritidae" ~ palette_first[2],
-                             category == "Pocilloporidae" ~ palette_first[3]),
+                             category == "Acroporidae" ~ palette_second[3],
+                             category == "Pocilloporidae" ~ palette_second[4],
+                             category == "Poritidae" ~ palette_second[5]),
            text_title = case_when(category == "Hard coral" ~ 
                                     glue("**A.**<span style='color:{color}'> {category}</span>"),
                                   category == "Coralline algae" ~ 
@@ -113,7 +114,15 @@ data_trends <- model_results$result_trends %>%
             upper_ci_80 = quantile(cover, 0.80)) %>% 
   ungroup()
 
-### 4.1.2 Add "data" variable ----
+### 4.1.2 Smooth trends using a two-years moving average ----
+
+data_trends <- data_trends %>% 
+  group_by(category, region, territory, color, text_title) %>% 
+  mutate(across(c("mean", "lower_ci_95", "lower_ci_80", "upper_ci_95", "upper_ci_80"),
+                ~rollmean(.x, k = 2, fill = NA, align = "right"))) %>% 
+  ungroup()
+
+### 4.1.3 Add "data" variable ----
 
 load("data/11_model-data/data_benthic_prepared.RData")
 
@@ -136,7 +145,7 @@ data_trends <- left_join(data_trends, data_benthic_obs) %>%
 
 rm(data_benthic, data_benthic_obs)
 
-### 4.1.3 Export the data ----
+### 4.1.4 Export the data ----
 
 data_trends %>% 
   select(-color, -text_title) %>% 
