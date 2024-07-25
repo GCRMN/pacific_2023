@@ -189,7 +189,7 @@ ggplot() +
 
 ## 3.11 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-9.png", width = 8, height = 5.5, dpi = fig_resolution)
+ggsave(filename = "figs/01_part-1/fig-10.png", width = 8, height = 5.5, dpi = fig_resolution)
 
 # 4. Plot of percentage of sites per interval_class ----
 
@@ -242,7 +242,7 @@ data_benthic %>%
 
 ## 5.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-10.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave(filename = "figs/01_part-1/fig-11.png", width = 5, height = 4, dpi = fig_resolution)
 
 # 6. Plot of number of surveys per depth ----
 
@@ -262,7 +262,7 @@ data_benthic %>%
 
 ## 6.2 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-11.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave(filename = "figs/01_part-1/fig-12.png", width = 5, height = 4, dpi = fig_resolution)
 
 # 7. Extract monitoring descriptors ----
 

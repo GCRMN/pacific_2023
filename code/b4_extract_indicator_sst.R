@@ -6,6 +6,8 @@ library(sf)
 sf_use_s2(FALSE)
 library(future)
 library(furrr)
+library(RcppRoll)
+source("code/function/extract_coeff.R")
 
 plan(multisession, workers = 4) # Set parallelization with 4 cores
 
@@ -108,4 +110,47 @@ data_sst <- future_map_dfr(1:nrow(list_url), ~extract_sst(row_nb = ., data_reef 
 
 # 6. Export the data ----
 
-save(data_sst, file = "data/09_misc/data-sst.RData")
+save(data_sst, file = "data/09_misc/data-sst_raw.RData")
+
+# 7. Derive other SST metrics ----
+
+## 7.1 Calculate long-term average SST ----
+
+data_sst <- data_sst %>% 
+  group_by(TERRITORY1) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
+  ungroup()
+
+## 7.2 Map over extract_coeff function ----
+
+data_warming <- data_sst %>% 
+  # Convert date as numeric
+  mutate(date = as.numeric(as_date(date))) %>% 
+  # Extract linear model coefficients
+  group_by(TERRITORY1) %>% 
+  group_modify(~extract_coeff(data = .x, var_y = "sst", var_x = "date")) %>% 
+  ungroup() %>% 
+  # Calculate increase in SST over the period
+  mutate(min_date = as.numeric(as_date(min(data_sst$date))),
+         max_date = as.numeric(as_date(max(data_sst$date)))) %>% 
+  mutate(sst_increase = ((max_date)*slope+intercept) - ((min_date)*slope+intercept)) %>% 
+  select(-min_date, -max_date) %>% 
+  # Calculate the warming rate (°C per year)
+  mutate(warming_rate = sst_increase/(year(max(data_sst$date))-year(min(data_sst$date)))) %>% 
+  # Add mean_sst for each territory
+  left_join(., data_sst %>% 
+              select(TERRITORY1, mean_sst) %>% 
+              distinct())
+
+write.csv(data_warming, "data/09_misc/data-warming.csv", row.names = FALSE)
+
+## 7.3 Calculate SST anomaly ----
+
+data_sst <- data_sst %>% 
+  group_by(TERRITORY1) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE),
+         sst_anom = sst - mean_sst,
+         sst_anom_mean = roll_mean(x = sst_anom, n = 365, align = "center", fill = NA)) %>% 
+  ungroup()
+
+save(data_sst, file = "data/09_misc/data-sst_processed.RData")

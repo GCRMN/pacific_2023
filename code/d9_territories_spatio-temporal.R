@@ -171,7 +171,7 @@ map_territory <- function(territory_i){
     
     plot_i <- (plot_a / plot_b) | plot_c
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 7.5, width = 10, dpi = fig_resolution)
     
   }else if(territory_i == "PRIA"){
@@ -198,7 +198,7 @@ map_territory <- function(territory_i){
 
     plot_i <- plot_a + plot_b + plot_c + plot_d + plot_e + guide_area() + plot_layout(guides = "collect", ncol = 3)
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 8, width = 12, dpi = fig_resolution)
     
   }else if(territory_i == "French Polynesia"){
@@ -206,21 +206,21 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.825, scalebar_pos = "br") +
       coord_sf(xlim = c(-157.5, -132.5))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.5, width = 7, dpi = fig_resolution)
     
   }else if(territory_i == "New Caledonia"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.39, legend_y = 0.2, scalebar_pos = "tr")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
     
   }else if(territory_i == "Palau"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.275, legend_y = 0.8, scalebar_pos = "br")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.25, width = 5, dpi = fig_resolution)
     
   }else if(territory_i == "Vanuatu"){
@@ -228,28 +228,28 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.8, legend_y = 0.85, scalebar_pos = "bl") +
       coord_sf(xlim = c(165, 171.5))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 7, width = 5, dpi = fig_resolution)
     
   }else if(territory_i == "Solomon Islands"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.875, legend_y = 0.8, scalebar_pos = "br")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
     
   }else if(territory_i == "Cook Islands"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.75, legend_y = 0.55, scalebar_pos = "tl")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.5, width = 5, dpi = fig_resolution)
     
   }else if(territory_i == "Tokelau"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.75, legend_y = 0.75, scalebar_pos = "bl")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 7.75, dpi = fig_resolution)
     
   }else if(territory_i == "Wallis and Futuna"){
@@ -258,14 +258,14 @@ map_territory <- function(territory_i){
       coord_sf(crs = crs_selected) +
       scale_x_continuous(breaks = c(180, -179, -178, -177, -176, -175))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 7.25, dpi = fig_resolution)
     
   }else if(territory_i == "Marshall Islands"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.15, legend_y = 0.175, scalebar_pos = "tl")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 7, dpi = fig_resolution)
     
   }else if(territory_i == "Papua New Guinea"){
@@ -273,7 +273,7 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.875, legend_y = 0.3, scalebar_pos = "bl") +
       coord_sf(xlim = c(142, 161))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5.75, width = 8.5, dpi = fig_resolution)
     
   }else if(territory_i == "Northern Mariana Islands"){
@@ -283,14 +283,14 @@ map_territory <- function(territory_i){
       scale_y_continuous(breaks = c(13, 14, 15, 16, 17, 18, 19, 20, 21)) +
       coord_sf(xlim = c(143.8, 147), y = c(13.5, 21))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 9, width = 4, dpi = fig_resolution)
     
   }else if(territory_i == "Federated States of Micronesia"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.125, legend_y = 0.3, scalebar_pos = "tr")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 4, width = 10, dpi = fig_resolution)
     
   }else if(territory_i == "Tonga"){
@@ -299,21 +299,21 @@ map_territory <- function(territory_i){
       scale_x_continuous(breaks = c(-179, -177, -175, -173)) +
       coord_sf(xlim = c(-178, -172), ylim = c(-24, -14))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 5, dpi = fig_resolution)
     
   }else if(territory_i == "Samoa"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.85, legend_y = 0.8, scalebar_pos = "bl")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5.5, width = 7.5, dpi = fig_resolution)
     
   }else if(territory_i == "American Samoa"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.8, legend_y = 0.8, scalebar_pos = "bl")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.25, width = 5.5, dpi = fig_resolution)
     
   }else if(territory_i == "Pitcairn"){
@@ -321,14 +321,14 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.65, legend_y = 0.5, scalebar_pos = "tr") +
       coord_sf(ylim = c(-26, -23))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 4.5, width = 9, dpi = fig_resolution)
     
   }else if(territory_i == "Guam"){
     
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.1775, legend_y = 0.825, scalebar_pos = "br")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.5, width = 5.75, dpi = fig_resolution)
     
   }else if(territory_i == "Hawaii"){
@@ -337,7 +337,7 @@ map_territory <- function(territory_i){
       coord_sf(crs = crs_selected) +
       scale_x_continuous(breaks = c(180, -175, -170, -165, -160, -155))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
     
   }else if(territory_i == "Fiji"){
@@ -346,7 +346,7 @@ map_territory <- function(territory_i){
       coord_sf(crs = crs_selected) +
       scale_x_continuous(breaks = c(175, 177.5, 180, -177.5))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6.5, width = 5.25, dpi = fig_resolution)
     
   }else if(territory_i == "Tuvalu"){
@@ -355,7 +355,7 @@ map_territory <- function(territory_i){
       coord_sf(crs = crs_selected) +
       scale_x_continuous(breaks = c(176, 178, 180, -178))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 5.25, dpi = fig_resolution)
     
   }else if(territory_i == "Nauru"){
@@ -363,7 +363,7 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.16, legend_y = 0.3, scalebar_pos = "tr") +
       coord_sf(xlim = c(166, 167.8), ylim = c(-1.4, 0.4))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 6, dpi = fig_resolution)
     
   }else if(territory_i == "Niue"){
@@ -371,7 +371,7 @@ map_territory <- function(territory_i){
     plot_i <- base_map(territory_i = territory_i, legend_x = 0.85, legend_y = 0.25, scalebar_pos = "tl") +
       scale_x_continuous(breaks = c(-170.5, -169.5, -168.5, -167.5))
     
-    ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+    ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 5.25, width = 7, dpi = fig_resolution)
     
   }

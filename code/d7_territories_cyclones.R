@@ -245,7 +245,7 @@ map_eez <- function(territory_i){
   
   # 6. Export the plot ----
   
-  ggsave(filename = paste0("figs/02_part-2/fig-5/",
+  ggsave(filename = paste0("figs/02_part-2/fig-4/",
                            str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          plot = plot_i, dpi = fig_resolution)
   
@@ -380,7 +380,7 @@ plot_i <- ggplot() +
 
 ### 3.5.6 Export the plot ----
 
-ggsave(filename = "figs/02_part-2/fig-5/pria.png", plot = plot_i, dpi = fig_resolution)
+ggsave(filename = "figs/02_part-2/fig-4/pria.png", plot = plot_i, dpi = fig_resolution)
 
 # 4. Plots of cyclone maximum wind speed over time ----
 
@@ -446,7 +446,7 @@ map_cyclone_plot <- function(territory_i){
   
   # 3. Save the plot
   
-  ggsave(filename = paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+  ggsave(filename = paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
          plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution)
   
 }

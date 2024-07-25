@@ -193,7 +193,7 @@ plot_map <- ggplot() +
 
 ## 3.11 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-6.png", width = 8, height = 5.5, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-7.png", width = 8, height = 5.5, dpi = 300)
 
 # 4. Comparison of cyclones occurrence ----
 
@@ -236,7 +236,7 @@ ggplot(data = data_cyclones, aes(x = n, y = fct_reorder(territory, n_tot), fill 
   
 ## 4.3 Save the plot ----
 
-ggsave(filename = "figs/01_part-1/fig-7.png", width = 5, height = 10, dpi = 300)
+ggsave(filename = "figs/01_part-1/fig-8.png", width = 5, height = 10, dpi = 300)
 
 # 5. Key numbers ----
 

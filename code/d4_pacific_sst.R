@@ -15,6 +15,7 @@ library(extrafont)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
+source("code/function/extract_coeff.R")
 
 theme_set(theme_graph())
 
@@ -22,14 +23,14 @@ theme_set(theme_graph())
 
 ## 3.1 Load and transform data ----
 
-data_warming <- read.csv("data/09_misc/data_warming.csv") %>% 
+data_warming <- read.csv("data/09_misc/data-warming.csv") %>% 
   filter(!(TERRITORY1 %in% c("Entire Pacific region", "Pacific Remote Island Area", "Kiribati"))) %>% 
   select(TERRITORY1, warming_rate, sst_increase) %>% 
   # The number 0.88°C is coming from Technical summary IPCC, 2021 (TS.2.4, The Ocean, page 74)
   add_row(TERRITORY1 = "Global Ocean", warming_rate = (0.88/(2020-1900))*(2022-1980), sst_increase = 0.88) %>% 
   mutate(warming_rate = round(warming_rate, 3),
-         color = case_when(TERRITORY1 == "Global Ocean" ~ palette_first[5],
-                           sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ palette_first[3],
+         color = case_when(TERRITORY1 == "Global Ocean" ~ "#a059a0",
+                           sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ "#ce6693",
                            sst_increase <= 0 & TERRITORY1 != "Global Ocean" ~ palette_first[2]),
          TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1)) %>% 
   arrange(desc(sst_increase)) %>% 
@@ -83,7 +84,7 @@ data_enso <- read_table("data/09_misc/enso-soi.txt", skip = 87) %>%
 
 ## 4.2 Make the plot ----
 
-ggplot() +
+plot_enso <- ggplot() +
   #geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
   geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
               aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[3], alpha = 0.9) +
@@ -105,13 +106,91 @@ ggplot() +
 
 ## 4.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-5.png", height = 4, width = 5, dpi = fig_resolution)
+ggsave("figs/01_part-1/fig-5.png", plot = plot_enso, height = 4, width = 5, dpi = fig_resolution)
 
-# 5. Comparison of SST distribution ----
+# 5. SST anomaly ----
 
-## 5.1 Transform data ----
+## 5.1 Load and transform data ----
 
-load("data/09_misc/data-sst.RData")
+load("data/09_misc/data-sst_processed.RData")
+
+data_sst_pacific <- data_sst %>% 
+  filter(TERRITORY1 == "Entire Pacific region") %>% 
+  drop_na(sst_anom_mean) %>% 
+  mutate(date = as_date(date))
+
+## 5.2 Make the plot ----
+
+plot_anom <- ggplot(data = data_sst_pacific) +
+  geom_ribbon(data = data_sst_pacific %>% mutate(sst_anom_mean = if_else(sst_anom_mean < 0,
+                                                               0,
+                                                               sst_anom_mean)),
+              aes(x = date, ymin = 0, ymax = sst_anom_mean), fill = palette_second[3], alpha = 0.9) +
+  geom_ribbon(data = data_sst_pacific %>% mutate(sst_anom_mean = if_else(sst_anom_mean > 0,
+                                                               0,
+                                                               sst_anom_mean)),
+              aes(x = date, ymin = 0, ymax = sst_anom_mean), fill =  palette_first[3], alpha = 0.9) +
+  geom_line(aes(x = date, y = 0)) +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 14)) +
+  labs(x = "Year", y = "SST anomaly (°C)") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+
+## 5.3 Save the plot ----
+
+ggsave("figs/01_part-1/fig-6a.png", plot = plot_anom, height = 4, width = 5, dpi = fig_resolution)
+
+# 6. SST anomaly with trend ----
+
+## 6.1 Load and transform data ----
+
+load("data/09_misc/data-sst_processed.RData")
+
+data_sst_pacific <- data_sst %>% 
+  filter(TERRITORY1 == "Entire Pacific region") %>% 
+  drop_na(sst_anom_mean)
+
+data_sst_pacific <- data_sst_pacific %>% 
+  mutate(date = as.numeric(as_date(date))) %>% 
+  group_by(TERRITORY1) %>% 
+  # Extract linear model coefficients
+  group_modify(~extract_coeff(data = .x, var_y = "sst_anom_mean", var_x = "date")) %>% 
+  ungroup() %>% 
+  left_join(data_sst_pacific, .) %>% 
+  mutate(date_num = as.numeric(as_date(date)),
+         sst_anom_mean_linear = slope*date_num+intercept)
+
+## 6.2 Make the plot ----
+
+plot_anom_trend <- ggplot(data = data_sst_pacific) +
+  geom_ribbon(data = data_sst_pacific %>% mutate(sst_anom_mean = if_else(sst_anom_mean < sst_anom_mean_linear,
+                                                                         sst_anom_mean_linear,
+                                                                         sst_anom_mean)),
+              aes(x = date, ymin = sst_anom_mean_linear, ymax = sst_anom_mean), fill = palette_second[3], alpha = 0.9) +
+  geom_ribbon(data = data_sst_pacific %>% mutate(sst_anom_mean = if_else(sst_anom_mean > sst_anom_mean_linear,
+                                                                         sst_anom_mean_linear,
+                                                                         sst_anom_mean)),
+              aes(x = date, ymin = sst_anom_mean_linear, ymax = sst_anom_mean), fill =  palette_first[3], alpha = 0.9) +
+  geom_line(aes(x = date, y = sst_anom_mean_linear)) +
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size = 14)) +
+  labs(x = "Year", y = "SST anomaly (°C)") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
+
+## 6.3 Save the plot ----
+
+ggsave("figs/01_part-1/fig-6b.png", plot = plot_anom_trend, height = 4, width = 5, dpi = fig_resolution)
+
+# 7. Combine the two SST anomaly plots ----
+
+(plot_anom + labs(title = "A", x = NULL) + theme(plot.title = element_text(face = "bold"))) +
+  (plot_anom_trend + labs(title = "B") + theme(plot.title = element_text(face = "bold"))) + plot_layout(ncol = 1)
+
+ggsave("figs/01_part-1/fig-6.png", height = 8, width = 5, dpi = fig_resolution)
+
+# 8. Comparison of SST distribution ----
+
+## 8.1 Transform data ----
 
 data_sst <- data_sst %>% 
   filter(!(TERRITORY1 %in% c("Entire Pacific region", "Pacific Remote Island Area", "Kiribati"))) %>% 
@@ -120,7 +199,7 @@ data_sst <- data_sst %>%
   ungroup() %>% 
   left_join(., data_sst)
 
-## 5.2 Make the plot ----
+## 8.2 Make the plot ----
 
 ggplot(data = data_sst, aes(x = sst, y = fct_reorder(TERRITORY1, mean))) +
   geom_violin(draw_quantiles = c(0.5), fill = "#446CB3", alpha = 0.5) +
@@ -129,13 +208,13 @@ ggplot(data = data_sst, aes(x = sst, y = fct_reorder(TERRITORY1, mean))) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(expand = c(0, 0), limits = c(20, 32.5))
 
-## 5.3 Save the plot ----
+## 8.3 Save the plot ----
 
 ggsave("figs/04_supp/01_data-explo/02_sst-distribution.png", height = 8, width = 6, dpi = fig_resolution)
 
-# 6. Map of maximum DHW per year ----
+# 9. Map of maximum DHW per year ----
 
-## 6.1 Load data ----
+## 9.1 Load data ----
 
 data_map <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp")
 
@@ -143,29 +222,27 @@ data_eez <- read_sf("data/01_background-shp/03_eez/data_eez.shp")
 
 crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 
-## 6.2 List of files ----
+## 9.2 List of files ----
 
 data_files <- tibble(path = list.files("data/08_dhw-year/", full.names = TRUE)) %>% 
   mutate(year = as.numeric(str_sub(path, -8, -4)),
          group = rep(1:50, each = 8, length.out = nrow(.))) # 8 is the number of subplots (i.e. years) per plot
 
-## 6.3 Create the function to make the plot for each year ----
+## 9.3 Create the function to make the plot for each year ----
 
 map_dhw_year <- function(year_i, data_files_i){
   
-  # 1. Load data ----
+  # 1. Load data
   
   raster <- rast(data_files_i %>% filter(year == year_i) %>% select(path) %>% pull)
   
-  # 2. Make the plot ----
+  # 2. Make the plot
   
   ggplot() +
     geom_spatraster(data = raster) +
     geom_sf(data = data_eez, fill = NA) +
     geom_sf(data = data_map, fill = "#363737", col = "grey") +
-    scale_fill_gradientn(colours = c("white", "#e4f1fe", "#89c4f4", "#59abe3", "#fffc7f", 
-                                     "#f1d693", "#f9b42d", "#e67e22", "#ec644b",
-                                     "#d64541", "#96281b", "#663399", "#5a228b"),
+    scale_fill_gradientn(colours = c("white", palette_second),
                          limits = c(0, 50),
                          name = "Maximum DHW (°C-weeks)",
                          guide = guide_colourbar(direction = "horizontal", 
@@ -183,38 +260,38 @@ map_dhw_year <- function(year_i, data_files_i){
           legend.text = element_text(family = "Open Sans"),
           plot.title = element_text(family = "Open Sans", hjust = 0.5),
           panel.border = element_rect(colour = "black", fill = NA),
-          legend.key.width = unit(1.5, "cm"),
-          legend.key.height = unit(0.2, "cm"),
+          legend.key.width = unit(2.5, "cm"),
+          legend.key.height = unit(0.4, "cm"),
           legend.position = "bottom")
   
 }
 
-## 6.4 Create the function to make the plot for each group ----
+## 9.4 Create the function to make the plot for each group ----
 
 map_dhw_plot <- function(group_i){
   
-  # 1. Filter the data_files ----
+  # 1. Filter the data_files
   
   data_files_i <- data_files %>% 
     filter(group == group_i)
   
-  # 2. Create all the plots ----
+  # 2. Create all the plots
   
   plots <- map(c(data_files_i$year), ~map_dhw_year(data_files_i = data_files_i, year_i = .))
   
-  # 3. Combine plots ----
+  # 3. Combine plots
   
   combined_plots <- wrap_plots(plots) + 
     plot_layout(guides = "collect", ncol = 2) & 
     theme(legend.position = "bottom")
   
-  # 4. Save the plot ----
+  # 4. Save the plot
   
   ggsave(filename = paste0("figs/04_supp/03_indicators/01_dhw-map_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
-         height = 10, combined_plots, dpi = 600)
+         height = 12, width = 9, combined_plots, dpi = 600)
   
 }
 
-## 6.5 Map over the function ----
+## 9.5 Map over the function ----
 
 map(unique(data_files$group), ~map_dhw_plot(group_i = .))

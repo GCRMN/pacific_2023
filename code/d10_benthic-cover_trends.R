@@ -249,11 +249,11 @@ combine_plot_trends <- function(territory_i, categ_type){
     
     if(territory_i == "All"){
       
-      ggsave(filename = "figs/01_part-1/fig-12.png", plot = plot_i, height = 12, width = 5, dpi = fig_resolution)  
+      ggsave(filename = "figs/01_part-1/fig-13.png", plot = plot_i, height = 12, width = 5, dpi = fig_resolution)  
       
     }else{
       
-      ggsave(filename = paste0("figs/02_part-2/fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+      ggsave(filename = paste0("figs/02_part-2/fig-6/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
              plot = plot_i, height = 12, width = 5, dpi = fig_resolution)
       
     }
@@ -274,11 +274,11 @@ combine_plot_trends <- function(territory_i, categ_type){
     
     if(territory_i == "All"){
       
-      ggsave(filename = "figs/01_part-1/fig-13.png", plot = plot_i, height = 4, width = 12, dpi = fig_resolution)  
+      ggsave(filename = "figs/01_part-1/fig-14.png", plot = plot_i, height = 4, width = 12, dpi = fig_resolution)  
       
     }else{
       
-      ggsave(filename = paste0("figs/02_part-2/fig-8/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
+      ggsave(filename = paste0("figs/02_part-2/fig-7/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
              plot = plot_i, height = 4, width = 12, dpi = fig_resolution)
       
     }
