@@ -60,48 +60,33 @@ ggsave("figs/01_part-1/fig-4.png", height = 10, width = 5, dpi = fig_resolution)
 
 ## 4.1 Load and transform data ----
 
-data_enso <- read_table("data/09_misc/enso-soi.txt", skip = 87) %>% 
-  filter(YEAR %in% c(1980:2023)) %>% 
-  select(-X14) %>% 
-  mutate_all(., ~as.numeric(.)) %>% 
-  pivot_longer(2:ncol(.), values_to = "soi", names_to = "month") %>% 
-  rename(year = YEAR) %>% 
-  mutate(month = str_replace_all(month, c("JAN" = "1",
-                                          "FEB" = "2",
-                                          "MAR" = "3",
-                                          "APR"= "4",
-                                          "MAY"= "5",
-                                          "JUN" = "6",
-                                          "JUL"= "7",
-                                          "AUG" = "8",
-                                          "SEP" = "9",
-                                          "OCT" = "10",
-                                          "NOV" = "11",
-                                          "DEC"= "12")),
+data_enso <- read_table("data/09_misc/nino34.long.anom.data.txt", skip = 1, col_names = FALSE, n_max = 154) %>% 
+  rename(year = 1) %>% 
+  pivot_longer(2:ncol(.), values_to = "nino", names_to = "month") %>% 
+  mutate(month = str_remove_all(month, "X"),
+         month = as.numeric(month)-1,
          date = ym(paste(year, month, sep = "-")),
-         # 6 months moving average
-         soi_roll = roll_mean(x = soi, n = 6, align = "center", fill = NA))
+         nino_roll = roll_mean(x = nino, n = 6, align = "center", fill = NA)) %>% 
+  filter(year >= 1980)
 
 ## 4.2 Make the plot ----
 
 plot_enso <- ggplot() +
-  #geom_bar(data = data_enso, aes(x = date, y = soi), stat = "identity", width = 30, fill = "lightgrey") +
-  geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll < 0, 0, soi_roll)),
-              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_first[3], alpha = 0.9) +
-  geom_ribbon(data = data_enso %>% mutate(soi_roll = if_else(soi_roll > 0, 0, soi_roll)),
-              aes(x = date, ymin = 0, ymax = soi_roll), fill = palette_second[3], alpha = 0.9) +
-  #geom_line(data = data_enso, aes(x = date, y = soi_roll), linewidth = 0.3) +
-  labs(x = "Year", y = "Southern Oscillation Index") +
+  geom_ribbon(data = data_enso %>% mutate(nino_roll = if_else(nino_roll < 0, 0, nino_roll)),
+              aes(x = date, ymin = 0, ymax = nino_roll), fill = palette_second[3], alpha = 0.9) +
+  geom_ribbon(data = data_enso %>% mutate(nino_roll = if_else(nino_roll > 0, 0, nino_roll)),
+              aes(x = date, ymin = 0, ymax = nino_roll), fill = palette_first[3], alpha = 0.9) +
+  labs(x = "Year", y = "Niño 3.4 SST Index") +
   # Annotation
-  annotate(geom = "rect", xmin = ym("1985-06"), xmax = ym("1994-08"),
-           ymin = 2.2, ymax = 2.8, fill = palette_first[3], color = NA) +
+  annotate(geom = "rect", xmin = ym("1985-09"), xmax = ym("1994-05"),
+           ymin = 2.2, ymax = 2.8, fill = palette_second[3], color = NA) +
   annotate(geom = "text", x = ym("1990-01"), y = 2.5, color = "white",
-           label = "La Niña", family = font_choose_graph, size = 5) +
-  annotate(geom = "rect", xmin = ym("2010-07"), xmax = ym("2019-06"),
-           ymin = -2.2, ymax = -2.8, fill = palette_second[3], color = NA) +  
+           label = "El Niño", family = font_choose_graph, size = 4) +
+  annotate(geom = "rect", xmin = ym("2010-10"), xmax = ym("2019-03"),
+           ymin = -2.2, ymax = -2.8, fill = palette_first[3], color = NA) +  
   annotate(geom = "text", x = ym("2015-01"), y = -2.5, color = "white",
-           label = "El Niño", family = font_choose_graph, size = 5) +
-  scale_y_continuous(limits = c(-3.5, 3.5), breaks = c(-3, -2, -1, 0, 1, 2, 3)) +
+           label = "La Niña", family = font_choose_graph, size = 4) +
+  scale_y_continuous(limits = c(-3, 3), breaks = c(-3, -2, -1, 0, 1, 2, 3)) +
   coord_cartesian(clip = "off")
 
 ## 4.3 Save the plot ----
