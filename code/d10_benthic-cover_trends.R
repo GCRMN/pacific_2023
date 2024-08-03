@@ -114,6 +114,51 @@ data_trends <- model_results$result_trends %>%
             upper_ci_80 = quantile(cover, 0.80)) %>% 
   ungroup()
 
+#### 4.1.2 Long-term average ----
+
+data_trends %>% 
+  filter(territory == "All") %>% 
+  group_by(category) %>% 
+  summarise(across(c(mean, lower_ci_80, upper_ci_80), ~mean(.x, na.rm = TRUE)))
+
+#### 4.1.3 Long-term trend ----
+
+extract_mannkendall <- function(data, var_y){
+  
+  require(Kendall)
+  
+  data_vector <- data %>% 
+    pull(var_y)
+  
+  model <- MannKendall(data_vector)
+  
+  results <- tibble(tau = model$tau,
+                    p_value = model$sl) %>% 
+    mutate(trend = case_when(p_value > 0.05 ~ "No trend",
+                             p_value <= 0.05 & tau < 0 ~ "Negative trend",
+                             p_value <= 0.05 & tau > 0 ~ "Positive trend"))
+  
+  return(results)
+  
+}
+
+data_kendall <- data_trends %>% 
+  filter(territory == "All") %>% 
+  group_by(category) %>% 
+  group_modify(~extract_mannkendall(data = .x, var_y = "mean")) %>% 
+  ungroup()
+
+data_trends %>% 
+  filter(territory == "All") %>% 
+  left_join(., data_kendall) %>% 
+  mutate(title = paste0(category, "\n", trend, "\n (tau = ", round(tau, 3), ", p-value = ", round(p_value, 8), ")")) %>% 
+  ggplot(data = ., aes(x = year, y = mean)) +
+    geom_point() +
+    geom_smooth(method = "lm") +
+    facet_wrap(~title, scales = "free_y", nrow = 2)
+
+ggsave("figs/04_supp/02_model/long-term-trends.png", width = 15, height = 7, dpi = fig_resolution)
+
 ### 4.1.2 Smooth trends using a two-years moving average ----
 
 data_trends <- data_trends %>% 
