@@ -509,3 +509,52 @@ ggplot(data = data_population, aes(x = year, y = population, fill = territory_ty
 ## 6.3 Export the plot ----
 
 ggsave("figs/01_part-1/fig-3.png", height = 4, width = 5, dpi = fig_resolution)
+
+# 7. IUCN coral reef species ----
+
+## 7.1 Load the data ----
+
+files_list <- list.files(path = "data/09_misc/REEF_FORMING_CORALS/", full.names = TRUE, pattern = ".shp$")
+
+data_iucn <- map_dfr(files_list, ~read_sf(.)) %>% 
+  st_transform(crs = 4326) %>% 
+  select(id_no, kingdom, phylum, class, order_, family, genus, sci_name, presence, category)
+
+load("data/01_background-shp/03_eez/data_eez.RData")
+
+data_eez <- data_eez %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid() %>% 
+  select(TERRITORY1)
+
+## 7.2 Intersection ----
+
+data_iucn <- st_intersection(data_eez, data_iucn)
+
+## 7.3 Numbers ----
+
+data_species_pacific <- data_iucn %>% 
+  st_drop_geometry() %>% 
+  filter(presence == 1) %>% 
+  select(sci_name) %>% 
+  distinct() %>% 
+  count()
+
+data_species_territory <- data_iucn %>% 
+  st_drop_geometry() %>% 
+  filter(presence == 1) %>% 
+  group_by(TERRITORY1) %>% 
+  count()
+
+data_species_families <- data_iucn %>% 
+  st_drop_geometry() %>% 
+  filter(presence == 1) %>% 
+  select(family, sci_name) %>% 
+  distinct() %>% 
+  group_by(family) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(tot_pacific = data_species_pacific$n,
+         freq = n*100/tot_pacific) %>% 
+  arrange(-freq)
