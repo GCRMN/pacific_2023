@@ -72,6 +72,8 @@ data_enso <- read_table("data/09_misc/nino34.long.anom.data.txt", skip = 1, col_
 ## 4.2 Make the plot ----
 
 plot_enso <- ggplot() +
+  annotate(geom = "segment", x = ym("1980-01"), xend = ym("2023-12"), y = 1.5, linetype = "dashed") +
+  annotate(geom = "segment", x = ym("1980-01"), xend = ym("2023-12"), y = -1.5, linetype = "dashed") +
   geom_ribbon(data = data_enso %>% mutate(nino_roll = if_else(nino_roll < 0, 0, nino_roll)),
               aes(x = date, ymin = 0, ymax = nino_roll), fill = palette_second[3], alpha = 0.9) +
   geom_ribbon(data = data_enso %>% mutate(nino_roll = if_else(nino_roll > 0, 0, nino_roll)),

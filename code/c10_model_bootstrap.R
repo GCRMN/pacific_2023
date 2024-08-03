@@ -44,6 +44,8 @@ model_bootstrap <- function(category_i, bootstrap_i, pdp){
   ## 2.1 Define the recipe
   
   boosted_recipe <- recipe(measurementValue ~ ., data = data_train) %>% 
+    step_novel(territory) %>% 
+    step_unknown(datasetID) %>% 
     step_dummy(all_nominal_predictors())
   
   ## 2.2 Filter model_hyperparams
