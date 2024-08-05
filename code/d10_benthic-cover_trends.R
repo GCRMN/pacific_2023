@@ -165,7 +165,12 @@ data_trends <- data_trends %>%
   group_by(category, region, territory, color, text_title) %>% 
   mutate(across(c("mean", "lower_ci_95", "lower_ci_80", "upper_ci_95", "upper_ci_80"),
                 ~rollmean(.x, k = 2, fill = NA, align = "right"))) %>% 
-  ungroup()
+  ungroup() %>% 
+  # Add first year data
+  filter(year != 1980) %>% 
+  bind_rows(., data_trends %>% 
+              filter(year == 1980)) %>% 
+  arrange(category, region, territory, year)
 
 ### 4.1.3 Add "data" variable ----
 
