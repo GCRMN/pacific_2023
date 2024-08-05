@@ -544,6 +544,17 @@ data_perf_mean_ter <- data_perf %>%
 
 ## 7.2  Export the table in .tex format ----
 
+data_rmse <- data_perf_mean_ter %>% 
+  select(-text_title, -color, -mean_rmse_all, -rsq_mean, -mean_rsq_all) %>% 
+  rename(rmse = rmse_mean) %>% 
+  bind_rows(., data_perf_mean_all %>%
+              select(-text_title, -color, -mean_rsq_all) %>%
+              mutate(territory = "Entire Pacific region") %>% 
+              rename(rmse = mean_rmse_all)) %>% 
+  mutate(rmse = round(rmse, 2)) %>% 
+  pivot_wider(names_from = category, values_from = rmse) %>% 
+  select(territory, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae",
+         "Acroporidae", "Pocilloporidae", "Poritidae")
 
 ## 7.3 Make the plots ----
 
