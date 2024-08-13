@@ -321,3 +321,82 @@ ggsave("figs/02_part-2/case-studies/american-samoa_2.png", bg = "transparent", h
 ## 6.3 Remove useless objects ----
 
 rm(data_amsamoa, data_2014, data_2021)
+
+# 7. Case study for Hawaii ----
+
+## 7.1 Load and transform data ----
+
+data_2015 <- read.csv("data/13_case-studies/NCRMP-Socio-Hawaii-2015_Data.csv") %>% 
+  select(condition_1, condition_2, condition_3, condition_7) %>% 
+  pivot_longer(1:4, values_to = "reply", names_to = "question") %>% 
+  mutate(year = 2015,
+         question = str_replace_all(question, c("condition_1" = "Ocean water quality",
+                                                "condition_2" = "Amount of live coral",
+                                                "condition_3" = "Number of fish",
+                                                "condition_7" = "Variety of fishes")),
+         reply = as.character(reply),
+         reply = str_replace_all(reply, c("1" = "Very bad",
+                                          "2" = "Bad",
+                                          "3" = "Neither good nor bad",
+                                          "4" = "Good",
+                                          "5" = "Very good",
+                                          "8" = "Not sure")))
+
+data_2020 <- read.csv("data/13_case-studies/NCRMP-Socio_HI-2020_Data.csv") %>% 
+  select(current_1, current_2, current_3, current_4) %>% 
+  pivot_longer(1:4, values_to = "reply", names_to = "question") %>% 
+  mutate(year = 2020,
+         question = str_replace_all(question, c("current_1" = "Ocean water quality",
+                                                "current_2" = "Amount of live coral",
+                                                "current_3" = "Number of fish",
+                                                "current_4" = "Variety of fishes")),
+         reply = as.character(reply),
+         reply = str_replace_all(reply, c("1" = "Very bad",
+                                          "2" = "Bad",
+                                          "3" = "Neither good nor bad",
+                                          "4" = "Good",
+                                          "5" = "Very good",
+                                          "88" = "Not sure",
+                                          "777" = NA_character_)))
+
+data_hawaii <- bind_rows(data_2015, data_2020) %>% 
+  drop_na(reply) %>% 
+  filter(reply != ".") %>% 
+  group_by(question, year, reply) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(question, year) %>% 
+  mutate(freq = (n*100)/sum(n)) %>% 
+  ungroup() %>% 
+  mutate(year = factor(year, c("2020", "2015")),
+         reply = factor(reply, c("Very bad", "Bad", "Neither good nor bad", "Good",
+                                 "Very good", "Not sure")),
+         freq_label = round(freq, 0),
+         freq_label = if_else(freq_label < 8, "", paste0(as.character(freq_label), "%")),
+         text_color = ifelse(reply %in% c("Very bad", "Good", "Very good"), "white", "black"))
+
+## 7.2 Make the plot ----
+
+ggplot(data = data_hawaii, aes(x = year, y = freq, fill = reply, label = freq_label, color = text_color)) +
+  geom_bar(stat = "identity", width = 0.75,
+           position = position_stack(reverse = TRUE), color = "white", linewidth = 0.05) +
+  geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
+            family = font_choose_graph, size = 3) + 
+  coord_flip() +
+  scale_color_identity() +
+  facet_wrap(~question, ncol = 1) +
+  scale_fill_manual(breaks = c("Very bad", "Bad", "Neither good nor bad", "Good",
+                               "Very good", "Not sure"),
+                    values = c("#ce6693", "#f8a07e", "#B2BBCC", "#7393C9", "#2C5D96", "#efeff0")) +
+  labs(x = NULL, y = "Percentage of respondents", fill = "Perceived\ncondition") +
+  theme_graph() +
+  theme(legend.position = "right",
+        legend.direction = "vertical",
+        strip.text = element_text(hjust = 0, face = "bold"),
+        strip.background = element_rect(fill = NA, color = NA))
+
+ggsave("figs/02_part-2/case-studies/hawaii_2.png", bg = "transparent", height = 9, width = 8)
+
+## 7.3 Remove useless objects ----
+
+rm(data_hawaii, data_2015, data_2020)
