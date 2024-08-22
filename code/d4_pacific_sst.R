@@ -24,21 +24,22 @@ theme_set(theme_graph())
 ## 3.1 Load and transform data ----
 
 data_warming <- read.csv("data/09_misc/data-warming.csv") %>% 
-  filter(!(TERRITORY1 %in% c("Entire Pacific region", "Pacific Remote Island Area", "Kiribati"))) %>% 
+  filter(!(TERRITORY1 %in% c("Pacific Remote Island Area", "Kiribati"))) %>% 
   select(TERRITORY1, warming_rate, sst_increase) %>% 
-  # The number 0.88°C is coming from Technical summary IPCC, 2021 (TS.2.4, The Ocean, page 74)
-  add_row(TERRITORY1 = "Global Ocean", warming_rate = (0.88/(2020-1900))*(2022-1980), sst_increase = 0.88) %>% 
+  # The number 0.97°C is coming from Forster et al (2024) - Table 5, page 2638
+  add_row(TERRITORY1 = "Global Ocean", warming_rate = NA, sst_increase = 0.97) %>% 
   mutate(warming_rate = round(warming_rate, 3),
-         color = case_when(TERRITORY1 == "Global Ocean" ~ "#a059a0",
-                           sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ "#ce6693",
+         color = case_when(TERRITORY1 == "Global Ocean" ~ "black",
+                           TERRITORY1 == "Entire Pacific region" ~ palette_second[4],
+                           sst_increase > 0 & TERRITORY1 != "Global Ocean" ~ palette_second[3],
                            sst_increase <= 0 & TERRITORY1 != "Global Ocean" ~ palette_first[2]),
-         TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1)) %>% 
+         TERRITORY1 = if_else(TERRITORY1 == "Global Ocean", "**Global Ocean**", TERRITORY1),
+         TERRITORY1 = if_else(TERRITORY1 == "Entire Pacific region", "**Entire Pacific region**", TERRITORY1)) %>% 
   arrange(desc(sst_increase)) %>% 
   mutate(TERRITORY1 = str_replace_all(TERRITORY1, c("Islands" = "Isl.",
                                                     "Federated States of Micronesia" = "Fed. Sts. Micronesia",
                                                     "Northern" = "North.",
                                                     "Howland" = "How.")))
-
 ## 3.2 Make the plot ----
 
 ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, sst_increase))) +
@@ -54,7 +55,7 @@ ggplot(data = data_warming, aes(x = sst_increase, y = fct_reorder(TERRITORY1, ss
 
 ## 3.3 Save the plot ----
 
-ggsave("figs/01_part-1/fig-4.png", height = 10, width = 5, dpi = fig_resolution)
+ggsave("figs/01_part-1/fig-4.png", height = 10.5, width = 5, dpi = fig_resolution)
 
 # 4. Southern Oscillation Index ----
 
