@@ -335,3 +335,13 @@ ggplot(data = data_sst_anom) +
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."))
 
 ggsave(filename = "figs/04_supp/03_indicators/03_sst-anom_b.png", width = 10, height = 12, dpi = fig_resolution)
+
+# 9. Max SST anom values (for writing) ----
+
+load("data/09_misc/data-sst_processed.RData")
+
+data_sst_anom_values <- data_sst %>% 
+  mutate(year = year(date)) %>% 
+  group_by(TERRITORY1, year) %>% 
+  summarise(mean_sst_anom = max(sst_anom_mean, na.rm = TRUE)) %>% 
+  filter(TERRITORY1 == "French Polynesia")
