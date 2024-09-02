@@ -187,11 +187,12 @@ ggplot(data = data_sst) +
   geom_point(data = data_sst_point, aes(x = date, y = sst_linear), size = 3, color = "red") +
   annotate(geom = "text", x = as_date("1983-11-01"),
            y = as.numeric(data_sst_point[1,"sst_linear"]), size = 5, hjust = 1,
-           label = "A", family = font_choose_graph, color = "red") +
-  annotate(geom = "text", x = as_date("2024-12-01"),
+           label = "y[a]", family = font_choose_graph, color = "red", parse = TRUE) +
+  annotate(geom = "text", x = as_date("2024-10-01"),
            y = as.numeric(data_sst_point[2,"sst_linear"]), size = 5, hjust = -0.25,
-           label = "B", family = font_choose_graph, color = "red") +
+           label = "y[b]", family = font_choose_graph, color = "red", parse = TRUE) +
   labs(x = "Year", y = "SST (°C)") +
+  lims(x = c(as_date("1983-11-01"), as_date("2025-06-01"))) +
   theme_graph()
   
 ## 4.5 Export the plot ----
