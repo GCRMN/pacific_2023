@@ -471,7 +471,11 @@ writeLines(c("\\begin{center}",
                     data_traintest[7, "nb_testing"], " \\\\ \\hline"),
              "\\end{tabular}",
              "\\end{center}"),
-           paste0("figs/03_methods/table-3.tex"))
+           paste0("figs/03_methods/table-1.tex"))
+
+### 6.1.3 Export the table in .csv format ----
+
+write.csv2(data_traintest, "figs/03_methods/table-1.csv", row.names = FALSE)
 
 ## 6.2 Hyper-parameters ----
 
@@ -516,7 +520,11 @@ writeLines(c("\\begin{center}",
                     data_hyper[7, "trees"], "&", data_hyper[7, "tree_depth"], "&", data_hyper[7, "min_n"]," \\\\ \\hline"),
              "\\end{tabular}",
              "\\end{center}"),
-           paste0("figs/03_methods/table-4.tex"))
+           paste0("figs/03_methods/table-2.tex"))
+
+### 6.2.3 Export the table in .csv format ----
+
+write.csv2(data_hyper, "figs/03_methods/table-2.csv", row.names = FALSE)
 
 ## 6.3 Remove useless objects ----
 
