@@ -109,7 +109,7 @@ data_trends <- model_results$result_trends %>%
   group_by(category, region, territory, year, color, text_title) %>% 
   summarise(mean = mean(cover),
             lower_ci_95 = quantile(cover, 0.05),
-            lower_ci_80 = quantile(cover, 0.10),
+            lower_ci_80 = quantile(cover, 0.20),
             upper_ci_95 = quantile(cover, 0.95),
             upper_ci_80 = quantile(cover, 0.80)) %>% 
   ungroup()
@@ -171,6 +171,20 @@ data_trends <- data_trends %>%
   bind_rows(., data_trends %>% 
               filter(year == 1980)) %>% 
   arrange(category, region, territory, year)
+
+if(FALSE){
+  
+  # Raw data for writing
+  A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95)
+  #A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95) %>% 
+  filter(year >= 1987 & year <= 1999) %>% summarise(mean = mean(mean))
+  
+  A <- data_trends %>% filter(territory == "French Polynesia" & category == "Turf algae") %>% select(-upper_ci_95, -lower_ci_95) %>% 
+    summarise(mean = mean(mean),
+              lower_ci_80 = mean(lower_ci_80),
+              upper_ci_80 = mean(upper_ci_80))
+  
+}
 
 ### 4.1.3 Add "data" variable ----
 
