@@ -172,9 +172,10 @@ data_trends <- data_trends %>%
               filter(year == 1980)) %>% 
   arrange(category, region, territory, year)
 
+### 4.1.3 Raw data for writing ----
+
 if(FALSE){
   
-  # Raw data for writing
   A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95)
   #A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95) %>% 
   filter(year >= 1987 & year <= 1999) %>% summarise(mean = mean(mean))
@@ -186,7 +187,7 @@ if(FALSE){
   
 }
 
-### 4.1.3 Add "data" variable ----
+### 4.1.4 Add "data" variable ----
 
 load("data/11_model-data/data_benthic_prepared.RData")
 
@@ -209,7 +210,7 @@ data_trends <- left_join(data_trends, data_benthic_obs) %>%
 
 rm(data_benthic, data_benthic_obs)
 
-### 4.1.4 Export the data ----
+### 4.1.5 Export the data ----
 
 data_trends %>% 
   select(-color, -text_title) %>% 
@@ -564,7 +565,9 @@ data_perf_mean_ter <- data_perf %>%
   ungroup() %>% 
   left_join(., data_perf_mean_all)
 
-## 7.2  Export the table in .tex format ----
+## 7.2 Export tables ----
+
+### 7.2.1 Format tables ----
 
 data_rmse <- data_perf_mean_ter %>% 
   select(-text_title, -color, -mean_rmse_all, -rsq_mean, -mean_rsq_all) %>% 
@@ -576,7 +579,120 @@ data_rmse <- data_perf_mean_ter %>%
   mutate(rmse = round(rmse, 2)) %>% 
   pivot_wider(names_from = category, values_from = rmse) %>% 
   select(territory, "Hard coral", "Coralline algae", "Macroalgae", "Turf algae",
-         "Acroporidae", "Pocilloporidae", "Poritidae")
+         "Acroporidae", "Pocilloporidae", "Poritidae") %>% 
+  bind_rows(., tibble(territory = c("Kiribati", "Pacific Remote Island Area"))) %>% 
+  # Add territories with no observed data
+  full_join(., tibble(territory = setdiff(unique(model_results$result_trends$territory), "All")))
+
+data_rmse <- data_rmse %>% 
+  mutate(subterritory = territory,
+         territory = case_when(subterritory %in% c("Line Group", "Phoenix Group", "Gilbert Islands") ~ "Kiribati",
+                               subterritory %in% c("Jarvis Island", "Johnston Atoll", 
+                                                   "Wake Island", "Howland and Baker Islands",
+                                                   "Palmyra Atoll") ~ "Pacific Remote Island Area",
+                               TRUE ~ subterritory),
+         subterritory = if_else(subterritory == territory, NA, subterritory)) %>% 
+  arrange(territory, !is.na(subterritory)) %>% 
+  relocate(subterritory, .after = territory) %>% 
+  filter(territory != "Entire Pacific region") %>% 
+  bind_rows(., data_rmse %>% 
+              filter(territory == "Entire Pacific region")) %>% 
+  mutate(across(c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae",
+                  "Acroporidae", "Pocilloporidae", "Poritidae"), ~str_replace_all(format(round(.x, 2), nsmall = 2), "NA", "")))
+
+### 7.2.2 Export table for main benthic categories ----
+
+data_rmse_main <- data_rmse %>% 
+  select(-"Acroporidae", -"Pocilloporidae", -"Poritidae")
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", data_rmse_main[i, "territory"], "} &", data_rmse_main[i, "Hard coral"], "&",
+                     data_rmse_main[i, "Coralline algae"], "&", data_rmse_main[i, "Macroalgae"], "&", data_rmse_main[i, "Turf algae"]," \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", data_rmse_main[i, "subterritory"], " &", data_rmse_main[i, "Hard coral"], "&",
+                     data_rmse_main[i, "Coralline algae"], "&", data_rmse_main[i, "Macroalgae"], "&", data_rmse_main[i, "Turf algae"]," \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{2cm}|R{2cm}|R{2cm}|R{2cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Hc.}
+             & \\textcolor{white}{Co.}  & \\textcolor{white}{Ma.} & \\textcolor{white}{Ta.} \\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", data_rmse_main[33, "territory"], "}} &", data_rmse_main[33, "Hard coral"], "&",
+                    data_rmse_main[33, "Coralline algae"], "&", data_rmse_main[33, "Macroalgae"], "&", data_rmse_main[33, "Turf algae"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/04_supp/rmse-territories_benthic-categories.tex"))
+
+openxlsx::write.xlsx(data_rmse_main, file = "figs/04_supp/rmse-territories_benthic-categories.xlsx")
+
+### 7.2.3 Export table for main hard coral families ----
+
+data_rmse_families <- data_rmse %>% 
+  select(-"Hard coral", -"Coralline algae", -"Macroalgae", -"Turf algae")
+
+latex_table_line <- function(i, subterritory){
+  
+  color <- ifelse(i %% 2 == 0, "white", "secondcolor")
+  
+  if(subterritory == FALSE){
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{2}{|l|}{", data_rmse_families[i, "territory"], "} &", data_rmse_families[i, "Acroporidae"], "&",
+                     data_rmse_families[i, "Pocilloporidae"], "&", data_rmse_families[i, "Poritidae"], " \\\\ \\hline"))
+    
+  }else{
+    
+    line <- c(paste0("\\rowcolor{", color, "}"),
+              paste0("\\multicolumn{1}{|l}{} & ", data_rmse_families[i, "subterritory"], " &", data_rmse_families[i, "Acroporidae"], "&",
+                     data_rmse_families[i, "Pocilloporidae"], "&", data_rmse_families[i, "Poritidae"], " \\\\ \\hline"))
+    
+  }
+  
+  return(line)
+  
+}
+
+writeLines(c("\\begin{center}",
+             "\\begin{tabular}{|ll|R{2.7cm}|R{2.7cm}|R{2.7cm}|}",
+             "\\hline",
+             "\\rowcolor{firstcolor}",
+             "\\multicolumn{2}{|l|}{\\textcolor{white}{Countries and territories}} & \\textcolor{white}{Acrop.}
+             & \\textcolor{white}{Pocillo.}  & \\textcolor{white}{Porit.} \\\\ \\hline",
+             map(1:8, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(9:11, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(12:17, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             map(18:22, ~ latex_table_line(i = ., subterritory = TRUE)) %>% unlist(),
+             map(23:32, ~ latex_table_line(i = ., subterritory = FALSE)) %>% unlist(),
+             paste0("\\rowcolor{secondcolor}"),
+             paste0("\\multicolumn{2}{|l|}{\\textbf{", data_rmse_families[33, "territory"], "}} &", data_rmse_families[33, "Acroporidae"], "&",
+                    data_rmse_families[33, "Pocilloporidae"], "&", data_rmse_families[33, "Poritidae"]," \\\\ \\hline"),
+             "\\end{tabular}",
+             "\\end{center}"),
+           paste0("figs/04_supp/rmse-territories_families.tex"))
+
+openxlsx::write.xlsx(data_rmse_families, file = "figs/04_supp/rmse-territories_families.xlsx")
 
 ## 7.3 Make the plots ----
 
@@ -623,7 +739,7 @@ ggsave("figs/04_supp/02_model/01_perf_rsq.png", width = 14, height = 8, dpi = fi
 
 ### 7.4 Remove useless objects ----
 
-rm(data_perf, data_perf_mean_all, data_perf_mean_ter)
+rm(data_perf, data_perf_mean_all, data_perf_mean_ter, data_rmse_families, data_rmse_main)
 
 # 8. Predicted vs observed ----
 

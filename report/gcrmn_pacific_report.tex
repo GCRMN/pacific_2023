@@ -1462,11 +1462,35 @@ However, the level of these positive effects is directly related to the enforcem
 	
 	\section{Cyclones}
 	
+
 	\section{Thermal regime}
 	
 	\section{Benthic cover}
 	
 \end{multicols}
+
+\begin{table}[]
+	\caption{AA}
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\rowcolor{firstcolor}
+		\textcolor{white}{Type}            & \textcolor{white}{Category} & \textcolor{white}{Sustained wind speed (km.h\textsuperscript{-1})} \\ \hline
+		\rowcolor{white}
+		Tropical storm &          &           64 to 118           \\ \hline
+				\rowcolor{secondcolor}
+		Cyclone                                 &    1     &          119 to 153           \\ \hline
+				\rowcolor{white}
+		                                        &    2     &          154 to 177           \\ \hline
+		                                        		\rowcolor{secondcolor}
+		                                        &    3     &          178 to 210           \\ \hline
+		                                        		\rowcolor{white}
+		                                        &    4     &          211 to 251           \\ \hline
+		                                        		\rowcolor{secondcolor}
+		                                        &    5     &       \textgreater 251 \\ \hline
+	\end{tabular}
+\end{table}
+
+
 
 Using the Allen Coral Atlas data \citep{lyons2024new}.
 
@@ -1989,13 +2013,13 @@ Spatial resolution:
 
 \begin{table}[h!]
 	\caption{Comparison of the number of observations used to train (column ``Training") and test (column ``Testing") the models used to estimate temporal trends for each of the four major benthic categories and the three major hard coral families. The total number of rows of the initial dataset is equal to the sum of values of the two columns for a given category.}
-	\input{../figs/03_methods/table-3.tex}
+	\input{../figs/03_methods/table-1.tex}
 	\label{part3:tbl-3}
 \end{table}
 
 \begin{table}[h!]
 	\caption{Values of the tuned parameters of the model for each of the four major benthic categories and the three major hard coral families. ``Nb trees" is the number of trees, ``Min. obs." is the minimum observation per leaf.}
-	\input{../figs/03_methods/table-4.tex}
+	\input{../figs/03_methods/table-2.tex}
 	\label{part3:tbl-4}
 \end{table}
 
@@ -2072,6 +2096,22 @@ Spatial resolution:
 \renewcommand{\thefigure}{S.\arabic{figure}}
 
 \newpage
+
+\begin{table}[h!]
+	\caption{Comparison of RMSE values for major benthic categories for each country and territory.}
+	\input{../figs/04_supp/rmse-territories_benthic-categories.tex}
+	\label{supp:tbl-1}
+\end{table}
+
+\newpage
+
+\begin{table}[h!]
+	\caption{Comparison of RMSE values for major hard coral families for each country and territory.}
+	\input{../figs/04_supp/rmse-territories_families.tex}
+	\label{supp:tbl-2}
+\end{table}
+
+\newpage
 \clearpage
 
 % BIBLIOGRAPHY
@@ -2132,9 +2172,10 @@ Spatial resolution:
 	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,-28.2cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
 	\fill[anchor=north west, white] ($(current page.north west)+(-1cm,1cm)$) rectangle ($(current page.north west)+(1.5cm,-30cm)$);
 	\fill[anchor=north west, white] ($(current page.north west)+(19.5cm,1cm)$) rectangle ($(current page.north west)+(21.5cm,-30cm)$);
-	% Text
-	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,-10cm)$){\textcolor{white}{{International Coral Reef Initiative}}};
-	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,-11cm)$){\textcolor{white}{{Global Coral Reef Monitoring Network}}};
+		\node[align=center, text width=10cm] at ($(current page.center)+(0cm,4cm)$){\textcolor{white}{{International Coral Reef Initiative}}};
+	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,3cm)$){\textcolor{white}{{Global Coral Reef Monitoring Network}}};
+	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,-1cm)$){\textcolor{white}{{With support from}}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.center)+(0cm,-3cm)$){\includegraphics[height=2cm]{../figs/00_misc/logo-sprep.png}};
 \end{tikzpicture}
 
 \end{document}
