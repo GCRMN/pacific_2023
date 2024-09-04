@@ -200,7 +200,7 @@ ggplot(data = data_sst, aes(x = sst, y = fct_reorder(TERRITORY1, mean))) +
 
 ggsave("figs/04_supp/01_data-explo/02_sst-distribution.png", height = 8, width = 6, dpi = fig_resolution)
 
-# 9. Map of maximum DHW per year ----
+# 9. Map of SST anomaly per year ----
 
 ## 9.1 Load data ----
 
@@ -212,13 +212,13 @@ crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WG
 
 ## 9.2 List of files ----
 
-data_files <- tibble(path = list.files("data/08_dhw-year/", full.names = TRUE)) %>% 
+data_files <- tibble(path = list.files("data/08_sst-anom-year/", full.names = TRUE)) %>% 
   mutate(year = as.numeric(str_sub(path, -8, -4)),
          group = rep(1:50, each = 8, length.out = nrow(.))) # 8 is the number of subplots (i.e. years) per plot
 
 ## 9.3 Create the function to make the plot for each year ----
 
-map_dhw_year <- function(year_i, data_files_i){
+map_ssta_year <- function(year_i, data_files_i){
   
   # 1. Load data
   
@@ -230,9 +230,9 @@ map_dhw_year <- function(year_i, data_files_i){
     geom_spatraster(data = raster) +
     geom_sf(data = data_eez, fill = NA) +
     geom_sf(data = data_map, fill = "#363737", col = "grey") +
-    scale_fill_gradientn(colours = c("white", palette_second),
-                         limits = c(0, 50),
-                         name = "Maximum DHW (°C-weeks)",
+    scale_fill_gradientn(colours = c(rev(palette_first), "white", palette_second),
+                         limits = c(-5, 5),
+                         name = "Yearly average SST anomaly (°C)",
                          guide = guide_colourbar(direction = "horizontal", 
                                                  title.position = "top", 
                                                  title.hjust = 0.5, 
@@ -256,7 +256,7 @@ map_dhw_year <- function(year_i, data_files_i){
 
 ## 9.4 Create the function to make the plot for each group ----
 
-map_dhw_plot <- function(group_i){
+map_ssta_plot <- function(group_i){
   
   # 1. Filter the data_files
   
@@ -265,7 +265,7 @@ map_dhw_plot <- function(group_i){
   
   # 2. Create all the plots
   
-  plots <- map(c(data_files_i$year), ~map_dhw_year(data_files_i = data_files_i, year_i = .))
+  plots <- map(c(data_files_i$year), ~map_ssta_year(data_files_i = data_files_i, year_i = .))
   
   # 3. Combine plots
   
@@ -275,11 +275,11 @@ map_dhw_plot <- function(group_i){
   
   # 4. Save the plot
   
-  ggsave(filename = paste0("figs/04_supp/03_indicators/01_dhw-map_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
-         height = 12, width = 9, combined_plots, dpi = 600)
+  ggsave(filename = paste0("figs/04_supp/03_indicators/map_sst-anom_", min(data_files_i$year), "-", max(data_files_i$year), ".png"),
+         height = 13, width = 9, combined_plots, dpi = 600)
   
 }
 
 ## 9.5 Map over the function ----
 
-map(unique(data_files$group), ~map_dhw_plot(group_i = .))
+map(unique(data_files$group), ~map_ssta_plot(group_i = .))
