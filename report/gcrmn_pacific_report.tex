@@ -82,11 +82,13 @@
 %%%%% 4. FIGURES AND TABLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\DeclareCaptionFont{myfont}{\fontsize{11.8pt}{14pt}\selectfont}
+
 % Set Figure names
-\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, font=normalsize, labelsep=period, justification=justified}
+\captionsetup[figure]{labelfont={color=firstcolor}, name={\textsf{\ding{115} Figure}}, font=myfont, labelsep=period, justification=justified}
 
 % Set Table names
-\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, font=normalsize, labelsep=period, justification=justified}
+\captionsetup[table]{labelfont={color=firstcolor}, name={\textsf{\ding{116} Table}}, font=myfont, labelsep=period, justification=justified}
 
 % Increase row height for tables
 \renewcommand{\arraystretch}{1.2} 
@@ -194,9 +196,15 @@
 %%%%% 7. FIGURE CAPTIONS FOR PART 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand{\titleFigureA}[1]{Sea Surface Temperature (SST) over coral reefs of #1 between 1985 and 2023. Each line, colored by its associated decade, correspond to a unique year. The black line represents the interannual average SST from 1985 to 2023.}
+\newcommand{\titleFigureA}[1]{Average Sea Surface Temperature (SST) anomaly from 1985 to 2023 over coral reefs of #1. The black line is the long-term trend in SST anomaly, values below this line are negative SST anomalies (\ie cooler than long-term trend), and values above this line are positive SST anomalies (\ie warmer than long-term trend).}
 
-\newcommand{\titleFigureB}[1]{Average Sea Surface Temperature (SST) anomaly between 1985 and 2023 over coral reefs of #1. The black dashed line represents a null SST anomaly, values below this line are negative SST anomalies (\ie cooler than average), and values above this line are positive SST anomalies (\ie warmer than average).}
+\newcommand{\titleFigureB}[1]{Maximum sustained wind speed of tropical storms passing within 100 km of a coral reef between 1980 and 2023 over #1. Colors correspond to the cyclone's Saffir-Simpson category along its entire track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (\ie 119 km.h\textsuperscript{-1}). Note that cyclones passing more than 100 km away from coral reefs of French Polynesia are not represented, although they can have had an impact.}
+
+\newcommand{\titleFigureC}[1]{Trajectories of cyclones passing within 100 km of a coral reef between 1980 and 2023 over #1. Points correspond to cyclone positions every 3 hours and are colored depending on the Saffir Simpson scale of the sustained wind speed. Grey points correspond to cyclone positions on which wind speed was not available. For visibility reasons, only the three most powerful cyclones are labeled and colored per time range (\ie subplot). The trajectories of other cyclones are represented by gray lines only.}
+
+\newcommand{\titleFigureD}[1]{Spatio-temporal distribution of benthic cover monitoring sites across #1. Sites that were monitored for the longest period of time are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the economic exclusive zone. Dashed polygons represent a 100 km buffer around coral reefs. Note that only lands and coral reefs buffers of the country or territory are represented, not those of adjacent countries and territories.}
+
+\newcommand{\titleFigureE}[1]{Modeled temporal trends for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D) cover from 1980 to 2023 in #1. The bold line represents the estimated average cover, lighter and darker ribbons represent 95 \% and 80 \% confidence intervals, respectively. Note the scale on the y-axes are different between the four subplots. Gray areas represent periods where no observed data were available.}
 
 %%%%% 8. OTHERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1140,6 +1148,15 @@
 
 \vspace{0.75cm}
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=14cm]{../figs/02_part-2/fig-5/\territoryname.png}
+	\captionof{figure}{\titleFigureD{French Polynesia} Although the coral reef distribution dataset from WRI do not indicate a presence of coral reefs on the Marquesas archipelago, there are in fact small isolated reefs, for example on Tahuata Island (Serge Planes, \textit{pers. comm.}).}
+	\label{part2:chap2:fig-1}
+\end{figure}
+
+\newpage
+
 \begin{multicols}{2}
 	
 	\section*{Introduction}
@@ -1148,26 +1165,72 @@
 
 	\vspace{0.5cm}
 	
-	\lipsum[1-4]
+	French Polynesia is a French Overseas collectivity located in the Southern hemisphere, which is bordered by three countries and territories, with Cook Islands on the West, Kiribati (Line Group) on the North, and Pitcairn on the Southeast. With 4,766,689 km\textsuperscript{2}, the economic exclusive zone of French Polynesia represents a surface greater than the entire European Union. French Polynesia is composed of five archipelagos, namely Tuamotu islands, Austral islands, Society islands, Gambier islands, and Marquesas islands (\autoref{part2:chap2:fig-1}). These archipelagos bring together 163 islands and atolls (Maragos and Williams, 2011), whose average altitude is 198 m above sea level.
+	French Polynesian coral reefs cover approximately 5,981 km\textsuperscript{2}, which represent 9.17 \% of the total coral reef extent of the GCRMN Pacific region, and 2.4 \% of the world coral reef extent.
 	
-	\section*{Disturbance regime}
+	We estimated the human population of French Polynesia living within 5 km from coral reefs to be 226,292 inhabitants, in 2020. This represents 73.88 \% of the total human population of French Polynesia living within 5 km from coral reefs. However, the human population is unevenly distributed over the numerous islands and atolls of the territory. Indeed, most of the population is located within the Society archipelago (INSEE, 2023). We estimated that the human population living within 5 km from coral reefs has increased by 32.98 \% between 2000 and 2020.
+	
+	\vfill\null
+	\columnbreak 
+	
+	\section*{Threats}
 	
 	\subsection*{Thermal regime}
 	
+	The long-term average of SST on coral reefs of French Polynesia between 1985 and 2023 was 27.31°C (Supplementary Figure 1A). Due to the distance of French Polynesia from the Equator, there is a substantial seasonal pattern on SST (Supplementary Figure 2A). However, because of the wide latitudinal range of French Polynesia, this seasonality in SST varies between the archipelagos of the territory. SST over coral reefs of French Polynesia have increased by 0.25°C between 1985 and 2023, which corresponds to a warming rate of 0.007°C per year (Supplementary Figure 1A). This warming rate is lower than the warming rate on coral reefs of the entire Pacific region (i.e. 0.022°C per year, Table 1.2.1). Thus, using surface temperature projection models, Van Hooidonk et al (2013) showed that Polynesia could be one of the regions in the world where annual coral bleaching phenomena would start the latest.
+	
+	From 1985 to 2023, periods of high SST anomalies peaked in 1987, 1991, 1994, 2003, 2005-2007, 2010, 2012, 2016, 2018 and 2020 (\autoref{part2:chap2:fig-2}). The synthesis conducted by Trapon et al. (2011) (Table 1, page 6) shows that the high SST anomalies that occurred from 1987 to 2007 have led to bleaching events and sometimes losses in hard coral cover on coral reefs of Moorea. More recently, the bleaching event that occurred in 2016 led to severe coral mortality, particularly on reefs from the Tuamotu, where some of which have lost half their coral cover (Hédouin et al, 2020). Indeed, the SST anomalies that occurred in 2016, due to a strong El Niño event (Figure 1.2.2), were significant given their intensity (\ie height of the SST anomaly peak on \autoref{part2:chap2:fig-2}) and duration (\ie width of the SST anomaly peak on \autoref{part2:chap2:fig-2}). However, the mortality of hard corals in 2016 due to the heat stress was heterogeneous over French Polynesian coral reefs, where those of Moorea only suffered a mortality rate of less than 1 \%. (Hédouin et al, 2020). This can be explained by SST anomalies being generally heterogeneous across French Polynesia (Supplementary Figure 4A to 4E).
+		
 	\begin{figuremulticol}
 		\centering
 		\includegraphics[width=\linewidth]{../figs/02_part-2/fig-2/\territoryname.png}
 		\captionof{figure}{\titleFigureA{French Polynesia}}
-		\label{part2:chap2:fig-1}
+		\label{part2:chap2:fig-2}
 	\end{figuremulticol}
 	
-	\lipsum[1-4]
+	\subsection*{Cyclones}
 	
-	 Integer tempus convallis augue. Etiam facilisis. Nunc elementum fermentum wisi. Aenean placerat. Ut imperdiet, enim sed gravida sollicitudin, felis odio placerat quam, ac pulvinar elit purus eget enim. Nunc vitae tortor. Proin tempus nibhsit amet nisl. Vivamus quis tortor vitae risus porta vehicula.  Proin tempus nibhsit amet nisl. Vivamus quis tortor vitae risus porta vehicula.
+	Between 1980 and 2023, a total of 14 tropical storms passed within 100 km from a coral reef of French Polynesia, and of these 10 were characterized by sustained wind speed greater than 100 km.h\textsuperscript{-1} (\autoref{part2:chap2:fig-3}). The cyclone with the highest sustained wind speed over the studied period was the cyclone Veena, in 1983, which passed from 14 km from a coral reef with sustained wind speed of 185 km.h\textsuperscript{-1}.
 	
-\lipsum[2]
-	
+	The impacts of some of these cyclones on coral reefs have been described in the scientific literature. Notably the impacts of cyclones occurring between 1982 and 1983 are detailed in Harmelin-Vivien and Laboute (1986). More recently, Lamy et al (2016) have estimated an absolute loss in hard coral cover of 27.4 \% at Tiahura, in Moorea, due to the occurrence of the cyclone Wasa in 1991.
+		
 \end{multicols}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../figs/02_part-2/fig-3/\territoryname.png}
+	\captionof{figure}{\titleFigureB{French Polynesia}}
+	\label{part2:chap2:fig-3}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{../figs/02_part-2/fig-4/\territoryname.png}
+	\captionof{figure}{\titleFigureC{French Polynesia}}
+	\label{part2:chap2:fig-4}
+\end{figure}
+
+\begin{multicols*}{2}
+	
+	\section*{Temporal trends in benthic cover}
+	
+	The estimation of trends in the benthic cover of hard coral, macroalgae, turf algae and coralline algae in French Polynesia was achieved through the integration of 8 datasets (Supplementary Table 1). These datasets represent a total of 228 monitoring sites, on which 2,107 surveys were conducted between 1987 and 2023. Most surveys were conducted after 2005 with a relatively constant yearly monitoring effort since this year, although this effort was lower in 2013, 2019, and 2022 (Supplementary Figure 5A). The spatial distribution of monitoring sites across French Polynesia was not homogeneous. Indeed, most of the sites were located in Society Islands and Tuamotu Islands archipelagos \autoref{part2:chap2:fig-1}.
+	
+	Hard coral cover of coral reefs of French Polynesia remained relatively stable from 1980 to 2023 at around 23.3 \% (\autoref{part2:chap2:fig-5} - A). This result is consistent with the one of Moritz et al (2018). Coralline algae cover remained stable until 2007 and increased from 11.1 \% in 2008 to 16.3 \% in 2023 (\autoref{part2:chap2:fig-5} - B). The macroalgae cover followed a similar pattern, increasing from 6.6 \% in 2010 to 11 \% in 2023 (\autoref{part2:chap2:fig-5} - C). On the contrary, the turf algae cover remained stable until 2012 but declined from 16.3 \% in 2013 to 3.4 \% in 2023 (\autoref{part2:chap2:fig-5} - D). The estimated temporal trends for macroalgae and turf algae cover were not confirmed by field observations from some people in charge of coral reef monitoring in French Polynesia (Yannick Chancerelle and Gilles Siu, \textit{pers. comm.}). For this reason, these trends should be treated with caution and must be confirmed by further studies.
+	
+	Overall, our level of confidence in the temporal trends of the percentage cover of the major benthic categories estimated by the ML models for coral reefs of French Polynesia was medium (see Materials and Methods) because of the heterogeneous distribution of benthic cover monitoring sites over space and the lack of agreements with expert knowledge for the modeled temporal trends of macroalgae and turf algae.
+	
+	\vfill\null
+	\columnbreak 
+	
+	\begin{figuremulticol}
+		\centering
+		\includegraphics[width=\linewidth]{../figs/02_part-2/fig-6/\territoryname.png}
+		\captionof{figure}{\titleFigureE{French Polynesia}}
+		\label{part2:chap2:fig-5}
+	\end{figuremulticol}
+	
+\end{multicols*}
 
 \newpage
 
