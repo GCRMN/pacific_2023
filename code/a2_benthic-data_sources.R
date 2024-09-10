@@ -36,8 +36,10 @@ data_benthic %>%
                          sheet = 1) %>% 
               filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
               select(datasetID, last_name, first_name, email)) %>% 
-  select(-datasetID) %>% 
+  select(-datasetID, -country) %>% 
   distinct() %>% 
+  bind_rows(., read_xlsx(path = "data/09_misc/non-data-contributors_authors.xlsx")) %>% 
+  arrange(territory) %>% 
   write.csv2(., file = "figs/04_supp/contributors-territory.csv",
              row.names = FALSE)
   

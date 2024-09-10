@@ -231,7 +231,7 @@ map_ssta_year <- function(year_i, data_files_i){
     geom_sf(data = data_eez, fill = NA) +
     geom_sf(data = data_map, fill = "#363737", col = "grey") +
     scale_fill_gradientn(colours = c(rev(palette_first), "white", palette_second),
-                         limits = c(-5, 5),
+                         limits = c(-3, 3),
                          name = "Yearly average SST anomaly (°C)",
                          guide = guide_colourbar(direction = "horizontal", 
                                                  title.position = "top", 
