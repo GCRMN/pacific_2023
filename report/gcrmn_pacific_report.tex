@@ -202,7 +202,7 @@
 
 \newcommand{\titleFigureC}[1]{Trajectories of cyclones passing within 100 km of a coral reef between 1980 and 2023 over #1. Points correspond to cyclone positions every 3 hours and are colored depending on the Saffir Simpson scale of the sustained wind speed. Grey points correspond to cyclone positions on which wind speed was not available. For visibility reasons, only the three most powerful cyclones are labeled and colored per time range (\ie subplot). The trajectories of other cyclones are represented by gray lines only.}
 
-\newcommand{\titleFigureD}[1]{Spatio-temporal distribution of benthic cover monitoring sites across #1. Sites that were monitored for the longest period of time are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the economic exclusive zone. Dashed polygons represent a 100 km buffer around coral reefs. Note that only lands and coral reefs buffers of the country or territory are represented, not those of adjacent countries and territories.}
+\newcommand{\titleFigureD}[1]{Spatio-temporal distribution of benthic cover monitoring sites across #1. Sites that were monitored for the longest period of time are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the economic exclusive zone. Dashed polygons represent a 100 km buffer around coral reefs. Note that only lands and coral reefs buffers of #1 are represented, not those of adjacent countries and territories.}
 
 \newcommand{\titleFigureE}[1]{Modeled temporal trends for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D) cover from 1980 to 2023 in #1. The bold line represents the estimated average cover, lighter and darker ribbons represent 95 \% and 80 \% confidence intervals, respectively. Note the scale on the y-axes are different between the four subplots. Gray areas represent periods where no observed data were available.}
 
@@ -229,6 +229,8 @@
 
 % Style for definition
 \newcommand{\definition}[1]{\textcolor{firstcolor}{\textbf{#1}}}
+
+\newcommand\boxconflvl[2][]{\tikz[overlay]\node[fill=blue!20,inner sep=0.5pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1218,7 +1220,7 @@
 	
 	Hard coral cover of coral reefs of French Polynesia remained relatively stable from 1980 to 2023 at around 23.3 \% (\autoref{part2:chap2:fig-5} - A). This result is consistent with the one of Moritz et al (2018). Coralline algae cover remained stable until 2007 and increased from 11.1 \% in 2008 to 16.3 \% in 2023 (\autoref{part2:chap2:fig-5} - B). The macroalgae cover followed a similar pattern, increasing from 6.6 \% in 2010 to 11 \% in 2023 (\autoref{part2:chap2:fig-5} - C). On the contrary, the turf algae cover remained stable until 2012 but declined from 16.3 \% in 2013 to 3.4 \% in 2023 (\autoref{part2:chap2:fig-5} - D). The estimated temporal trends for macroalgae and turf algae cover were not confirmed by field observations from some people in charge of coral reef monitoring in French Polynesia (Yannick Chancerelle and Gilles Siu, \textit{pers. comm.}). For this reason, these trends should be treated with caution and must be confirmed by further studies.
 	
-	Overall, our level of confidence in the temporal trends of the percentage cover of the major benthic categories estimated by the ML models for coral reefs of French Polynesia was medium (see Materials and Methods) because of the heterogeneous distribution of benthic cover monitoring sites over space and the lack of agreements with expert knowledge for the modeled temporal trends of macroalgae and turf algae.
+	Overall, our level of confidence in the temporal trends of the percentage cover of the major benthic categories estimated by the ML models for coral reefs of French Polynesia was \boxconflvl[fill=sevencolor]{medium} (see Materials and Methods) because of the heterogeneous distribution of benthic cover monitoring sites over space and the lack of agreements with expert knowledge for the modeled temporal trends of macroalgae and turf algae.
 	
 	\vfill\null
 	\columnbreak 
@@ -2238,7 +2240,8 @@ Spatial resolution:
 		\node[align=center, text width=10cm] at ($(current page.center)+(0cm,4cm)$){\textcolor{white}{{International Coral Reef Initiative}}};
 	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,3cm)$){\textcolor{white}{{Global Coral Reef Monitoring Network}}};
 	\node[align=center, text width=10cm] at ($(current page.center)+(0cm,-1cm)$){\textcolor{white}{{With support from}}};
-	\node[opacity=1,inner sep=0pt] at ($(current page.center)+(0cm,-3cm)$){\includegraphics[height=2cm]{../figs/00_misc/logo-sprep.png}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.center)+(-3cm,-3.5cm)$){\includegraphics[height=2cm]{../figs/00_misc/logo-sprep.png}};
+	\node[opacity=1,inner sep=0pt] at ($(current page.center)+(3cm,-3.5cm)$){\includegraphics[height=1.7cm]{../figs/00_misc/logo-ircp.png}};
 \end{tikzpicture}
 
 \end{document}
