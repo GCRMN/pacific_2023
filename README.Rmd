@@ -49,16 +49,16 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 ### Models (benthic cover) (`c_`)
 
-* `c1_select_pred-sites.js`
-* `c2_extract_predictor_gee.js`
-* `c3_extract_predictor_gravity.R`
-* `c4_extract_predictor_enso.R`
-* `c5_extract_predictor_cyclones.R`
-* `c6_extract_predictor_dhw-year.R`
-* `c7_model_data-preparation.R` 
-* `c8_model_data-exploration.R`
-* `c9_model_tuning.R`
-* `c10_model_bootstrap.R`
+* `c1_select_pred-sites.js` Generate sites on which the predictions will be made.
+* `c2_extract_predictor_gee.js` Extract the values of the predictors for data sources available on GEE.
+* `c3_extract_predictor_gravity.R` Extract gravity as a predictor.
+* `c4_extract_predictor_enso.R` Extract ENSO as a predictor.
+* `c5_extract_predictor_cyclones.R` Extract cyclones as a predictor.
+* `c6_extract_predictor_dhw-year.R` Extract DHW as a predictor.
+* `c7_model_data-preparation.R` Combine predictors and prepare observed data.
+* `c8_model_data-exploration.R` Data exploration.
+* `c9_model_tuning.R` Machine Learning model hyperparameters tuning.
+* `c10_model_bootstrap.R` Machine Learning model bootstrap.
 
 ### Figures and tables (`d_`)
 

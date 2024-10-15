@@ -267,18 +267,7 @@ data_benthic_na <- data_benthic %>%
 
 save(data_benthic, file = "data/11_model-data/data_benthic_prepared.RData")
 
-
-
-
-
-
-
-
-
-
-
-
-
+# 7. Raw data time series ----
 
 ## 7.1 Add territories with no surveys ----
 
