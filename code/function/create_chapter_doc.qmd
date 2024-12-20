@@ -1,0 +1,133 @@
+---
+title: "`r territory_i`"
+format:
+  docx:
+    fig-align: "center"
+editor: source
+---
+
+```{r echo=FALSE, message=FALSE}
+
+require(tidyverse)
+require(readxl)
+require(flextable)
+
+```
+
+\
+\
+
+```{r echo=FALSE, message=FALSE}
+
+#list_authors <- read_xlsx("../../figs/05_supp-mat/tbl-4.xlsx") %>% 
+#  filter(area == area_i) %>% 
+#  select(name) %>% 
+#  pull()
+
+```
+
+
+
+\
+
+## 1. Introduction
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-1/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=30%}
+
+\
+
+\newpage
+
+## 2. Threats
+
+\
+
+### 2.1 Thermal regime
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-2/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=90%}
+
+**Figure 2.`r nb_chapter`.1.** Average Sea Surface Temperature (SST) anomaly from 1985 to 2023 over coral reefs of `r territory_i`. The black line is the long-term trend in SST anomaly, values below this line are negative SST anomalies (_i.e._ cooler than long-term trend), and values above this line are positive SST anomalies (_i.e._ warmer than long-term trend). Average Sea Surface Temperature (SST) anomaly with null-SST anomaly (_i.e._ 0) as a reference line, instead of the long-term trend in SST anomaly, are provided in Supplementary Figure 3A and 3B.
+
+\
+
+### 2.2 Cyclones
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-3/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=90%}
+
+**Figure 2.`r nb_chapter`.2.** Maximum sustained wind speed of tropical storms passing within 100 km of a coral reef between 1980 and 2023 in `r territory_i`. Colors correspond to the cyclone’s Saffir-Simpson category along its entire track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (_i.e._ 119 km.h-1). Note that cyclones passing more than 100 km away from coral reefs of `r territory_i` are not represented, although they can have had an impact.
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-4/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=90%}
+
+**Figure 2.`r nb_chapter`.3.** Trajectories of cyclones passing within 100 km of a coral reef between 1980 and 2023 in `r territory_i`. Points correspond to cyclone positions every 3 hours and are colored depending on the Saffir Simpson scale of the sustained wind speed. Grey points correspond to cyclone positions on which wind speed was not available. For readability, only the three most powerful cyclones are labeled and colored per time range (_i.e._ subplot). The trajectories of other cyclones are represented by gray lines only.
+
+\
+
+### 2.3 Other threats
+
+\
+
+\newpage
+
+## 3. Temporal trends in benthic cover
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-5/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=90%}
+
+**Figure 2.`r nb_chapter`.4.** Spatio-temporal distribution of benthic cover monitoring sites across `r territory_i`. Sites that were monitored for the longest period of time are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the economic exclusive zone. Dashed polygons represent a 100 km buffer around coral reefs. Note that only lands and coral reefs buffers of the country or territory are represented, not those of adjacent countries and territories. Although the coral reef distribution dataset from WRI do not indicate a presence of coral reefs on the Marquesas archipelago, there are in fact small isolated reefs, for example on Tahuata Island (Serge Planes, pers. comm.).
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-6/", territory_name, ".png")
+
+```
+
+![](`r figure_path`){width=30%}
+
+**Figure 2.`r nb_chapter`.5.** Modeled temporal trends for hard coral (**A**), coralline algae (**B**), macroalgae (**C**), and turf algae (**D**) cover from 1980 to 2023 in `r territory_i`. The bold line represents the estimated average cover, lighter and darker ribbons represent 95 % and 80% confidence intervals, respectively. Note the scale on the y-axes are different between the four subplots. Gray areas represent periods where no observed data were available. The level of confidence in the modeled  temporal trends is medium.
+
+\newpage
+
+## 4. References
+
+\
+
+TO BE ADDED
