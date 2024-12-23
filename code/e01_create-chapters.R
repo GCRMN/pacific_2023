@@ -9,9 +9,13 @@ library(googledrive)
 
 source("code/function/render_qmd.R")
 
-# 3. Create docx files for each area ----
+# 3. Load data ----
 
-## 3.1 List of countries and territories ----
+load("data/05_cyclones/02_cyclones_extracted.RData")
+
+# 4. Create docx files for each area ----
+
+## 4.1 List of countries and territories ----
 
 load("data/01_background-shp/03_eez/data_eez.RData")
 
@@ -32,8 +36,8 @@ data_eez <- data_eez %>%
   arrange(TERRITORY1, .locale = "en") %>% 
   mutate(nb = row_number())
 
-## 3.2 Map over the function ----
+## 4.2 Map over the function ----
 
 map(data_area, ~render_qmd(area_i = ., upload_drive = TRUE))
 
-render_qmd(territory_i = "Vanuatu", upload_drive = FALSE)
+render_qmd(territory_i = "New Caledonia", upload_drive = FALSE)

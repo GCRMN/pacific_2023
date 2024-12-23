@@ -19,14 +19,14 @@ require(flextable)
 
 ```{r echo=FALSE, message=FALSE}
 
-#list_authors <- read_xlsx("../../figs/05_supp-mat/tbl-4.xlsx") %>% 
-#  filter(area == area_i) %>% 
-#  select(name) %>% 
-#  pull()
+list_authors <- read_xlsx("../../figs/04_supp/tbl-4.xlsx") %>% 
+  filter(territory == territory_i) %>% 
+  select(name) %>% 
+  pull()
 
 ```
 
-
+**Authors:** `r list_authors`
 
 \
 
@@ -105,13 +105,28 @@ We estimated the human population of `r territory_i` living within 5 km from cor
 
 ## 2. Threats
 
-\
-
 ### 2.1 Thermal regime
 
-\
+```{r echo=FALSE, message=FALSE}
 
-The long-term average of SST on coral reefs of `r territory_i` between 1985 and 2023 was 27.31°C (**Supplementary Figure 1A**). SST over coral reefs of `r territory_i` have increased by 0.25°C between 1985 and 2023, which corresponds to a warming rate of 0.007°C per year (**Supplementary Figure 1A**).
+data_indicators <- read_xlsx("../../figs/01_part-1/table-3.xlsx") %>% 
+  filter(territory == territory_i)
+
+mean_sst <- data_indicators %>% 
+  select(mean_sst) %>% 
+  pull()
+
+sst_increase <- data_indicators %>% 
+  select(sst_increase) %>% 
+  pull()
+
+warming_rate <- data_indicators %>% 
+  select(warming_rate) %>% 
+  pull()
+
+```
+
+The long-term average of SST on coral reefs of `r territory_i` between 1985 and 2023 was `r mean_sst`°C (**Supplementary Figure 1A**). SST over coral reefs of `r territory_i` have increased by `r sst_increase`°C between 1985 and 2023, which corresponds to a warming rate of `r warming_rate`°C per year (**Supplementary Figure 1A**).
 
 \
 
@@ -125,9 +140,40 @@ figure_path <- paste0("../../figs/02_part-2/fig-2/", territory_name, ".png")
 
 **Figure 2.`r nb_chapter`.1.** Average Sea Surface Temperature (SST) anomaly from 1985 to 2023 over coral reefs of `r territory_i`. The black line is the long-term trend in SST anomaly, values below this line are negative SST anomalies (_i.e._ cooler than long-term trend), and values above this line are positive SST anomalies (_i.e._ warmer than long-term trend). Average Sea Surface Temperature (SST) anomaly with null-SST anomaly (_i.e._ 0) as a reference line, instead of the long-term trend in SST anomaly, are provided in **Supplementary Figure 3A and 3B**.
 
-\
+\newpage
 
 ### 2.2 Cyclones
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+data_cyclones_i <- data_cyclones %>% 
+  filter(territory == territory_i)
+
+nb_storm <- length(unique(data_cyclones_i$ts_id))
+
+data_cyclones_i <- data_cyclones_i %>% 
+  filter(territory == territory_i) %>% 
+  filter(wind_speed >= 100)
+
+nb_cyclone <- length(unique(data_cyclones_i$ts_id))
+
+data_cyclones_i <- data_cyclones_i %>% 
+  filter(territory == territory_i) %>% 
+  filter(wind_speed == max(wind_speed))
+
+name_cyclone <- str_to_title(data_cyclones_i$name)
+
+year_cyclone <- year(data_cyclones_i$time)
+
+dist_cyclone <- round(data_cyclones_i$dist)
+
+speed_cyclone <- round(data_cyclones_i$wind_speed)
+
+```
+
+Between 1980 and 2023, a total of `r nb_storm` tropical storms passed within 100 km distance from a coral reef of `r territory_i`, and of these `r nb_cyclone` were characterized by sustained wind speed greater than 100 km.h-1 (**Figure 2.`r nb_chapter`.2**). The cyclone with the highest sustained wind speed over the studied period was the cyclone `r name_cyclone`, in `r year_cyclone`, which passed `r dist_cyclone` km from a coral reef with sustained wind speed of `r speed_cyclone` km.h-1.
 
 \
 
