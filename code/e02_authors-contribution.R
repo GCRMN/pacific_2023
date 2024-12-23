@@ -27,6 +27,7 @@ data_contribution <- read_xlsx("figs/04_supp/tbl-2.xlsx") %>%
          `Syntheses for count. and terr.` = NA,
          `Case studies` = NA,
          `Materials and Methods` = NA,
+         `Supplementary Materials` = NA,
          `Layout` = NA,
          `Communication` = NA) %>% 
   relocate(`Data acquisition`, .before = `Data integration`) %>% 
@@ -84,8 +85,8 @@ if(file.exists("figs/00_misc/authors_contribution.xlsx") == FALSE){
   data_contribution_before <- read_xlsx("figs/00_misc/authors_contribution.xlsx")
   
   data_contribution <- data_contribution %>% 
-    select(first_name, last_name, `Data acquisition`) %>% 
-    left_join(., data_contribution_before) %>% 
+    select(first_name, last_name, `Data acquisition`, email) %>% 
+    left_join(., data_contribution_before %>% select(-email)) %>% 
     relocate(`Data acquisition`, .before = `Data integration`)
   
   export_contributions(data = data_contribution)
