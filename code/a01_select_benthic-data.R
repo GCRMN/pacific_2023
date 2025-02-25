@@ -12,9 +12,9 @@ load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_bentho
 
 data_benthic <- synthetic_data %>% 
   # Filter GCRMN region
-  filter(higherGeography == "Pacific" & territory != "Australia") %>% 
+  filter(region == "Pacific" & territory != "Australia") %>% 
   # Remove useless datasets
-  filter(!(datasetID %in% c("0009", "0020", "0042"))) %>% 
+  filter(!(datasetID %in% c("0009"))) %>% 
   # Filter data on the period of interest
   filter(year >= 1980 & year <= 2023)
 
