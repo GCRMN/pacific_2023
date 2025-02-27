@@ -15,7 +15,7 @@ combine_plot_trends <- function(territory_i, categ_type){
     plot_list <- map(unique(data_trends_i$category),
                      ~plot_trends(category_i = ., data_trends_i = data_trends_i, show_obs_data = "ribbon"))
     
-    plot_i <- wrap_plots(plot_list, ncol = 2)
+    plot_i <- wrap_plots(plot_list, ncol = 1)
     
     if(territory_i == "All"){
       
