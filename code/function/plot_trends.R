@@ -1,4 +1,4 @@
-plot_trends <- function(category_i, data_trends_i, show_obs_data = "none"){
+plot_trends <- function(category_i, data_trends_i, show_obs_data = "none", max_y = max_y){
   
   data_trends_j <- data_trends_i %>% 
     filter(category == category_i)
@@ -11,8 +11,9 @@ plot_trends <- function(category_i, data_trends_i, show_obs_data = "none"){
       geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
       scale_fill_identity() +
       scale_color_identity() +
-      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
+      scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                         limits = c(0, max_y = max_y)) +
       labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
       theme(plot.title = element_markdown())
     
@@ -24,8 +25,9 @@ plot_trends <- function(category_i, data_trends_i, show_obs_data = "none"){
       geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
       scale_fill_identity() +
       scale_color_identity() +
-      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
+      scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                         limits = c(0, max_y = max_y)) +
       labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
       theme(plot.title = element_markdown()) +
       geom_rug(data = data_trends_j %>% filter(data_obs != 0), aes(x = year), sides = "b")
@@ -57,8 +59,9 @@ plot_trends <- function(category_i, data_trends_i, show_obs_data = "none"){
                 linewidth = 1, show.legend = FALSE) +
       scale_fill_manual(breaks = c("0", "1"), values = c("grey", unique(data_trends_j$color))) +
       scale_color_manual(breaks = c("0", "1"), values = c("grey", unique(data_trends_j$color))) +
-      scale_x_continuous(expand = c(0, 0), limits = c(1980, NA)) +
-      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = ".")) +
+      scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+      scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                         limits = c(0, max_y = max_y)) +
       labs(x = NULL, y = "Cover (%)", title = unique(data_trends_j$text_title)) +
       theme(plot.title = element_markdown())
     
