@@ -220,12 +220,19 @@ data_benthic <- data_benthic %>%
   distinct() %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
+data_reef <- st_read("data/03_reefs-area_wri/clean/pacific_reef.shp") %>% 
+  filter(TERRITORY1 == "Palau") %>% 
+  st_transform(crs = 4326) %>% 
+  st_wrap_dateline() %>% 
+  st_make_valid()
+
 ## 5.2 Map of sites with observed data ----
 
 plot_a <- ggplot() +
+  geom_sf(data = data_reef, fill = "lightblue", color = "lightblue") +
   geom_sf(data = data_land, fill = "darkgrey") +
-  geom_sf(data = data_benthic, size = 0.75, col = "red") +
-  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.25)) +
+  geom_sf(data = data_benthic, size = 1, col = "red") +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.40)) +
   theme_minimal() +
   labs(title = "Sites with observed data") +
   theme(plot.title = element_text(hjust = 0.5),
@@ -239,9 +246,10 @@ plot_a <- ggplot() +
 ## 5.3 Map of sites on which to make the predictions ----
 
 plot_b <- ggplot() +
+  geom_sf(data = data_reef, fill = "lightblue", color = "lightblue") +
   geom_sf(data = data_land, fill = "darkgrey") +
-  geom_sf(data = data_predictors_pred, size = 0.75, col = "red") +
-  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.25)) +
+  geom_sf(data = data_predictors_pred, size = 1, col = "red") +
+  coord_sf(xlim = c(134, 134.8), y = c(6.75, 8.40)) +
   theme_minimal() +
   labs(title = "Sites for making predictions") +
   theme(plot.title = element_text(hjust = 0.5),
