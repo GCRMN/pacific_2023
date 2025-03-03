@@ -150,11 +150,11 @@ model_bootstrap <- function(category_i, bootstrap_i, pdp){
   # 4.3 Raw predictions (per site)
   
   if(bootstrap_i <= 2){ # Return only the results for the first two iterations
-  
-  results_predicted <- results_predicted %>% 
-    select(year, decimalLatitude, decimalLongitude, measurementValuepred) %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
-  
+    
+    results_predicted <- results_predicted %>% 
+      select(year, decimalLatitude, decimalLongitude, measurementValuepred) %>% 
+      mutate(category = category_i, bootstrap = bootstrap_i)
+    
   }else{
     
     results_predicted <- tibble(year = NA, decimalLatitude = NA,
@@ -200,9 +200,9 @@ model_bootstrap <- function(category_i, bootstrap_i, pdp){
 
 ### 4.1.1 Hard coral ----
 
-model_results <- future_map(1:10, ~model_bootstrap(category_i = "Hard coral",
-                                                    bootstrap_i = .,
-                                                    pdp = TRUE),
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Hard coral",
+                                                   bootstrap_i = .,
+                                                   pdp = TRUE),
                             .options = furrr_options(seed = TRUE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows) %>% 
@@ -212,7 +212,7 @@ save(model_results, file = "data/10_model-output/model_results_hard-coral_xgb.RD
 
 ### 4.1.2 Macroalgae ----
 
-model_results <- future_map(1:10, ~model_bootstrap(category_i = "Macroalgae",
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Macroalgae",
                                                    bootstrap_i = .,
                                                    pdp = TRUE),
                             .options = furrr_options(seed = TRUE)) %>% 
@@ -224,7 +224,7 @@ save(model_results, file = "data/10_model-output/model_results_macroalgae_xgb.RD
 
 ### 4.1.3 Turf algae ----
 
-model_results <- future_map(1:10, ~model_bootstrap(category_i = "Turf algae",
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Turf algae",
                                                    bootstrap_i = .,
                                                    pdp = TRUE),
                             .options = furrr_options(seed = TRUE)) %>% 
@@ -233,3 +233,53 @@ model_results <- future_map(1:10, ~model_bootstrap(category_i = "Turf algae",
   map(., ~distinct(.x))
 
 save(model_results, file = "data/10_model-output/model_results_turf-algae_xgb.RData")
+
+### 4.1.4 Coralline algae ----
+
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Coralline algae",
+                                                   bootstrap_i = .,
+                                                   pdp = TRUE),
+                            .options = furrr_options(seed = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  map(., ~distinct(.x))
+
+save(model_results, file = "data/10_model-output/model_results_coralline-algae_xgb.RData")
+
+## 4.2 Major hard coral families ----
+
+### 4.2.1 Acroporidae ----
+
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Acroporidae",
+                                                   bootstrap_i = .,
+                                                   pdp = TRUE),
+                            .options = furrr_options(seed = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  map(., ~distinct(.x))
+
+save(model_results, file = "data/10_model-output/model_results_acroporidae_xgb.RData")
+
+### 4.2.2 Pocilloporidae ----
+
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Pocilloporidae",
+                                                   bootstrap_i = .,
+                                                   pdp = TRUE),
+                            .options = furrr_options(seed = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  map(., ~distinct(.x))
+
+save(model_results, file = "data/10_model-output/model_results_pocilloporidae_xgb.RData")
+
+### 4.2.3 Poritidae ----
+
+model_results <- future_map(1:50, ~model_bootstrap(category_i = "Poritidae",
+                                                   bootstrap_i = .,
+                                                   pdp = TRUE),
+                            .options = furrr_options(seed = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  map(., ~distinct(.x))
+
+save(model_results, file = "data/10_model-output/model_results_poritidae_xgb.RData")

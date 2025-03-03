@@ -95,7 +95,7 @@ hyperparam_tuning <- function(category_i){
   
   ## 3.2 Redefine the workflow
   
- tune_workflow <- workflow() %>%
+  tune_workflow <- workflow() %>%
     add_recipe(tune_recipe) %>% 
     add_model(tune_model)
   
@@ -131,7 +131,8 @@ hyperparam_tuning <- function(category_i){
 
 # 4. Map over the function ----
 
-tuning_results <- future_map(c("Hard coral", "Macroalgae", "Turf algae"),
+tuning_results <- future_map(c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae",
+                               "Acroporidae", "Pocilloporidae", "Poritidae"),
                              ~hyperparam_tuning(category_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
