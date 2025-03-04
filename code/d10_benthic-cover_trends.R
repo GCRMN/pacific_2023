@@ -57,13 +57,13 @@ long_term_average <- raw_trends %>%
 ### 3.4.1 Region ----
 
 data_kendall <- raw_trends %>% 
-  filter(territory == "All") %>% 
+  filter(territory == "All" & year >= 1990 & year <= 2022) %>% 
   group_by(category) %>% 
   group_modify(~extract_mannkendall(data = .x, var_y = "mean")) %>% 
   ungroup()
 
 raw_trends %>% 
-  filter(territory == "All") %>% 
+  filter(territory == "All" & year >= 1990 & year <= 2022) %>% 
   left_join(., data_kendall) %>% 
   mutate(title = paste0(category, "\n", trend, "\n (tau = ", round(tau, 3), ", p-value = ", round(p_value, 8), ")")) %>% 
   ggplot(data = ., aes(x = year, y = mean)) +
@@ -195,7 +195,8 @@ data_imp_summary <- model_results$result_vip %>%
   group_by(category, color) %>% 
   arrange(desc(mean)) %>% 
   slice_head(n = 25) %>% 
-  ungroup()
+  ungroup() %>% 
+  arrange(category, -mean)
 
 data_imp_raw <- model_results$result_vip %>% 
   mutate(importance = importance*100,
@@ -241,14 +242,10 @@ map(unique(data_trends$smoothed_trends$territory),
 
 if(FALSE){
   
-  A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95)
-  #A <- data_trends %>% filter(territory == "All" & category == "Acroporidae") %>% select(-upper_ci_95, -lower_ci_95) %>% 
-  filter(year >= 1987 & year <= 1999) %>% summarise(mean = mean(mean))
-  
-  A <- data_trends %>% filter(territory == "Guadeloupe" & category == "Turf algae") %>% select(-upper_ci_95, -lower_ci_95) %>% 
-    summarise(mean = mean(mean),
-              lower_ci_80 = mean(lower_ci_80),
-              upper_ci_80 = mean(upper_ci_80))
+  A <- data_trends$raw_trends %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Acroporidae") %>%
+    select("mean", "lower_ci_80", "upper_ci_80") %>% 
+    summarise(across(c("mean", "lower_ci_80", "upper_ci_80"), ~mean(.x)))
   
 }
 

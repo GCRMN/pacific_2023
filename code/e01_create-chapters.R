@@ -38,6 +38,4 @@ data_eez <- data_eez %>%
 
 ## 4.2 Map over the function ----
 
-map(data_area, ~render_qmd(area_i = ., upload_drive = TRUE))
-
-render_qmd(territory_i = "New Caledonia", upload_drive = FALSE)
+map(unique(data_eez$TERRITORY1), ~render_qmd(territory_i = ., upload_drive = TRUE))

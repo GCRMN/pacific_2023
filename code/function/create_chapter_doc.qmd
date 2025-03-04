@@ -262,9 +262,9 @@ figure_path <- paste0("../../figs/02_part-2/fig-6/", territory_name, ".png")
 
 ```
 
-![](`r figure_path`){width=40%}
+![](`r figure_path`){width=90%}
 
-**Figure 2.`r nb_chapter`.5.** Modeled temporal trends for hard coral (**A**), coralline algae (**B**), macroalgae (**C**), and turf algae (**D**) cover from 1990 to 2022 in `r territory_i`. The bold line represents the estimated average cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively. Gray areas represent periods where no observed data were available.
+**Figure 2.`r nb_chapter`.5.** Modeled temporal trends for hard coral (**A**), coralline algae (**B**), macroalgae (**C**), and turf algae (**D**) cover from 1990 to 2022 in `r territory_i`. The bold line represents the estimated average cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively. Gray areas represent periods where no observed data were available. The raw data used to estimate these temporal trends are shown in **Supplementary Figure 4**.
 
 \newpage
 
