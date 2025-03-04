@@ -135,9 +135,35 @@ model_results$model_description %>%
 
 ## 4.2 Performance ----
 
+### 4.2.1 Region ----
+
 model_results$model_performance %>% 
   group_by(category) %>% 
   summarise(across(c(rmse, rsq), ~mean(.x)))
+
+### 4.2.2 Country and territory ----
+
+model_results$model_pred_obs %>% 
+  group_by(category) %>% 
+  mutate(residual = yhat - y,
+         res = sum((y - yhat)^2),
+         tot = sum((y - mean(y))^2),
+         rsq_global = 1 - (res/tot),
+         rmse_global = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  group_by(category, territory, rsq_global,
+           rmse_global) %>% 
+  summarise(res = sum((y - yhat)^2),
+            tot = sum((y - mean(y))^2),
+            rsq = 1 - (res/tot),
+            rmse = sqrt(sum(residual^2/n()))) %>% 
+  ungroup() %>% 
+  select(territory, category, rmse) %>% 
+  mutate(rmse = round(rmse, 2)) %>% 
+  pivot_wider(names_from = category, values_from = rmse) %>% 
+  arrange(territory) %>% 
+  select(territory, `Hard coral`, `Coralline algae`, `Macroalgae`, `Turf algae`) %>% 
+  write.csv2(., "figs/04_supp/rmse-territories_benthic-categories.csv", row.names = FALSE)
 
 ## 4.3 Predicted vs observed ----
 
@@ -229,7 +255,7 @@ if(FALSE){
 ## 5.4 Figure for Executive Summary ----
 
 data_ex_summ <- data_trends$raw_trends %>% 
-  filter(territory == "All")
+  filter(territory == "All" & !(category %in% c("Acroporidae", "Pocilloporidae", "Poritidae")))
 
 data_ex_summ <- data_ex_summ %>% 
   group_by(year) %>% 
