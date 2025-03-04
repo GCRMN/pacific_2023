@@ -30,6 +30,7 @@ sf_use_s2(FALSE)
 source("../code/function/graphical_par.R")
 source("../code/function/theme_graph.R")
 source("../code/function/prepare_benthic_data.R")
+source("../code/function/plot_raw_data.R")
 
 # 3. Transform data ----
 
@@ -420,5 +421,33 @@ plot_density <- function(dataset_i){
 }
 
 map(sort(unique(data_benthic_cover$datasetID)), ~plot_density(dataset_i = .x))
+
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| 
+# 1. Load and transform data ----
+
+data_eez <- st_read("../data/01_background-shp/03_eez/data_eez.shp") %>% 
+  st_drop_geometry() %>% 
+  select(TERRITORY1) %>% 
+  rename(territory = TERRITORY1) %>% 
+  expand(territory, category = "Hard coral", "Coralline algae", "Macroalgae", "Turf algae")
+
+data_benthic_cover <- data_benthic_cover %>% 
+  filter(category %in% c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+  full_join(., data_eez) %>% # Add territories with no data
+  mutate(category = factor(category, levels = c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae")),
+         color = case_when(category == "Hard coral" ~ palette_second[2],
+                           category == "Coralline algae" ~ palette_second[3],
+                           category == "Macroalgae" ~ palette_second[4],
+                           category == "Turf algae" ~ palette_second[5]))
+
+# 2. Map over the function ----
+
+map(1:5, ~plot_raw_data(i = ., nb_subplots = 6))
 
 ```
