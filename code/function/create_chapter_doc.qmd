@@ -26,7 +26,7 @@ list_authors <- read_xlsx("../../figs/04_supp/tbl-4.xlsx") %>%
 
 ```
 
-**Authors:** `r list_authors`
+**Co-authors:** `r list_authors`
 
 \
 
@@ -126,7 +126,7 @@ warming_rate <- data_indicators %>%
 
 ```
 
-The long-term average of SST on coral reefs of `r territory_i` between 1985 and 2023 was `r mean_sst`°C (**Supplementary Figure 1A**). SST over coral reefs of `r territory_i` have increased by `r sst_increase`°C between 1985 and 2023, which corresponds to a warming rate of `r warming_rate`°C per year (**Supplementary Figure 1A**).
+The long-term average of SST on coral reefs of `r territory_i` between 1985 and 2023 was `r mean_sst`°C (**Supplementary Figure 1**). SST over coral reefs of `r territory_i` have increased by `r sst_increase`°C between 1985 and 2023, which corresponds to a warming rate of `r warming_rate`°C per year (**Supplementary Figure 1**).
 
 \
 
@@ -138,7 +138,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-2/", territory_name, ".png")
 
 ![](`r figure_path`){width=90%}
 
-**Figure 2.`r nb_chapter`.1.** Average Sea Surface Temperature (SST) anomaly from 1985 to 2023 over coral reefs of `r territory_i`. The black line is the long-term trend in SST anomaly, values below this line are negative SST anomalies (_i.e._ cooler than long-term trend), and values above this line are positive SST anomalies (_i.e._ warmer than long-term trend). Average Sea Surface Temperature (SST) anomaly with null-SST anomaly (_i.e._ 0) as a reference line, instead of the long-term trend in SST anomaly, are provided in **Supplementary Figure 3A and 3B**.
+**Figure 2.`r nb_chapter`.1.** Average Sea Surface Temperature (SST) anomaly from 1985 to 2023 over coral reefs of `r territory_i`. The black line is the long-term trend in SST anomaly, values below this line are negative SST anomalies (_i.e._ cooler than long-term trend), and values above this line are positive SST anomalies (_i.e._ warmer than long-term trend). Average Sea Surface Temperature (SST) anomaly with null-SST anomaly (_i.e._ 0) as a reference line, instead of the long-term trend in SST anomaly, are provided in **Supplementary Figure 3**.
 
 \newpage
 
@@ -240,7 +240,7 @@ last_year <- read_xlsx("../../figs/01_part-1/table-4.xlsx") %>%
 
 ```
 
-The estimation of trends in the benthic cover of hard coral, macroalgae, turf algae and coralline algae in `r territory_i` was achieved through the integration of `r nb_datasets` datasets (**Supplementary Table 1**). These datasets represent a total of `r nb_sites` monitoring sites, on which `r nb_surveys` surveys were conducted between `r first_year` and `r last_year`.
+The estimation of trends in the benthic cover of hard coral, coralline algae, macroalgae, and turf algae in `r territory_i` was achieved through the integration of `r nb_datasets` datasets (**Supplementary Table 1**). These datasets represent a total of `r nb_sites` monitoring sites, on which `r nb_surveys` surveys were conducted between `r first_year` and `r last_year`.
 
 \
 
