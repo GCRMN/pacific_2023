@@ -230,8 +230,44 @@ map(unique(data_pdp$category), ~plot_pdp(category_i = .x))
 
 ## 5.1 For major benthic categories ----
 
+### 5.1.1 Combined plots ----
+
 map(unique(data_trends$smoothed_trends$territory),
     ~combine_plot_trends(territory_i = ., categ_type = "categories"))
+
+### 5.1.2 Individual plots ----
+
+plot_trends(category_i = "Hard coral",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+plot_trends(category_i = "Coralline algae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+plot_trends(category_i = "Macroalgae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+plot_trends(category_i = "Turf algae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
 
 ## 5.2 For hard coral families ----
 
