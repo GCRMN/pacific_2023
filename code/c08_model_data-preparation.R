@@ -258,3 +258,12 @@ ggplot(data = pred_na, aes(x = fct_reorder(predictor, desc(predictor)), y = perc
   theme_graph()
 
 ggsave("figs/04_supp/02_model/na_predictors.png", width = 8, height = 12)
+
+## 7.5 Raw values ----
+
+pred_na <- pred_na %>% 
+  pivot_wider(names_from = type, values_from = percent) %>% 
+  mutate(predictor = str_remove_all(predictor, "pred_")) %>% 
+  arrange(predictor) %>% 
+  rename(training = `Sites observed`, prediction = `Sites prediction`) %>% 
+  select(predictor, training, prediction)
