@@ -245,6 +245,8 @@ plot_trends(category_i = "Hard coral",
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
                      limits = c(NA, NA))
 
+ggsave(filename = "figs/01_part-1/fig-13_a.png", height = 4, width = 6, dpi = fig_resolution)  
+
 plot_trends(category_i = "Coralline algae",
             data_trends_i = data_trends$smoothed_trends %>% 
               filter(year >= 1990 & year <= 2022) %>% 
@@ -252,6 +254,8 @@ plot_trends(category_i = "Coralline algae",
   labs(title = NULL) + 
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
                      limits = c(NA, NA))
+
+ggsave(filename = "figs/01_part-1/fig-13_b.png", height = 4, width = 6, dpi = fig_resolution)  
 
 plot_trends(category_i = "Macroalgae",
             data_trends_i = data_trends$smoothed_trends %>% 
@@ -261,6 +265,8 @@ plot_trends(category_i = "Macroalgae",
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
                      limits = c(NA, NA))
 
+ggsave(filename = "figs/01_part-1/fig-13_c.png", height = 4, width = 6, dpi = fig_resolution)  
+
 plot_trends(category_i = "Turf algae",
             data_trends_i = data_trends$smoothed_trends %>% 
               filter(year >= 1990 & year <= 2022) %>% 
@@ -269,17 +275,57 @@ plot_trends(category_i = "Turf algae",
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
                      limits = c(NA, NA))
 
+ggsave(filename = "figs/01_part-1/fig-13_d.png", height = 4, width = 6, dpi = fig_resolution)  
+
 ## 5.2 For hard coral families ----
+
+### 5.2.1 Combined plots ----
 
 map(unique(data_trends$smoothed_trends$territory),
     ~combine_plot_trends(territory_i = ., categ_type = "families"))
+
+### 5.2.2 Individual plots ----
+
+plot_trends(category_i = "Acroporidae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+ggsave(filename = "figs/01_part-1/fig-14_a.png", height = 4, width = 6, dpi = fig_resolution)  
+
+plot_trends(category_i = "Pocilloporidae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+ggsave(filename = "figs/01_part-1/fig-14_b.png", height = 4, width = 6, dpi = fig_resolution)  
+
+plot_trends(category_i = "Poritidae",
+            data_trends_i = data_trends$smoothed_trends %>% 
+              filter(year >= 1990 & year <= 2022) %>% 
+              filter(territory == "All"), max_y = NA) +
+  labs(title = NULL) + 
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
+                     limits = c(NA, NA))
+
+ggsave(filename = "figs/01_part-1/fig-14_c.png", height = 4, width = 6, dpi = fig_resolution)
 
 ## 5.3 Raw data (for writing) ----
 
 if(FALSE){
   
   A <- data_trends$raw_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Acroporidae") %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Macroalgae") %>%
+    select("year", "mean", "lower_ci_80", "upper_ci_80")
+  
+  A <- data_trends$raw_trends %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Macroalgae") %>%
     select("mean", "lower_ci_80", "upper_ci_80") %>% 
     summarise(across(c("mean", "lower_ci_80", "upper_ci_80"), ~mean(.x)))
   
