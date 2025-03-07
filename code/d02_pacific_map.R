@@ -149,9 +149,13 @@ data_alpha <- data_eez %>%
   summarise(geometry = st_union(geometry)) %>% 
   st_difference(data_alpha, .)
 
-# 11. Make the map ----
+# 11. Coral reefs distribution ----
 
-plot_map_base <- ggplot() +
+data_reefs <- read_sf("data/03_reefs-area_wri/clean/pacific_reef.shp")
+
+# 12. Make the map ----
+
+plot_map <- ggplot() +
   geom_sf(data = data_bathy %>% filter(depth == 0), aes(fill = fill_color), color = NA, alpha = 0.2) +
   geom_sf(data = data_bathy %>% filter(depth == 200), aes(fill = fill_color), color = NA, alpha = 0.2) +
   geom_sf(data = data_bathy %>% filter(depth == 1000), aes(fill = fill_color), color = NA, alpha = 0.2) +
@@ -174,6 +178,11 @@ plot_map_base <- ggplot() +
   geom_sf(data = data_map, fill = "grey", col = "darkgrey") +
   # Country boundaries
   geom_sf(data = data_countries, fill = "grey", col = "darkgrey") +
+  # Coral reefs
+  geom_sf(data = data_reefs, color = "#d91e18") +
+  # Annotation (labels EEZ)
+  geom_sf_text(data = data_text_labels, aes(label = TERRITORY1),
+               color = "black", size = 2.8, family = font_choose_map) +
   # Annotation (legend)
   geom_sf_text(data = data_text_australia, aes(label = text), 
                color = "#363737", size = 3, family = font_choose_map) +
@@ -186,21 +195,6 @@ plot_map_base <- ggplot() +
   scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
   theme_map()
 
-# 12. Coral reef distribution ----
-
-data_reefs <- read_sf("data/03_reefs-area_wri/clean/pacific_reef.shp")
-
-plot <- plot_map_base +
-  geom_sf(data = data_reefs, color = "red") +
-  coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE)
-  
-ggsave(filename = "figs/01_part-1/fig-1b.png", width = 8, height = 4.75, dpi = 300)
-
-# 13. EEZ ----
-
-plot <- plot_map_base +
-  # Annotation (labels EEZ)
-  geom_sf_text(data = data_text_labels, aes(label = TERRITORY1),
-               color = "black", size = 2.8, family = font_choose_map)
+# 13. Export the map ----
 
 ggsave(filename = "figs/01_part-1/fig-1.png", width = 8, height = 4.75, dpi = 300)
