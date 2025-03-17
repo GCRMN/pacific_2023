@@ -132,24 +132,59 @@ rm(data_land_ouano, data_ouano, plot_a, plot_b)
 
 ## 4.1 Figure ----
 
-data_guam <- read_xlsx("data/13_case-studies/socmon_guam.xlsx", sheet = 1) %>% 
-  mutate(question = str_wrap(question, width = 25))
+data_guam <- read_xlsx("data/13_case-studies/socmon_guam.xlsx", sheet = 1, range = "H4:M8") %>% 
+  rename(value = 1) %>% 
+  pivot_longer(2:ncol(.), names_to = "reply", values_to = "perc") %>% 
+  mutate(value = factor(value, c("Frequently", "Sometimes", "Rarely", "Never")),
+         reply = case_when(reply == "To give to extended family members and/or friends" ~ "To give to extended family\nmembers and/or friends",
+                           reply == "Feed myself and my family/household" ~ "Feed myself and my\nfamily/household",
+                           reply == "For special occasions and cultural events" ~ "For special occasions\nand cultural events",
+                           TRUE ~ reply),
+         perc = perc*100,
+         perc_label = round(perc, 0),
+         perc_label = if_else(perc_label < 8, "", paste0(as.character(perc_label), "%")),
+         text_color = ifelse(value %in% c("Rarely", "Never"), "white", "black"))
 
-ggplot(data = data_guam, aes(x = question, y = percentage, fill = reply)) +
-  geom_bar(stat = "identity") +
+ggplot(data = data_guam, aes(x = reply, y = perc, fill = value, label = perc_label, color = text_color)) +
+  geom_bar(stat = "identity", width = 0.75,
+           position = position_stack(reverse = TRUE), color = "white", linewidth = 0.05) +
+  geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
+            family = font_choose_graph, size = 3) + 
   coord_flip() +
-  scale_fill_manual(breaks = c("Never", "Rarely", "Sometimes/Frequently"),
-                    values = c("#ce6693", "#f8a07e", "#2C5D96")) +
-  labs(x = NULL, y = "Percentage of respondants") +
-  theme_graph()
+  scale_color_identity() +
+  scale_fill_manual(breaks = c("Frequently", "Sometimes", "Rarely", "Never"),
+                    values = c("#ce6693", "#f8a07e", "#7393C9", "#2C5D96")) +
+  scale_x_discrete(limits = rev) +
+  labs(x = NULL, y = "Percentage of respondents", fill = "Frequency") +
+  theme_graph() +
+  theme(legend.position = "right",
+        legend.direction = "vertical")
+
+ggsave("figs/02_part-2/case-studies/guam_2.png", width = 10, height = 4, bg = "transparent")
 
 ## 4.2 Map ----
 
 data_land_guam <- data_land %>% 
   filter(TERRITORY1 == "Guam")
 
+data_habitat_guam <- st_read("data/13_case-studies/guam_site_revised.shp") %>% 
+  filter(row_number() != 3) %>% 
+  st_union()
+
+data_habitat_guam_sea <- st_read("data/13_case-studies/guam_site_revised.shp") %>% 
+  filter(row_number() == 3) %>% 
+  st_union()
+
+data_habitat_guam_label <- tibble(lon = 144.35, lat = 12.85, site = "MANELL-GEUS") %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
 ggplot() +
+  geom_sf(data = data_habitat_guam_sea, fill = colors[2], alpha = 0.25, color = NA) +
   geom_sf(data = data_land_guam) +
+  geom_sf(data = data_habitat_guam, fill = colors[2]) +
+  geom_sf_label(data = data_habitat_guam_label, aes(label = site), fill = colors[2],
+                size = 3, label.padding = unit(7, "pt"),
+                color = "white", family = font_choose_graph, nudge_x = 0.5, nudge_y = 0.4) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         axis.text = element_blank(),
