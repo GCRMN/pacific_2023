@@ -67,7 +67,7 @@ data_enso <- read_table("data/09_misc/nino34.long.anom.data.txt", skip = 1, col_
   mutate(month = str_remove_all(month, "X"),
          month = as.numeric(month)-1,
          date = ym(paste(year, month, sep = "-")),
-         nino_roll = roll_mean(x = nino, n = 6, align = "center", fill = NA)) %>% 
+         nino_roll = roll_mean(x = nino, n = 3, align = "center", fill = NA)) %>% 
   filter(year >= 1980)
 
 ## 4.2 Make the plot ----
