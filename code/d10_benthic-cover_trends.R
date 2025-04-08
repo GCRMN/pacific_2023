@@ -237,7 +237,9 @@ map(unique(data_trends$smoothed_trends$territory),
 
 ### 5.1.2 Individual plots ----
 
-plot_trends(category_i = "Hard coral",
+#### 5.1.2.1 Hard coral ----
+
+plot_hard_coral <- plot_trends(category_i = "Hard coral",
             data_trends_i = data_trends$smoothed_trends %>% 
               filter(year >= 1990 & year <= 2022) %>% 
               filter(territory == "All"), max_y = NA) +
@@ -245,7 +247,31 @@ plot_trends(category_i = "Hard coral",
   scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = "."),
                      limits = c(NA, NA))
 
-ggsave(filename = "figs/01_part-1/fig-13_a.png", height = 4, width = 6, dpi = fig_resolution)  
+ggsave(filename = "figs/01_part-1/fig-13_a.png", plot = plot_hard_coral, height = 4, width = 6, dpi = fig_resolution)  
+
+plot_hard_coral + 
+  labs(title = paste0("Changes in <span style = 'color: ",
+                      palette_second[2],
+                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
+       x = "Year", y = "Benthic cover (%)") + 
+  # 1998 bleaching event
+  annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
+  annotate("point", x = 2000, y = 27, size = 1) +
+  geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.7 %"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  # 2014-2017 bleaching event
+  annotate("segment", x = 2016.5, xend = 2016.5, y = 27, yend = 29.75, linewidth = 0.45) +
+  annotate("point", x = 2016.5, y = 27, size = 1) +
+  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014-2017</b><br>bleaching event<br>- 4.2 %"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  theme(plot.title = element_markdown(size = 16, face = "bold")) + 
+  scale_y_continuous(limits = c(NA, 33))
+
+ggsave("figs/00_misc/exe-summ_1.png", height = 5, width = 7, dpi = fig_resolution)
+
+#### 5.1.2.2 Coralline algae ----
 
 plot_trends(category_i = "Coralline algae",
             data_trends_i = data_trends$smoothed_trends %>% 
@@ -257,6 +283,8 @@ plot_trends(category_i = "Coralline algae",
 
 ggsave(filename = "figs/01_part-1/fig-13_b.png", height = 4, width = 6, dpi = fig_resolution)  
 
+#### 5.1.2.3 Macroalgae ----
+
 plot_trends(category_i = "Macroalgae",
             data_trends_i = data_trends$smoothed_trends %>% 
               filter(year >= 1990 & year <= 2022) %>% 
@@ -266,6 +294,8 @@ plot_trends(category_i = "Macroalgae",
                      limits = c(NA, NA))
 
 ggsave(filename = "figs/01_part-1/fig-13_c.png", height = 4, width = 6, dpi = fig_resolution)  
+
+#### 5.1.2.4 Turf algae ----
 
 plot_trends(category_i = "Turf algae",
             data_trends_i = data_trends$smoothed_trends %>% 
@@ -320,11 +350,11 @@ ggsave(filename = "figs/01_part-1/fig-14_c.png", height = 4, width = 6, dpi = fi
 
 if(FALSE){
   
-  A <- data_trends$raw_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Macroalgae") %>%
+  A <- data_trends$smoothed_trends %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Pocilloporidae") %>%
     select("year", "mean", "lower_ci_80", "upper_ci_80")
   
-  A <- data_trends$raw_trends %>%
+  A <- data_trends$smoothed_trends %>%
     filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Macroalgae") %>%
     select("mean", "lower_ci_80", "upper_ci_80") %>% 
     summarise(across(c("mean", "lower_ci_80", "upper_ci_80"), ~mean(.x)))
