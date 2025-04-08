@@ -146,7 +146,8 @@ data_sst_pacific <- data_sst_pacific %>%
   ungroup() %>% 
   left_join(data_sst_pacific, .) %>% 
   mutate(date_num = as.numeric(as_date(date)),
-         sst_anom_mean_linear = slope*date_num+intercept)
+         sst_anom_mean_linear = slope*date_num+intercept,
+         date = as.Date(date))
 
 ## 6.2 Make the plot ----
 
@@ -168,6 +169,24 @@ plot_anom_trend <- ggplot(data = data_sst_pacific) +
 ## 6.3 Save the plot ----
 
 ggsave("figs/01_part-1/fig-6b.png", plot = plot_anom_trend, height = 4, width = 5, dpi = fig_resolution)
+
+## 6.4 Annotated plot for the Executive Summary ----
+
+plot_anom_trend + 
+  labs(title = "Sea Surface Temperature (SST) anomaly on coral reefs<br>of the Pacific from 1985 to 2023",
+       subtitle = paste0("The <b><span style = 'color: ",
+                         palette_first[3],
+                         "'>blue areas</span></b> correspond to periods when SST were lower<br>than the <b>average</b>",
+                         " (corrected for trend), while the <b><span style = 'color: ",
+                         palette_second[3],
+                         "'>pink areas</span></b><br>correspond to periods when they were higher")) + 
+  annotate("segment", x = as.Date("1998-01-01"), xend = as.Date("1998-01-01"), y = 0, yend = 0.2, linewidth = 0.75) +
+  annotate("point", x = as.Date("1998-01-01"), y = 0, size = 2) +
+  annotate("text", x = as.Date("1998-01-01"), y = 0.3, label = "1998\nbleaching event", family = font_choose_graph) +
+  theme(plot.title = element_markdown(size = 16, face = "bold"),
+        plot.subtitle = element_markdown(size = 11))
+
+ggsave("figs/00_misc/exe-summ_2.png", height = 5, width = 7.5, dpi = fig_resolution)
 
 # 7. Combine the two SST anomaly plots ----
 

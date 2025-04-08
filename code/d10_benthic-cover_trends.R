@@ -249,11 +249,13 @@ plot_hard_coral <- plot_trends(category_i = "Hard coral",
 
 ggsave(filename = "figs/01_part-1/fig-13_a.png", plot = plot_hard_coral, height = 4, width = 6, dpi = fig_resolution)  
 
+# Figure for the Executive Summary
+
 plot_hard_coral + 
   labs(title = paste0("Changes in <span style = 'color: ",
                       palette_second[2],
                       "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
-       x = "Year", y = "Benthic cover (%)") + 
+       x = "Year", y = "Hard coral cover (%)") + 
   # 1998 bleaching event
   annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
   annotate("point", x = 2000, y = 27, size = 1) +
