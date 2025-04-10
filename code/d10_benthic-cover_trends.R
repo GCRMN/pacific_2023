@@ -251,27 +251,38 @@ ggsave(filename = "figs/01_part-1/fig-13_a.png", plot = plot_hard_coral, height 
 
 # Figure for the Executive Summary
 
-plot_hard_coral + 
-  labs(title = paste0("Changes in <span style = 'color: ",
-                      palette_second[2],
-                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
-       x = "Year", y = "Hard coral cover (%)") + 
+data_trends$smoothed_trends %>% 
+  filter(category == "Hard coral" & year >= 1990 & year <= 2022 & territory == "All") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.35) +
+  #geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
   # 1998 bleaching event
   annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
-  annotate("point", x = 2000, y = 27, size = 1) +
+  annotate("point", x = 2000, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
   geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.7 %"),
                aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
                box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
   # 2014-2017 bleaching event
   annotate("segment", x = 2016.5, xend = 2016.5, y = 27, yend = 29.75, linewidth = 0.45) +
-  annotate("point", x = 2016.5, y = 27, size = 1) +
-  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014-2017</b><br>bleaching event<br>- 4.2 %"),
+  annotate("point", x = 2016.5, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
+  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014 - 2017</b><br>bleaching events<br>- 4.2 %"),
                aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
                box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
-  theme(plot.title = element_markdown(size = 16, face = "bold")) + 
-  scale_y_continuous(limits = c(NA, 33))
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  scale_y_continuous(limits = c(NA, 33)) +
+  labs(title = paste0("Changes in <span style = 'color: ",
+                      palette_second[2],
+                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
+       x = "Year", y = "Hard coral cover (%)",
+       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,
+       the ribbon<br>represent the confidence interval of 95%</span>") + 
+  theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
+        plot.subtitle = element_markdown(size = 12))
 
-ggsave("figs/00_misc/exe-summ_1.png", height = 5, width = 7, dpi = fig_resolution)
+ggsave("figs/00_misc/exe-summ_1.png", height = 5.3, width = 7.2, dpi = fig_resolution)
 
 #### 5.1.2.2 Coralline algae ----
 
