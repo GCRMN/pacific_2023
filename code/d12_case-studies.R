@@ -435,3 +435,27 @@ ggsave("figs/02_part-2/case-studies/hawaii_2.png", bg = "transparent", height = 
 ## 7.3 Remove useless objects ----
 
 rm(data_hawaii, data_2015, data_2020)
+
+# 8. Case study for the 4 GBE ----
+
+read_xlsx("data/13_case-studies/data_crw.xlsx") %>% 
+  mutate(dhw_4_to_8 = dhw_4_to_8 - dhw_8_to_12 - dhw_12_more,
+         dhw_8_to_12 = dhw_8_to_12 - dhw_12_more) %>% 
+  pivot_longer(2:ncol(.), names_to = "dhw", values_to = "value") %>% 
+  mutate(dhw = as.factor(dhw),
+         dhw = fct_relevel(dhw, "dhw_4_to_8", "dhw_8_to_12", "dhw_12_more")) %>% 
+  ggplot(data = ., aes(x = year, y = value, fill = dhw)) +
+  geom_bar(stat = "identity") +
+  theme_graph() +
+  lims(y = c(0, 60)) +
+  scale_fill_manual(breaks = c("dhw_4_to_8", "dhw_8_to_12", "dhw_12_more"),
+                    labels = c("4 ≥ DHW < 8", "8 ≥ DHW < 12", "DHW ≥ 12"),
+                    values = c("#7393C9", "#ce6693", "#f8a07e"),
+                    name = "Maximum Degree<br>Heating Weeks (DHW)") +
+  labs(x = "Year", y = "Proportion of reef pixels") +
+  theme(legend.title = element_markdown(),
+        legend.direction = "vertical",
+        legend.position = c(0.31, 0.725),
+        legend.background = element_rect("white"))
+
+ggsave("figs/02_part-2/case-studies/crw_1.png", bg = "transparent", height = 5, width = 8)
