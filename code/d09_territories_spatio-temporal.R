@@ -64,6 +64,11 @@ rm(list_shp)
 
 load("data/09_misc/data-benthic.RData")
 
+data_benthic <- data_benthic %>% 
+  # Remove incorrect sites
+  filter(!(territory == "Cook Islands" & locality == "ORT04" & year == 2018)) %>% 
+  filter(!(territory == "Cook Islands" & locality == "Keia Ra. (RO)" & year == 2018))
+
 data_benthic_sites <- data_benthic %>% 
   select(decimalLatitude, decimalLongitude, year, territory) %>% 
   distinct() %>% 

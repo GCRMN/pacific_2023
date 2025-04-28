@@ -254,9 +254,9 @@ ggsave(filename = "figs/01_part-1/fig-13_a.png", plot = plot_hard_coral, height 
 data_trends$smoothed_trends %>% 
   filter(category == "Hard coral" & year >= 1990 & year <= 2022 & territory == "All") %>% 
   ggplot(data = .) +
-  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.35) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = palette_first[2]), alpha = 0.35) +
   #geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
-  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  geom_line(aes(x = year, y = mean, color = palette_first[2]), linewidth = 1) +
   # 1998 bleaching event
   annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
   annotate("point", x = 2000, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
@@ -274,7 +274,7 @@ data_trends$smoothed_trends %>%
   scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
   scale_y_continuous(limits = c(NA, 33)) +
   labs(title = paste0("Changes in <span style = 'color: ",
-                      palette_second[2],
+                      palette_first[2],
                       "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
        x = "Year", y = "Hard coral cover (%)",
        subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,

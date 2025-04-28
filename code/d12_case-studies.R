@@ -438,6 +438,13 @@ rm(data_hawaii, data_2015, data_2020)
 
 # 8. Case study for the 4 GBE ----
 
+#Raw data extracted from original figure using digitize package
+#library(digitize)
+#cal = ReadAndCal('Image1.png')
+#data.points = DigitData(col = 'red')
+#df = Calibrate(data.points, cal, 1985, 2023, 0, 60)
+#write.csv2(df, "points_12dhw.csv")
+
 read_xlsx("data/13_case-studies/data_crw.xlsx") %>% 
   mutate(dhw_4_to_8 = dhw_4_to_8 - dhw_8_to_12 - dhw_12_more,
          dhw_8_to_12 = dhw_8_to_12 - dhw_12_more) %>% 

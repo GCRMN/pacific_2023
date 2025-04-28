@@ -266,4 +266,4 @@ plot_a + plot_spacer() + plot_b
 
 ## 5.5 Export the plot ----
 
-ggsave("figs/03_methods/fig-3.png", height = 5, width = 8, dpi = fig_resolution)
+ggsave("figs/03_methods/fig-5.png", height = 5, width = 8, dpi = fig_resolution)
