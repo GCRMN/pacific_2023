@@ -168,7 +168,8 @@ map_territory <- function(territory_i){
       labs(title = "Gilbert Islands")
     
     plot_b <- base_map(territory_i = "Phoenix Group", legend_x = NA, legend_y = 0.8, scalebar_pos = "tr") +
-      labs(title = "Phoenix Group")
+      labs(title = "Phoenix Group") +
+      scale_x_continuous(breaks = c(-175, -173, -171))
     
     plot_c <- base_map(territory_i = "Line Group", legend_x = 0.75, legend_y = 0.8, scalebar_pos = "bl") +
       coord_sf(label_axes = "-NE-") +
@@ -182,15 +183,16 @@ map_territory <- function(territory_i){
   }else if(territory_i == "PRIA"){
     
     plot_a <- base_map(territory_i = "Palmyra Atoll", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
-      labs(title = "Palmyra Atoll")
+      labs(title = "Palmyra Atoll") +
+      scale_x_continuous(breaks = c(-163, -161.5))
     
     plot_b <- base_map(territory_i = "Johnston Atoll", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
       labs(title = "Johnston Atoll") +
-      scale_x_continuous(breaks = c(-170.2, -169.8, -169.4, -169))
+      scale_x_continuous(breaks = c(-170.2, -169))
     
     plot_c <- base_map(territory_i = "Jarvis Island", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
       labs(title = "Jarvis Island") +
-      scale_x_continuous(breaks = c(-160.6, -160.2, -159.8, -159.4))
+      scale_x_continuous(breaks = c(-160.6, -159.4))
     
     plot_d <- base_map(territory_i = "Howland and Baker Islands", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
       labs(title = "Howland and Baker Islands") +
@@ -198,7 +200,7 @@ map_territory <- function(territory_i){
       coord_sf(xlim = c(-177, -176), ylim = c(0, 1))
     
     plot_e <- base_map(territory_i = "Wake Island", legend_x = 0.5, legend_y = 0.8, scalebar_pos = "bl") +
-      scale_x_continuous(breaks = c(166, 166.4, 166.8, 167.2)) +
+      scale_x_continuous(breaks = c(166, 167.2)) +
       labs(title = "Wake Island")
 
     plot_i <- plot_a + plot_b + plot_c + plot_d + plot_e + guide_area() + plot_layout(guides = "collect", ncol = 3)
@@ -283,7 +285,7 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "Northern Mariana Islands"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.25, legend_y = 0.5, scalebar_pos = "br") +
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.25, legend_y = 0.65, scalebar_pos = "br") +
       scale_x_continuous(breaks = c(144, 145, 146, 147)) +
       scale_y_continuous(breaks = c(13, 14, 15, 16, 17, 18, 19, 20, 21)) +
       coord_sf(xlim = c(143.8, 147), y = c(13.5, 21))
@@ -300,9 +302,9 @@ map_territory <- function(territory_i){
     
   }else if(territory_i == "Tonga"){
     
-    plot_i <- base_map(territory_i = territory_i, legend_x = 0.2, legend_y = 0.6, scalebar_pos = "br") +
+    plot_i <- base_map(territory_i = territory_i, legend_x = 0.2, legend_y = 0.55, scalebar_pos = "br") +
       scale_x_continuous(breaks = c(-179, -177, -175, -173)) +
-      coord_sf(xlim = c(-178, -172), ylim = c(-24, -14))
+      coord_sf(xlim = c(-179, -172), ylim = c(-24, -14))
     
     ggsave(filename = paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(territory_i), " ", "-"), ".png"),
            plot = plot_i, height = 6, width = 5, dpi = fig_resolution)

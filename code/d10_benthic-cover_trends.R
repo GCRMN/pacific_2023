@@ -260,13 +260,13 @@ data_trends$smoothed_trends %>%
   # 1998 bleaching event
   annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
   annotate("point", x = 2000, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
-  geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.7 %"),
+  geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.4%"),
                aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
                box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
   # 2014-2017 bleaching event
   annotate("segment", x = 2016.5, xend = 2016.5, y = 27, yend = 29.75, linewidth = 0.45) +
   annotate("point", x = 2016.5, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
-  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014 - 2017</b><br>bleaching events<br>- 4.2 %"),
+  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014 - 2017</b><br>bleaching events<br>- 3.7%"),
                aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
                box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
   scale_fill_identity() +
@@ -364,11 +364,11 @@ ggsave(filename = "figs/01_part-1/fig-14_c.png", height = 4, width = 6, dpi = fi
 if(FALSE){
   
   A <- data_trends$smoothed_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Pocilloporidae") %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Hard coral") %>%
     select("year", "mean", "lower_ci_80", "upper_ci_80")
   
   A <- data_trends$smoothed_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Macroalgae") %>%
+    filter(year >= 2009 & year <= 2012 & territory == "All" & category == "Hard coral") %>%
     select("mean", "lower_ci_80", "upper_ci_80") %>% 
     summarise(across(c("mean", "lower_ci_80", "upper_ci_80"), ~mean(.x)))
   
