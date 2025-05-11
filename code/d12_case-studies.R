@@ -4,6 +4,7 @@ library(tidyverse)
 library(readxl)
 library(sf)
 library(patchwork)
+library(ggtext)
 
 # 2. Source functions ----
 
@@ -157,7 +158,9 @@ ggplot(data = data_guam, aes(x = reply, y = perc, fill = value, label = perc_lab
   scale_x_discrete(limits = rev) +
   labs(x = NULL, y = "Percentage of respondents", fill = "Frequency") +
   theme_graph() +
-  theme(legend.position = "right",
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.position = "right",
         legend.direction = "vertical")
 
 ggsave("figs/02_part-2/case-studies/guam_2.png", width = 10, height = 4, bg = "transparent")
@@ -249,7 +252,9 @@ ggplot(data = data_yap, aes(x = question, y = perc, fill = value, label = perc_l
   scale_x_discrete(limits = rev) +
   labs(x = NULL, y = "Percentage of respondents", fill = "Perceived\ncondition") +
   theme_graph() +
-  theme(legend.position = "right",
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.position = "right",
         legend.direction = "vertical")
 
 ggsave("figs/02_part-2/case-studies/federated-states-of-micronesia_2.png",
@@ -346,8 +351,10 @@ ggplot(data = data_amsamoa, aes(x = year, y = freq, fill = reply, label = freq_l
                     values = c("#ce6693", "#f8a07e", "#B2BBCC", "#7393C9", "#2C5D96", "#efeff0")) +
   labs(x = NULL, y = "Percentage of respondents", fill = "Perceived\ncondition") +
   theme_graph() +
-  theme(legend.position = "right",
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.position = "right",
         legend.direction = "vertical",
+        legend.background = element_rect(fill = "transparent", color = "transparent"),
         strip.text = element_text(hjust = 0, face = "bold"),
         strip.background = element_rect(fill = NA, color = NA))
 
@@ -425,8 +432,10 @@ ggplot(data = data_hawaii, aes(x = year, y = freq, fill = reply, label = freq_la
                     values = c("#ce6693", "#f8a07e", "#B2BBCC", "#7393C9", "#2C5D96", "#efeff0")) +
   labs(x = NULL, y = "Percentage of respondents", fill = "Perceived\ncondition") +
   theme_graph() +
-  theme(legend.position = "right",
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.position = "right",
         legend.direction = "vertical",
+        legend.background = element_rect(fill = "transparent", color = "transparent"),
         strip.text = element_text(hjust = 0, face = "bold"),
         strip.background = element_rect(fill = NA, color = NA))
 
@@ -460,9 +469,11 @@ read_xlsx("data/13_case-studies/data_crw.xlsx") %>%
                     values = c("#7393C9", "#ce6693", "#f8a07e"),
                     name = "Maximum Degree<br>Heating Weeks (DHW)") +
   labs(x = "Year", y = "Proportion of reef pixels") +
-  theme(legend.title = element_markdown(),
+  theme(plot.background = element_rect(fill = "transparent", color = "transparent"),
+        legend.title = element_markdown(),
         legend.direction = "vertical",
-        legend.position = c(0.31, 0.725),
-        legend.background = element_rect("white"))
+        legend.position = "inside",
+        legend.position.inside = c(0.31, 0.725),
+        legend.background = element_rect(fill = "transparent", color = "transparent"))
 
 ggsave("figs/02_part-2/case-studies/crw_1.png", bg = "transparent", height = 5, width = 8)
