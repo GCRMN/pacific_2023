@@ -249,41 +249,6 @@ plot_hard_coral <- plot_trends(category_i = "Hard coral",
 
 ggsave(filename = "figs/01_part-1/fig-13_a.png", plot = plot_hard_coral, height = 4, width = 6, dpi = fig_resolution)  
 
-# Figure for the Executive Summary
-
-data_trends$smoothed_trends %>% 
-  filter(category == "Hard coral" & year >= 1990 & year <= 2022 & territory == "All") %>% 
-  ggplot(data = .) +
-  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = palette_first[2]), alpha = 0.35) +
-  #geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
-  geom_line(aes(x = year, y = mean, color = palette_first[2]), linewidth = 1) +
-  # 1998 bleaching event
-  annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
-  annotate("point", x = 2000, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
-  geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.4%"),
-               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
-               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
-  # 2014-2017 bleaching event
-  annotate("segment", x = 2016.5, xend = 2016.5, y = 27, yend = 29.75, linewidth = 0.45) +
-  annotate("point", x = 2016.5, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
-  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014 - 2017</b><br>bleaching events<br>- 3.7%"),
-               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
-               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
-  scale_fill_identity() +
-  scale_color_identity() +
-  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
-  scale_y_continuous(limits = c(NA, 33)) +
-  labs(title = paste0("Changes in <span style = 'color: ",
-                      palette_first[2],
-                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
-       x = "Year", y = "Hard coral cover (%)",
-       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,
-       the ribbon<br>represent the confidence interval of 95%</span>") + 
-  theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
-        plot.subtitle = element_markdown(size = 12))
-
-ggsave("figs/00_misc/exe-summ_1.png", height = 5.3, width = 7.2, dpi = fig_resolution)
-
 #### 5.1.2.2 Coralline algae ----
 
 plot_trends(category_i = "Coralline algae",
@@ -364,105 +329,86 @@ ggsave(filename = "figs/01_part-1/fig-14_c.png", height = 4, width = 6, dpi = fi
 if(FALSE){
   
   A <- data_trends$smoothed_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Hard coral") %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Pocilloporidae") %>%
     select("year", "mean", "lower_ci_80", "upper_ci_80")
   
   A <- data_trends$smoothed_trends %>%
-    filter(year >= 2009 & year <= 2012 & territory == "All" & category == "Hard coral") %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Pocilloporidae") %>%
     select("mean", "lower_ci_80", "upper_ci_80") %>% 
     summarise(across(c("mean", "lower_ci_80", "upper_ci_80"), ~mean(.x)))
   
 }
 
-## 5.4 Figure for Executive Summary ----
+# 6. Figures for the Executive Summary ----
 
-data_ex_summ <- data_trends$raw_trends %>% 
-  filter(territory == "All" & !(category %in% c("Acroporidae", "Pocilloporidae", "Poritidae")))
+## 6.1 Hard coral cover ----
 
-data_ex_summ <- data_ex_summ %>% 
-  group_by(year) %>% 
-  summarise(mean = sum(mean)) %>% 
-  ungroup() %>% 
-  # Generate the others category (difference between 100 and sum of all categories)
-  mutate(mean = 100 - mean, 
-         category = "Others",
-         color = "lightgrey") %>% 
-  bind_rows(data_ex_summ, .)
+data_trends$smoothed_trends %>% 
+  filter(category == "Hard coral" & year >= 1990 & year <= 2022 & territory == "All") %>% 
+  ggplot(data = .) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = palette_first[2]), alpha = 0.35) +
+  #geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = palette_first[2]), linewidth = 1) +
+  # 1998 bleaching event
+  annotate("segment", x = 2000, xend = 2000, y = 27, yend = 29.75, linewidth = 0.45) +
+  annotate("point", x = 2000, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
+  geom_textbox(data = tibble(x = 2000, y = 31, label = "<b>1998</b><br>bleaching event<br>- 2.4%"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  # 2014-2017 bleaching event
+  annotate("segment", x = 2016.5, xend = 2016.5, y = 27, yend = 29.75, linewidth = 0.45) +
+  annotate("point", x = 2016.5, y = 27, size = 2, shape = 21, fill = "white", color = "black") +
+  geom_textbox(data = tibble(x = 2016.5, y = 31, label = "<b>2014 - 2017</b><br>bleaching events<br>- 3.7%"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  scale_y_continuous(limits = c(NA, 33)) +
+  labs(title = paste0("Changes in <span style = 'color: ",
+                      palette_first[2],
+                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
+       x = "Year", y = "Hard coral cover (%)",
+       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,
+       the ribbon<br>represent the confidence interval of 95%</span>") + 
+  theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
+        plot.subtitle = element_markdown(size = 12))
 
-ggplot(data = data_ex_summ, aes(x = year, y = mean, fill = category)) +
-  geom_area() +
-  scale_fill_manual(values = unique(data_ex_summ$color)) +
-  theme_graph() +
-  labs(x = "Year", y = "Benthic cover (%)")
+ggsave("figs/00_misc/exe-summ_1.png", height = 5.3, width = 7.2, dpi = fig_resolution)
 
-ggsave("figs/00_misc/benthic-trends.png", width = 6, height = 4, dpi = fig_resolution)
+## 6.2 Algae cover ----
 
-# 6. Map of predicted values across the region ----
+data_trends$smoothed_trends %>% 
+  filter(category %in% c("Coralline algae", "Macroalgae", "Turf algae") & 
+           year >= 1990 & year <= 2022 & territory == "All") %>% 
+  mutate(color = case_when(category == "Coralline algae" ~ "#f1828d",
+                           category == "Macroalgae" ~ "#16a085",
+                           category == "Turf algae" ~ "#91b496")) %>% 
+  ggplot(data = .) +
+  #geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.35) +
+  geom_line(aes(x = year, y = mean, group = category, color = color), linewidth = 1) +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  scale_y_continuous(limits = c(7, 16)) +
+  labs(title = paste0("Changes in 
+                      <span style = 'color: ", "#f1828d", "'>coralline algae</span>", ",
+                      <span style = 'color: ", "#16a085", "'>macroalgae</span>", ",
+                      and <span style = 'color: ", "#91b496", "'>turf <br>algae</span> cover", ",
+                      in the Pacific between 1990 and 2022"),
+       x = "Year", y = "Benthic cover (%)",
+       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,<br>
+       confidence intervals are not represented") + 
+  scale_fill_identity() +
+  scale_color_identity() +
+  theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
+        plot.subtitle = element_markdown(size = 12)) +
+  geom_textbox(data = tibble(x = 2015, y = 9.5, label = "<b>Macroalgae</b>"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent", color = "#16a085",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  geom_textbox(data = tibble(x = 2003.5, y = 12.5, label = "<b>Coralline algae</b>"),
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent", color = "#f1828d",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph) +
+  geom_textbox(data = tibble(x = 1995, y = 15.5, label = "<b>Turf algae</b>"), color = "#91b496",
+               aes(x = x, y = y, label = label), hjust = 0.5, fill = "transparent",
+               box.colour = "transparent", halign = 0.5, size = 3.5, family = font_choose_graph)
 
-## 6.1 Load data ----
-
-crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-
-correction_offset <- 180 - 160 # Here 160 is the same value than +lon_0 from crs_selected
-
-correction_polygon <- st_polygon(x = list(rbind(c(-0.0001 - correction_offset, 90),
-                                                c(0 - correction_offset, 90),
-                                                c(0 - correction_offset, -90),
-                                                c(-0.0001 - correction_offset, -90),
-                                                c(-0.0001 - correction_offset, 90)))) %>%
-  st_sfc() %>%
-  st_set_crs(4326)
-
-### 6.1.1 Predictions per site and year ----
-
-data_predicted <- model_results$results_predicted %>% 
-  # Remove NA (due to not exported results, to save memory)
-  drop_na(year) %>% 
-  # Create time period
-  mutate(time_period = case_when(year %in% seq(1980, 1989) ~ "1980-1989",
-                                 year %in% seq(1990, 1999) ~ "1990-1999",
-                                 year %in% seq(1999, 2009) ~ "2000-2009",
-                                 year %in% seq(2010, 2019) ~ "2010-2019",
-                                 year %in% seq(2020, 2024) ~ "2020-2024")) %>% 
-  # Average per time period and category
-  group_by(time_period, decimalLatitude, decimalLongitude, category) %>% 
-  summarise(measurementValuepred = mean(measurementValuepred)) %>% 
-  ungroup() %>% 
-  # Convert to sf
-  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
-  st_transform(crs = crs_selected)
-
-### 6.1.2 Crop of the region ----
-
-data_crop <- tibble(lat = c(-4000000, 4000000),
-                    lon = c(-3500000, 11000000)) %>% 
-  st_as_sf(coords = c("lon", "lat"), crs = crs_selected) %>% 
-  st_bbox() %>% 
-  st_as_sfc()
-
-### 6.1.3 Background map ----
-
-data_map <- read_sf("data/01_background-shp/01_ne/ne_10m_land/ne_10m_land.shp") %>% 
-  st_transform(crs = 4326) %>% 
-  st_difference(correction_polygon) %>% 
-  st_transform(crs_selected)
-
-### 6.1.4 Create the grid ----
-
-data_grid <- st_make_grid(data_crop, n = 150, crs = crs_selected) %>% 
-  st_as_sf() %>% 
-  mutate(cell_id = 1:nrow(.))
-
-## 6.2 Summarize sites values per grid cell ----
-
-data_predicted <- st_join(data_predicted, data_grid) %>% 
-  group_by(time_period, category, cell_id) %>% 
-  summarise(cover_pred = mean(measurementValuepred)) %>% 
-  ungroup() %>% 
-  st_drop_geometry() %>% 
-  left_join(., data_grid) %>% 
-  st_as_sf()
-
-## 6.3 Make over the function ----
-
-map(unique(data_predicted$category), ~plot_prediction_map(category_i = .x))
+ggsave("figs/00_misc/exe-summ_2.png", height = 5.3, width = 7.2, dpi = fig_resolution)
