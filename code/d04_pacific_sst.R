@@ -284,3 +284,31 @@ map_ssta_plot <- function(group_i){
 ## 9.5 Map over the function ----
 
 map(unique(data_files$group), ~map_ssta_plot(group_i = .))
+
+# 10. Figure for the Executive Summary ----
+
+load("data/09_misc/data-sst_processed.RData")
+
+data_sst <- data_sst %>% 
+  filter(TERRITORY1 == "Entire Pacific region") %>% 
+  mutate(year = year(date)) %>% 
+  group_by(year) %>% 
+  summarise(sst_anom = mean(sst_anom)) %>% 
+  ungroup() %>% 
+  mutate(color = case_when(sst_anom < 0 ~ "#2c82c9",
+                           sst_anom > 0 ~ "#d64541"))
+
+ggplot(data = data_sst) +
+  geom_bar(aes(x = year, y = sst_anom, fill = color), stat = "identity") +
+  #geom_smooth(aes(x = year, y = sst_anom), method = "lm", se = FALSE, color = "black") +
+  scale_fill_identity() +
+  geom_hline(yintercept = 0) +
+  theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
+        plot.subtitle = element_markdown(size = 12)) +
+  labs(title = paste0("Changes in Sea Surface Temperature (SST) anomaly<br>on coral reefs of the Pacific between 1985 and 2023"),
+       x = "Year", y = "SST anomaly (°C)",
+       subtitle = paste0("Bars represented in <span style = 'color: ", "#2c82c9", "'>blue</span> and in <span style = 'color: ", "#d64541", "'>red</span>
+       are years where the SST anomalies<br>were <span style = 'color: ", "#2c82c9", "'>lower</span> and <span style = 'color: ", "#d64541", "'>higher</span>
+                         than the <b>long-term average</b>, respectively"))
+
+ggsave("figs/00_misc/exe-summ_3.png", height = 5.3, width = 7.2, dpi = fig_resolution)
