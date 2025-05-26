@@ -329,7 +329,7 @@ ggsave(filename = "figs/01_part-1/fig-14_c.png", height = 4, width = 6, dpi = fi
 if(FALSE){
   
   A <- data_trends$smoothed_trends %>%
-    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Pocilloporidae") %>%
+    filter(year >= 1990 & year <= 2022 & territory == "All" & category == "Coralline algae") %>%
     select("year", "mean", "lower_ci_80", "upper_ci_80")
   
   A <- data_trends$smoothed_trends %>%
@@ -365,12 +365,12 @@ data_trends$smoothed_trends %>%
   scale_color_identity() +
   scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
   scale_y_continuous(limits = c(NA, 33)) +
-  labs(title = paste0("Changes in <span style = 'color: ",
+  labs(title = paste0("Modeled changes in <span style = 'color: ",
                       palette_first[2],
-                      "'>hard coral cover</span> in the Pacific<br>between 1990 and 2022"),
+                      "'>hard coral cover</span> in the<br>Pacific between 1990 and 2022"),
        x = "Year", y = "Hard coral cover (%)",
-       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,
-       the ribbon<br>represent the confidence interval of 95%</span>") + 
+       subtitle = "<br><span style = 'color: #24252a'>The bold line represents the average,
+       the ribbon<br>represents the confidence interval of 95%</span>") + 
   theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
         plot.subtitle = element_markdown(size = 12))
 
@@ -389,13 +389,13 @@ data_trends$smoothed_trends %>%
   geom_line(aes(x = year, y = mean, group = category, color = color), linewidth = 1) +
   scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
   scale_y_continuous(limits = c(7, 16)) +
-  labs(title = paste0("Changes in 
+  labs(title = paste0("Modeled changes in 
                       <span style = 'color: ", "#f1828d", "'>coralline algae</span>", ",
                       <span style = 'color: ", "#16a085", "'>macroalgae</span>", ",
-                      and <span style = 'color: ", "#91b496", "'>turf <br>algae</span> cover", ",
+                      and <span style = 'color: ", "#91b496", "'><br>turf algae</span> cover", ",
                       in the Pacific between 1990 and 2022"),
        x = "Year", y = "Benthic cover (%)",
-       subtitle = "<br><span style = 'color: #24252a'>The bold line represent the average,<br>
+       subtitle = "<br><span style = 'color: #24252a'>The bold lines represents the average,<br>
        confidence intervals are not represented") + 
   scale_fill_identity() +
   scale_color_identity() +

@@ -307,7 +307,7 @@ ggplot(data = data_sst) +
         plot.subtitle = element_markdown(size = 12)) +
   labs(title = paste0("Changes in Sea Surface Temperature (SST) anomaly<br>on coral reefs of the Pacific between 1985 and 2023"),
        x = "Year", y = "SST anomaly (°C)",
-       subtitle = paste0("Bars represented in <span style = 'color: ", "#2c82c9", "'>blue</span> and in <span style = 'color: ", "#d64541", "'>red</span>
+       subtitle = paste0("<br>Bars represented in <span style = 'color: ", "#2c82c9", "'>blue</span> and in <span style = 'color: ", "#d64541", "'>red</span>
        are years where the SST anomalies<br>were <span style = 'color: ", "#2c82c9", "'>lower</span> and <span style = 'color: ", "#d64541", "'>higher</span>
                          than the <b>long-term average</b>, respectively"))
 
