@@ -13,12 +13,16 @@ knitr::opts_chunk$set(
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-# **Status and Trends of Coral Reefs of the Pacific**
+# **Status and Trends of Coral Reefs of the Pacific: 1980-2023**
 
 
-## 1. Introduction <img src='misc/2025-05-26_report-page-cover.jpg' align="right" height="200" />
+## 1. Introduction [<img src='misc/2025-05-26_report-page-cover.jpg' align="right" height="300" />](https://gcrmn.net/pacific-report-2025-v1/)
 
-https://gcrmn.net/pacific-report-2025-v1/
+Coral reefs of the Anthropocene are increasingly threatened by a range of human-induced stressors from anthropogenic local drivers of loss including overfishing, pollution, and coastal development, to regional stressors such as climate change and ocean acidification. The cumulative impacts of these stressors have significantly altered the structure, function, and composition of coral reef ecosystems worldwide. One of the most documented consequences is the sustained decline in hard coral cover exacerbated by mass bleaching events driven by anomalously high sea surface temperatures such as those recorded in 1998, 2010, and 2014-2017, and most recently during the Fourth Global Mass Bleaching Event. Beyond these ecological changes, coral reef degradation undermines the ability of these ecosystems to provide vital services to human populations including coastal protection, food security through fisheries, and income from tourism.
+
+Established in 1995 as an operational network of the International Coral Reef Initiative (ICRI), the Global Coral Reef Monitoring Network (GCRMN) plays a central role in global coral reef monitoring efforts. Working through ten regional nodes - including the Pacific - the GCRMN produces regular syntheses of the status and trends of coral reefs based on harmonized scientific data. The network’s mission is to improve understanding of reef health, support evidence-based policy and management, and build the technical and human capacity for reef monitoring at local, national, and regional levels. The GCRMN’s global and regional reports are designed for policymakers, managers, researchers, and international organizations to guide conservation strategies and help countries meet their national and international biodiversity commitments. In combining science, capacity building, and policy relevance, the GCRMN is a cornerstone of efforts to safeguard coral reefs in an era of accelerating environmental change. Since its establishment, the GCRMN has published six global reports. Alongside these global assessments, the GCRMN has produced numerous regional and thematic reports focusing on the status and trends of coral reefs in specific areas, such as the Caribbean, the Western Indian Ocean, the Pacific, and the East Asian Seas.
+
+This GitHub repository accompanies the [**_Status and Trends of Coral Reefs of the Pacific: 1980-2023_**](https://gcrmn.net/pacific-report-2025-v1/) GCRMN report, which provides a comprehensive overview of the condition and evolution of shallow-water coral reefs across the Pacific region. The report addresses key questions about changes in benthic cover (hard coral, macroalgae, turf algae, and coralline algae) and evolving threats to reef ecosystems over the last four decades. It includes analyses of major coral families (Acroporidae, Pocilloporidae, Poritidae), as well as environmental stressors such as human population pressure, thermal stress (SST trends and anomalies), and cyclone activity. Structured in two main parts — a regional synthesis and individual country and territory chapters — it combines biophysical monitoring data with local insights, including case studies and socioeconomic perspectives where available. This GitHub repository provides the code used to produce the results of the report.
 
 ## 2. Code
 
