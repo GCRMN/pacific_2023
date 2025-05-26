@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-# **Status and Trends of Coral Reefs of the Pacific** <img src='misc/2025-05-26_report-page-cover.jpg' align="right" height="138.5" />
+# **Status and Trends of Coral Reefs of the Pacific**
 
 
-## 1. Introduction
+## 1. Introduction <img src='misc/2025-05-26_report-page-cover.jpg' align="right" height="200" />
 
 https://gcrmn.net/pacific-report-2025-v1/
 
