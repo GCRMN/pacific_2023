@@ -339,6 +339,37 @@ if(FALSE){
   
 }
 
+## 5.4 Plots for PPT ----
+
+
+
+data_ppt <- data_trends$smoothed_trends %>% 
+  filter(year >= 1990 & year <= 2022) %>% 
+  filter(category == "Hard coral") %>% 
+  filter(territory %in% c("Niue", "Palau", "New Caledonia")) %>% 
+  mutate(color = case_when(territory == "Palau" ~ "#156082",
+                           territory == "New Caledonia" ~ "#A6A6A6",
+                           territory == "Niue" ~ "#D64541"),
+         territory = as.factor(territory),
+         territory = fct_relevel(territory, "Palau", "New Caledonia", "Niue"))
+
+
+ggplot(data = data_ppt) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  facet_wrap(~territory) +
+  labs(x = NULL, y = "Cover (%)") +
+  theme(plot.title = element_markdown(),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 16, face = "bold"),
+        panel.spacing = unit(2, "lines"))
+
+ggsave(filename = "figs/00_misc/ppt_trajectories.png", height = 4, width = 10, dpi = fig_resolution)
+
 # 6. Figures for the Executive Summary ----
 
 ## 6.1 Hard coral cover ----
