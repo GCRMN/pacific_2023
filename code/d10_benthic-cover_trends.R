@@ -341,7 +341,60 @@ if(FALSE){
 
 ## 5.4 Plots for PPT ----
 
+### 5.4.1 ----
 
+data_ppt <- data_trends$smoothed_trends %>% 
+  filter(year >= 1990 & year <= 2022) %>% 
+  filter(category %in% c("Turf algae", "Coralline algae", "Macroalgae")) %>% 
+  filter(territory == "All") %>% 
+  mutate(color = case_when(category == "Turf algae" ~ "#89B296",
+                           category == "Macroalgae" ~ "#04A1AE",
+                           category == "Coralline algae" ~ "#F07C88"))
+
+ggplot(data = data_ppt) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  scale_y_continuous(limits = c(0, 20)) +
+  facet_wrap(~category, scales = "free") +
+  labs(x = NULL, y = "Cover (%)") +
+  theme(plot.title = element_markdown(),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 8, face = "bold"),
+        panel.spacing = unit(6, "lines"))
+
+ggsave(filename = "figs/00_misc/ppt_algae.png", height = 3.5, width = 12, dpi = fig_resolution)
+
+#####
+
+data_ppt <- data_trends$smoothed_trends %>% 
+  filter(year >= 1990 & year <= 2022) %>% 
+  filter(category %in% c("Acroporidae", "Pocilloporidae", "Poritidae")) %>% 
+  filter(territory == "All")
+
+ggplot(data = data_ppt) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
+  geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.4) +
+  geom_line(aes(x = year, y = mean, color = color), linewidth = 1) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1990, NA)) +
+  scale_y_continuous(limits = c(0, 20)) +
+  facet_wrap(~category, scales = "free") +
+  labs(x = NULL, y = "Cover (%)") +
+  theme(plot.title = element_markdown(),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 8, face = "bold"),
+        panel.spacing = unit(6, "lines"))
+
+ggsave(filename = "figs/00_misc/ppt_families.png", height = 3.5, width = 12, dpi = fig_resolution)
+
+
+
+### 5.4.2 Hard coral cover diverging trajectories ----
 
 data_ppt <- data_trends$smoothed_trends %>% 
   filter(year >= 1990 & year <= 2022) %>% 
@@ -352,7 +405,6 @@ data_ppt <- data_trends$smoothed_trends %>%
                            territory == "Niue" ~ "#D64541"),
          territory = as.factor(territory),
          territory = fct_relevel(territory, "Palau", "New Caledonia", "Niue"))
-
 
 ggplot(data = data_ppt) +
   geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.3) +
